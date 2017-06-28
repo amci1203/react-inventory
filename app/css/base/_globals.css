@@ -20,6 +20,7 @@ img {
 
 main {
     margin-left: $main-margin;
+    margin-right: 1.15rem;
 }
 
 .invisible { visibility : hidden }

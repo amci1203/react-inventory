@@ -49,6 +49,7 @@ img {
 }
 main {
     margin-left: calc(304px + 1.5rem);
+    margin-right: 1.15rem;
 }
 .invisible {
     visibility: hidden;
@@ -188,6 +189,7 @@ header .section-title {
 .icon {
     display: inline-block;
     margin: 1rem 0;
+    border-radius: 9999px;
     width: 40px;
     height: 40px;
     color: rgb(255, 255, 255);
@@ -1029,7 +1031,7 @@ table td:first-child, table th:first-child {
 }
 .sidebar__aside-buttons {
     position: fixed;
-    background: rgb(35, 70, 220);
+    background: rgb(36, 65, 194);
     z-index: 300;
     top: 0;
     left: 0;
@@ -1040,10 +1042,9 @@ table td:first-child, table th:first-child {
 .sidebar__aside-buttons .icon.icon.icon {
     width: calc(64px - 1.5rem);
     height: calc(64px - 1.5rem);
-    border-radius: 9999px;
 }
 .sidebar__aside-buttons .icon.icon.icon:hover {
-    background: rgb(36, 65, 194);
+    background: rgb(36, 55, 143);
 }
 .sidebar__aside-buttons__bottom {
     position: absolute;

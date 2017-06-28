@@ -48,8 +48,8 @@
     &__aside-buttons {
 
         position: fixed;
-        background: $sidebar-color;
-        z-index: $sidebarZ;
+        background: color($sidebar-color b(+ 10));
+        z-index  : $sidebarZ;
         top      : 0;
         left     : 0;
         height   : calc(100% - 0);
@@ -59,10 +59,9 @@
         .icon.icon.icon {
             width: calc($sidebar-buttonsW - ($sidebar-buttonsP * 2));
             height: calc($sidebar-buttonsW - ($sidebar-buttonsP * 2));
-            border-radius: 9999px;
 
             &:hover {
-                background: color($sidebar-color b(+ 10));
+                background: color($sidebar-color b(+30));
             }
         }
 
