@@ -4,13 +4,12 @@
     position : fixed;
     z-index  : $sidebarZ;
     top      : 0;
-    left     : 0;
+    left     : $sidebar-buttonsW;
     height   : calc(100% - 0);
 
     background : $sidebar-color;
     color      : $sidebar-text;
     width      : $sidebarW;
-    /*box-shadow : 3px 0 2px 1px color($darker-gray a(0.5));*/
 
     padding: 50px 0;
     margin-right: $sidebarW;
@@ -23,32 +22,20 @@
         text-align: center;
     }
 
-    form {
-        padding: 10px 0.65rem;
-        margin: 0 1rem;
-        border-radius: 15px;
-        background: color($sidebar-color b(+ 15%));
-
-        & > *:not(p) {
-            display: block;
-            margin: 15px 0;
-            padding: 5px 15px;
-            width: 100%;
-            background: color($sidebar-color b(+ 35%));
-            border: none;
-            color: $white;
-            font-size: 1.15rem;
-            margin-top: 0;
-            margin-bottom: 20px;
-            &::placeholder {
-                color: #DDD;
-                opacity: 0.8;
-            }
-        }
-
-        & > p {
-            margin: 2px 0;
-            font-size: 1.2rem;
+    input {
+        display: block;
+        margin: 15px 0;
+        padding: 5px 15px;
+        width: 90%;
+        background: color($sidebar-color b(+ 35%));
+        border: none;
+        color: $white;
+        font-size: 1.15rem;
+        margin: 0 auto;
+        margin-bottom: 20px;
+        &::placeholder {
+            color: #FFF;
+            opacity: 0.75;
         }
     }
 
@@ -61,12 +48,28 @@
     &__aside-buttons {
 
         position: fixed;
+        background: $sidebar-color;
         z-index: $sidebarZ;
         top      : 0;
-        left     : calc($sidebarW + 10px);
+        left     : 0;
         height   : calc(100% - 0);
         width    : $sidebar-buttonsW;
+        padding  : 1rem $sidebar-buttonsP;
 
+        .icon.icon.icon {
+            width: calc($sidebar-buttonsW - ($sidebar-buttonsP * 2));
+            height: calc($sidebar-buttonsW - ($sidebar-buttonsP * 2));
+            border-radius: 9999px;
+
+            &:hover {
+                background: color($sidebar-color b(+ 10));
+            }
+        }
+
+        &__bottom {
+            position: absolute;
+            bottom: 0;
+        }
     }
 
     .categories-list {

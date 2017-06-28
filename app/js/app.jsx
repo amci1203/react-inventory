@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import ReactDOM, { render } from 'react-dom';
 import axios, { get, post } from 'axios';
 
+import 'smoothscroll';
+
 
 const
     // for axios
@@ -67,14 +69,18 @@ class Sidebar extends Component {
             <section>
                 <aside className='sidebar'>
                     <h1 className="sidebar__title">HOUSEKEEPING</h1>
-                    <form action="">
-                        <p>Looking for something?</p>
-                        <input placeholder='Search...' />
-                    </form>
+                    <input placeholder='Search...' />
                     <ul className='categories-list'>{categories}</ul>
                 </aside>
                 <aside className='sidebar__aside-buttons'>
-
+                    <div className='sidebar__aside-buttons__top'>
+                        <span className='icon icon--text'>+</span>
+                        <span className='icon icon--text'>+</span>
+                        <span className='icon icon--text'>+</span>
+                    </div>
+                    <div className='sidebar__aside-buttons__bottom'>
+                        <span className='icon icon--text'>?</span>
+                    </div>
                 </aside>
             </section>
         )
@@ -122,12 +128,21 @@ function CategoryGroup (props) {
 
 function Item (props) {
     const
-        { name, inStock, lowAt } = props.item,
-        isLow = lowAt > inStock;
+        { name, inStock, lowAt, lastModified } = props.item,
+        isLow = lowAt > inStock,
+        _lastModified = lastModified ? lastModified.substring(0, 10) : '';
+
     return (
-        <article className={`item-group__item-card ${isLow ? 'low' : ''}`}>
-            <h1 className='item-group__item-card__item-name'>{name}</h1>
-            <span className='item-group__item-card__item-stock'>{inStock}</span>
+        <article className={`item-card ${isLow ? 'low' : ''}`}>
+            <h1 className='item-card__item-name'>{name}</h1>
+            <span className='item-card__item-stock'>{inStock}</span>
+            <span className='item-card__item-last-modified'>{_lastModified}</span>
+            <div className='item-card__options'>
+                <span>TEST</span>
+                <span>TEST</span>
+                <span>TEST</span>
+                <span>TEST</span>
+            </div>
         </article>
     )
 }

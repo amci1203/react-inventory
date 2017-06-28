@@ -1,8 +1,23 @@
 .item-group {
 
-
-    &__item-card {
+    &__category {
+        font-size: 2.65rem;
         font-weight: 100;
+        border-bottom: 1px solid #CCC;
+    }
+
+    .item-card {
+        position: relative;
+        font-weight: 100;
+        padding: 0.5rem 1.35rem;
+        border-radius: 15px;
+
+        transition: all 0.3s ease;
+
+        &.low {
+            background: $lowRed;
+            color: $white;
+        }
 
         @mixin atLarge {
             display: inline-block;
@@ -13,7 +28,19 @@
         &__item-name {
             font-weight: inherit;
             font-size: 1.45rem;
+            margin: 0.25rem 0;
             border-bottom: 1px solid #BBB;
+            width: 80%;
         }
+
+        &__item-stock {
+            @mixin vCenter;
+            right: 15px;
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        &__options { opacity: 0 }
+        &:hover &__options { opacity: 1 }
     }
 }

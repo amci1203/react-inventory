@@ -7,7 +7,7 @@ const
     with at least an "error" field to the client.
 */
 const
-    error = e => { error: e.toString() },
+    error = e => typeof e == 'string' ? {error: e} :{ error: e.toString() },
     reload = () => { reload: true };
 
 
@@ -48,7 +48,7 @@ function saveItem (req, res) {
     if (!req.body.item.name) {
         res.json({error: 'A name MUST be entered' })
     }
-    else Item.create(req.body.item, (err, item) => {
+    else Item.add(req.body.item, (err, item) => {
         if (err) res.status(500).json(error(err));
         res.json(item)
     })
@@ -67,36 +67,28 @@ function saveManyItems (req, res) {
     let savesCompleted = 0;
     items.forEach(item => {
         item.category  = category;
-        Item.create(item, (err) => {
-            if (err) res.json({error: err.toString});
+        Item.add(item, (err) => {
+            if (err) res.json(error(err));
             savesCompleted++;
             if (savesCompleted === nItems) res.json(items)
-
         })
     })
 }
 
 function getItem (req, res) {
-    Item.get(req.params.itemId, (err, item) => {
-        if (err) res.status(401).end(err.toString());
-        if (item == undefined) res.status(404).end();
-        Item.getCurrentCategory(item.category, (err, categoryItems) => {
-            res.render('item', {
-                department: currentDepartment,
-                date: new Date().toDateString(),
-                categoryItems: categoryItems,
-                item: item
-            })
-        })
+    const { itemId } = req.params;
+    Item.get(itemId, (err, item) => {
+        if (err) res.status(500).json(error(err));
+        if (item == undefined) res.status(404).json(error(`No item with the id [${itemId}] exists.`));
+        res.json({item})
     })
 }
 
 function deleteItem (req, res) {
-    Item.remove(req.params.itemId, (id) => {
-        if ([null, undefined].indexOf(id) == -1) {
-            res.end();
-        }
-        else res.status(401).send('The requested resource does not exist to be deleted.')
+    const { itemId } = req.params;
+    Item.remove(itemId, (id) => {
+        if (id) res.end()
+        else res.status(404).json(error(`No item with the id [${itemId}] exists.`))
     })
 }
 
@@ -126,7 +118,7 @@ function saveManyLogs (req, res) {
     itemLogs.forEach(item => {
         const { log, name } = item;
 
-        Item.push(false, item.name, log, (err) => {
+        Item.push(false, name, log, (err) => {
             if (err) res.json(error(err));
             else {
                 savesCompleted++

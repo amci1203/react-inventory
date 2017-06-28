@@ -4,6 +4,7 @@
 
 @import './modules/btn';
 @import './modules/header';
+@import './modules/icons';
 @import './modules/item-panes';
 @import './modules/legend';
 @import './modules/nav';

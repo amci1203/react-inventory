@@ -24,7 +24,7 @@
     $mainBlue   : rgb(35, 70, 220);
     $mainYellow : rgb(253, 188, 0);
     $mainOrange : rgb(213, 149, 65);
-    $lowRed     : rgb(170, 0, 0);
+    $lowRed     : rgb(240, 32, 32);
 
 /* COLORS END */
 
@@ -78,11 +78,12 @@
     $navs-active  : $navs-hover;
 
     /* SIDEBAR */
-    $sidebarW: 320px;
+    $sidebarW: 240px;
     $sidebar-color: $mainBlue;
     $sidebar-text: $white;
         /* SIDEBAR BUTTONS */
-        $sidebar-buttonsW: 60px;
+        $sidebar-buttonsW: 64px;
+        $sidebar-buttonsP: 0.75rem;
 
     $navs-text         : #FFF;
     $navs-hover-text   : $navs-text;

@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org/amci1203/apex-inventory-react.git"
+    "url": "git+ssh://git@bitbucket.org/amci1203/react-inventory.git"
   },
   "author": "Allen McIntosh II",
   "license": "ISC",
@@ -27,6 +27,7 @@
     "react-redux": "^5.0.5",
     "redux": "^3.7.0",
     "redux-devtools": "^3.4.0",
+    "smoothscroll": "^0.3.0",
     "winston": "^2.3.1"
   },
   "devDependencies": {
