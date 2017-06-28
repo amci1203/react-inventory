@@ -1,0 +1,15 @@
+.btn {
+    text-decoration : none;
+    display         : inline-block;
+    @mixin btn-color $brand-default, $darker-gray;
+    @mixin btn-size 1;
+
+    &--primary { @mixin btn-color $brand-primary }
+    &--success { @mixin btn-color $brand-success }
+    &--info    { @mixin btn-color $brand-info    }
+    &--warning { @mixin btn-color $brand-warning }
+    &--danger  { @mixin btn-color $brand-danger  }
+
+    &--large  { @mixin btn-size 1.25 }
+    &--xlarge { @mixin btn-size 1.60 }
+}

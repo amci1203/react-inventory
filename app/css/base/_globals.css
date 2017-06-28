@@ -1,0 +1,31 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family : 'Roboto', 'Arial', sans-serif;
+    padding     : 0;
+    margin      : 0;
+    color       : #111;
+    background  : #EEE;
+    &.sticky-top {
+        @mixin atMedium { padding-top: $primary-navH };
+    }
+}
+
+img {
+    max-width : 100%;
+    height    : auto;
+}
+
+main {
+    margin-left: $main-margin;
+}
+
+.invisible { visibility : hidden }
+.hide      { display    : none   }
+
+.pull-left  { float: left  }
+.pull-right { float: right }
+
+.scroll-lock { overflow: hidden }

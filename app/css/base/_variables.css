@@ -1,0 +1,128 @@
+/* COLORS */
+    /* BASES */
+    $black : rgb(0, 0, 0);
+    $white : rgb(255, 255, 255);
+    $gray  : rgb(128, 128, 128);
+
+
+    $darkest-gray  : color($black l(+ 10%));
+    $darker-gray   : color($black l(+ 20%));
+    $dark-gray     : color($black l(+ 30%));
+    $lighter-gray  : color($white l(- 30%));
+    $lighter-gray  : color($white l(- 20%));
+    $lightest-gray : color($white l(- 10%));
+
+    /* CONTEXTUAL COLORS */
+    $brand-default : $lightest-gray;
+    $brand-primary : rgb(51, 122, 183);
+    $brand-success : rgb(92, 184, 92);
+    $brand-info    : rgb(91, 192, 222);
+    $brand-warning : rgb(240, 173, 78);
+    $brand-danger  : rgb(217, 83, 79);
+
+    /* CUSTOM COLORS */
+    $mainBlue   : rgb(35, 70, 220);
+    $mainYellow : rgb(253, 188, 0);
+    $mainOrange : rgb(213, 149, 65);
+    $lowRed     : rgb(170, 0, 0);
+
+/* COLORS END */
+
+/* Z-INDEXES  */
+
+    $primary-navZ : 500;
+    $sidebarZ     : 400;
+
+/* Z-INDEXES END */
+
+/* DEFAULTS */
+
+    $body-bg : $white;
+    $body-fg : $darkest-gray;
+    $font-sz : 14px;
+
+    $link-color       : $gray;
+    $link-hover       : color($gray b(+ 5%));
+    $link-hover-decor : underline;
+
+/* DEFAULTS END */
+
+/* MISC. MODULES CONFIG */
+
+/* MISC. MODULES CONFIG END */
+
+/* COMPONENTS */
+    /* WRAPPER */
+    $wrapper-padding: 18px;
+
+    /* BUTTONS */
+    $btn-font-size : 1rem;
+    $btn-vPadding  : 0.75rem;
+    $btn-hPadding  : 1.2rem;
+
+    /* CARDS */
+    $cards-color   : color($mainBlue l(+ 25%));
+    $cards-border  : color($cards-color l(- 5%));
+    $cards-text    : $darkest-gray;
+
+    /* LARGE HERO */
+    $large-hero-background   : $lighter-gray;
+    $large-hero-border-color : $gray;
+    $large-hero-title-text   : $dark-gray;
+    $large-hero-text         : $darkest-gray;
+
+    /* NAVS */
+    $navs-color   : $darker-gray;
+    $navs-hover   : color($navs-color b(+ 10%));
+    $navs-current : $navs-hover;
+    $navs-active  : $navs-hover;
+
+    /* SIDEBAR */
+    $sidebarW: 320px;
+    $sidebar-color: $mainBlue;
+    $sidebar-text: $white;
+        /* SIDEBAR BUTTONS */
+        $sidebar-buttonsW: 60px;
+
+    $navs-text         : #FFF;
+    $navs-hover-text   : $navs-text;
+    $navs-current-text : $navs-text;
+    $navs-active-text  : $navs-text;
+
+    /* MAIN */
+    $mainW       : calc(100% - $sidebarW - $sidebar-buttonsW - $wrapper-padding * 2);
+    $main-margin : calc($sidebarW + $sidebar-buttonsW + 1.5rem);
+
+    /* FROM OLD CSS */
+    $optionsW: 9rem;
+    $toggleZ:   500;
+    $btnGroupZ: 500;
+    $sidebarZ:  300;
+    $shadowZ:   200;
+    $baseZ:     100;
+
+    /* FOOTER */
+    $footer-color : $navs-color;
+    $footer-text  : $navs-text;
+
+        /* PRIMARY NAV */
+        $primary-navH : 60px;
+        /* FOOTER NAV */
+        $footer-navH  : 30px;
+        /* MOBILE NAV */
+        $mob-navH     : 45px;
+
+    /* ROWS */
+    $gutter-width: 2%;
+
+    /* SOCIAL ICONS */
+    $social-icon-bg   : $darker-gray;
+    $social-icon-size : 72px;
+
+    /* SOCIAL MEDIA BUTTONS */
+    $social-button-size : calc($mob-navH + 7px);
+
+    /* TESTIMONIAL */
+    $testimonial-bg       : color($white a(0.75));
+    $testimonial-title    : $brand-primary;
+    $testimonial-subtitle : $brand-info;

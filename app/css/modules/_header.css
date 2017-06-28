@@ -1,0 +1,14 @@
+header {
+    position: relative;
+    background-color: $mainBlue;
+    color: #FFF;
+    padding: 1rem 1.125rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 5px solid color($mainBlue l(35%));
+    p span { float: right }
+    .section-title {
+        text-align: center;
+        font-weight: 100;
+        font-size: 2.4rem;
+    }
+}

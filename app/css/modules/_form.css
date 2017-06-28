@@ -1,0 +1,84 @@
+form {
+    margin: 0;
+    .error {
+        @mixin clearfix;
+        text-align: center;
+        color: #C00
+    }
+    .form-group {
+        &.row {
+            padding: 5px 0;
+            input {
+                border: 0;
+                border-bottom: 2px solid #CCC;
+                height: 25px;
+                width: 100%
+            }
+        }
+        @mixin clearfix;
+        font-size: 1.35rem;
+        margin: 0;
+        padding: 7px 0;
+        border-bottom: 1px solid #DDD;
+        & > label { float: left }
+        input {
+            &.bordered {
+                border: 1px solid #CCC;
+                padding: 0.15rem 0.2rem;
+            }
+            font-size: inherit;
+        }
+        textarea {
+            padding: 15px;
+            width: 100%;
+            font-size: inherit;
+        }
+
+
+        &--inline {
+            margin: 0;
+            input {
+                display: inline;
+                float: right;
+            }
+        }
+    }
+}
+
+.submit:not(.btn) {
+    margin: 15px 0;
+    padding: 5px 15px;
+    width: 100%;
+    background-color: $mainBlue;
+    box-shadow: 0 4px 2px #777;
+    color: #FFF;
+    font-size: 1.65rem;
+    border: none;
+    &:disabled {
+        cursor: not-allowed;
+        background-color: #CCC;
+        color: #333;
+        &:hover { color: #111 }
+    }
+    &:hover { background-color: color($mainBlue, b(10%)) }
+}
+
+.headings {
+    min-height: 1px;
+    margin-bottom: 30px;
+    font-weight: 700;
+    span { display: block }
+    .left { float: left }
+    .right { float: right }
+}
+
+.modal__body {
+    label {font-weight: 600}
+    input {
+        float: right;
+        border: 0;
+        border-bottom: 2px solid #CCC;
+        height: 35px;
+        font-size: inherit;
+    }
+}

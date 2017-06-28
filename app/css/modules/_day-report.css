@@ -1,0 +1,10 @@
+#date-change-buttons {
+    @mixin vCenter;
+    position: fixed;
+    left: 0;
+    padding: 0 25px;
+    width: 100%;
+
+    #back {float: left}
+    #forward {float: right}
+}

@@ -1,0 +1,28 @@
+2017-06-22T21:26:57.298-0400 I CONTROL  [initandlisten] MongoDB starting : pid=13873 port=27017 dbpath=/data/db 64-bit host=Pariss-iMac.local
+2017-06-22T21:26:57.311-0400 I CONTROL  [initandlisten] db version v3.2.9
+2017-06-22T21:26:57.311-0400 I CONTROL  [initandlisten] git version: 22ec9e93b40c85fc7cae7d56e7d6a02fd811088c
+2017-06-22T21:26:57.311-0400 I CONTROL  [initandlisten] allocator: system
+2017-06-22T21:26:57.311-0400 I CONTROL  [initandlisten] modules: none
+2017-06-22T21:26:57.311-0400 I CONTROL  [initandlisten] build environment:
+2017-06-22T21:26:57.311-0400 I CONTROL  [initandlisten]     distarch: x86_64
+2017-06-22T21:26:57.311-0400 I CONTROL  [initandlisten]     target_arch: x86_64
+2017-06-22T21:26:57.311-0400 I CONTROL  [initandlisten] options: { processManagement: { fork: true }, systemLog: { destination: "file", path: "logs/mongo.log" } }
+2017-06-22T21:26:57.352-0400 I -        [initandlisten] Detected data files in /data/db created by the 'wiredTiger' storage engine, so setting the active storage engine to 'wiredTiger'.
+2017-06-22T21:26:57.352-0400 I STORAGE  [initandlisten] wiredtiger_open config: create,cache_size=4G,session_max=20000,eviction=(threads_max=4),config_base=false,statistics=(fast),log=(enabled=true,archive=true,path=journal,compressor=snappy),file_manager=(close_idle_time=100000),checkpoint=(wait=60,log_size=2GB),statistics_log=(wait=0),
+2017-06-22T21:27:02.731-0400 I COMMAND  [initandlisten] query admin.system.roles planSummary: EOF ntoreturn:0 ntoskip:0 keysExamined:0 docsExamined:0 cursorExhausted:1 keyUpdates:0 writeConflicts:0 numYields:0 nreturned:0 reslen:20 locks:{ Global: { acquireCount: { r: 10, W: 2 } }, Database: { acquireCount: { r: 4 } }, Collection: { acquireCount: { r: 4 } } } 109ms
+2017-06-22T21:27:02.732-0400 I NETWORK  [HostnameCanonicalizationWorker] Starting hostname canonicalization worker
+2017-06-22T21:27:02.732-0400 I FTDC     [initandlisten] Initializing full-time diagnostic data capture with directory '/data/db/diagnostic.data'
+2017-06-22T21:27:02.777-0400 I NETWORK  [initandlisten] waiting for connections on port 27017
+2017-06-22T21:27:07.733-0400 W NETWORK  [HostnameCanonicalizationWorker] Failed to obtain address information for hostname Pariss-iMac.local: nodename nor servname provided, or not known
+2017-06-23T18:32:32.182-0400 I CONTROL  [signalProcessingThread] got signal 15 (Terminated: 15), will terminate after current cmd ends
+2017-06-23T18:32:32.182-0400 I FTDC     [signalProcessingThread] Shutting down full-time diagnostic data capture
+2017-06-23T18:32:32.199-0400 I CONTROL  [signalProcessingThread] now exiting
+2017-06-23T18:32:32.199-0400 I NETWORK  [signalProcessingThread] shutdown: going to close listening sockets...
+2017-06-23T18:32:32.199-0400 I NETWORK  [signalProcessingThread] closing listening socket: 6
+2017-06-23T18:32:32.199-0400 I NETWORK  [signalProcessingThread] closing listening socket: 7
+2017-06-23T18:32:32.204-0400 I NETWORK  [signalProcessingThread] removing socket file: /tmp/mongodb-27017.sock
+2017-06-23T18:32:32.212-0400 I NETWORK  [signalProcessingThread] shutdown: going to flush diaglog...
+2017-06-23T18:32:32.212-0400 I NETWORK  [signalProcessingThread] shutdown: going to close sockets...
+2017-06-23T18:32:32.235-0400 I STORAGE  [signalProcessingThread] WiredTigerKVEngine shutting down
+2017-06-23T18:32:33.243-0400 I STORAGE  [signalProcessingThread] shutdown: removing fs lock...
+2017-06-23T18:32:33.263-0400 I CONTROL  [signalProcessingThread] dbexit:  rc: 0

@@ -1,0 +1,19 @@
+.item-group {
+
+
+    &__item-card {
+        font-weight: 100;
+
+        @mixin atLarge {
+            display: inline-block;
+            width: 46%;
+            margin: 5px 2%;
+        }
+
+        &__item-name {
+            font-weight: inherit;
+            font-size: 1.45rem;
+            border-bottom: 1px solid #BBB;
+        }
+    }
+}

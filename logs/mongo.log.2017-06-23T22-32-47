@@ -1,0 +1,13 @@
+2017-06-23T18:32:22.200-0400 I CONTROL  [initandlisten] MongoDB starting : pid=14997 port=27017 dbpath=/data/db 64-bit host=Pariss-iMac.local
+2017-06-23T18:32:22.214-0400 I CONTROL  [initandlisten] db version v3.2.9
+2017-06-23T18:32:22.214-0400 I CONTROL  [initandlisten] git version: 22ec9e93b40c85fc7cae7d56e7d6a02fd811088c
+2017-06-23T18:32:22.214-0400 I CONTROL  [initandlisten] allocator: system
+2017-06-23T18:32:22.214-0400 I CONTROL  [initandlisten] modules: none
+2017-06-23T18:32:22.214-0400 I CONTROL  [initandlisten] build environment:
+2017-06-23T18:32:22.214-0400 I CONTROL  [initandlisten]     distarch: x86_64
+2017-06-23T18:32:22.214-0400 I CONTROL  [initandlisten]     target_arch: x86_64
+2017-06-23T18:32:22.214-0400 I CONTROL  [initandlisten] options: { processManagement: { fork: true }, systemLog: { destination: "file", path: "logs/mongo.log" } }
+2017-06-23T18:32:22.215-0400 E NETWORK  [initandlisten] listen(): bind() failed errno:48 Address already in use for socket: 0.0.0.0:27017
+2017-06-23T18:32:22.215-0400 E NETWORK  [initandlisten]   addr already in use
+2017-06-23T18:32:22.215-0400 E STORAGE  [initandlisten] Failed to set up sockets during startup.
+2017-06-23T18:32:22.233-0400 I CONTROL  [initandlisten] dbexit:  rc: 48

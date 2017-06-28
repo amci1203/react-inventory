@@ -1,0 +1,24 @@
+.legend {
+    &__list {
+        display: block;
+        list-style-type: none;
+        margin: 5px 25px;
+        padding: 5px 15px;
+        li {
+            display: block;
+            margin: 10px 0;
+            span {
+                display: block;
+                float: right;
+                text-align: right;
+                font-weight: 600;
+            }
+        }
+    }
+    &__heading {
+        color: $mainBlue;
+        font-weight: 100;
+        text-align: center;
+        margin: 1.35rem 0;
+    }
+}

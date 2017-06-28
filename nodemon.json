@@ -1,0 +1,3 @@
+{
+    "ignore": ["/app/", "/icons/","/public/", "/gulp/", "/logs/", "/node_modules/"]
+}

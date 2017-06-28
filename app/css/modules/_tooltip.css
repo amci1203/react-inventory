@@ -1,0 +1,26 @@
+.tooltip {
+    position: relative;
+    & &-text {
+        @media print { display: none !important}
+        transition: all 0.2s ease-out;
+        visibility: hidden;
+        opacity: 0;
+        min-width: 180px;
+        max-width: 270px;
+        font-size: 1.15rem;
+        background-color: #111;
+        color: #FFF;
+        text-align: center;
+        border-radius: 6px;
+        box-shadow: 3px 2px 2px 1px #333;
+        padding: 0.35rem 0.5rem;
+        /* Position the tooltip */
+        @mixin vCenter;
+        left: 120%;
+    }
+    &:hover &-text {
+        z-index: 1000 !important;
+        opacity: 1;
+        visibility: visible;
+    }
+}

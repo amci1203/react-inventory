@@ -1,0 +1,31 @@
+.row {
+    position: relative;
+    @mixin clearfix;
+
+    @for $i from 1 to 12 {
+        @mixin column $i, xs, $gutter-width;
+        @mixin atSmall  { @mixin column $i, sm, $gutter-width }
+        @mixin atMedium { @mixin column $i, md, $gutter-width }
+        @mixin atLarge  { @mixin column $i, lg, $gutter-width }
+    }
+
+    /* BEGIN EQUAL HEIGHT CSS RULES*/
+    .flexbox &--equal-height-md {
+        @mixin atMedium {
+            display: flex;
+        }
+        & > div {
+            float: none;
+            display: flex;
+        }
+    }
+    .flexbox &--equal-height-lg {
+        @mixin atLarge {
+            display: flex;
+        }
+        & > div {
+            float: none;
+            display: flex;
+        }
+    }
+}
