@@ -42,29 +42,8 @@ Object.assign(schema.statics, statics);
 
 // gets all items from the the DB and groups them by category.
 function getAll (callback) {
-    const aggr = [
-        {$project: {
-            _id          : 1,
-            category     : 1,
-            name         : 1,
-            inStock      : 1,
-            lowAt        : 1,
-            lastModified : 1
-        }},
-        {$group: {
-            _id: '$category',
-            items: {$push: {
-                _id          : '$_id',
-                name         : '$name',
-                inStock      : '$inStock',
-                lowAt        : '$lowAt',
-                lastModified : '$lastModified'
-            }}
-        }},
-        {$sort: {_id: 1}}
-    ];
-
-    return this.aggregate(aggr).exec((err, docs) => isOK(err, docs, callback))
+    const sort = {category: 1, name: 1};
+    return this.find({}).sort(sort).exec((err, docs) => isOK(err, docs, callback))
 }
 
 // returns a single item; can only be retrieved by id

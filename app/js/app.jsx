@@ -18,28 +18,35 @@ class Housekeeping extends Component {
 
         this.state = {
             items: null,
-            categories: null
+            categories: null,
+            filter: null
         }
     }
 
     componentWillMount () {
 
         axios.get('housekeeping').then(getData).then(data => {
+
             const
                 items      = data,
-                categories = items.map(group => group._id || 'Uncategorized'),
+                categories = items
+                    .map(i => i.category)
+                    .filter((e, i, self) => self.indexOf(e) === i),
+
                 state      = { items, categories };
 
-            this.setState(state);
+            console.log(categories);
+            // this.setState(state);
         });
 
     }
 
     render () {
-        const
-            { items, categories } = this.state;
+        let { items, categories, filter } = this.state;
 
         if (!items) return null;
+
+
 
         return (
             <div>

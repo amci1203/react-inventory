@@ -88,7 +88,8 @@
 
 	        _this.state = {
 	            items: null,
-	            categories: null
+	            categories: null,
+	            filter: null
 	        };
 	        return _this;
 	    }
@@ -96,16 +97,19 @@
 	    _createClass(Housekeeping, [{
 	        key: 'componentWillMount',
 	        value: function componentWillMount() {
-	            var _this2 = this;
 
 	            _axios2.default.get('housekeeping').then(getData).then(function (data) {
+
 	                var items = data,
-	                    categories = items.map(function (group) {
-	                    return group._id || 'Uncategorized';
+	                    categories = items.map(function (i) {
+	                    return i.category;
+	                }).filter(function (e, i, self) {
+	                    return self.indexOf(e) === i;
 	                }),
 	                    state = { items: items, categories: categories };
 
-	                _this2.setState(state);
+	                console.log(categories);
+	                // this.setState(state);
 	            });
 	        }
 	    }, {
@@ -113,7 +117,8 @@
 	        value: function render() {
 	            var _state = this.state,
 	                items = _state.items,
-	                categories = _state.categories;
+	                categories = _state.categories,
+	                filter = _state.filter;
 
 
 	            if (!items) return null;
@@ -136,10 +141,10 @@
 	    function Sidebar(props) {
 	        _classCallCheck(this, Sidebar);
 
-	        var _this3 = _possibleConstructorReturn(this, (Sidebar.__proto__ || Object.getPrototypeOf(Sidebar)).call(this, props));
+	        var _this2 = _possibleConstructorReturn(this, (Sidebar.__proto__ || Object.getPrototypeOf(Sidebar)).call(this, props));
 
-	        _this3.state = {};
-	        return _this3;
+	        _this2.state = {};
+	        return _this2;
 	    }
 
 	    _createClass(Sidebar, [{
