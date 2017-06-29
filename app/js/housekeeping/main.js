@@ -4,8 +4,9 @@ import { debounce, trigger } from 'lodash';
 
 // import 'smoothscroll';
 
-import Sidebar from './Sidebar.jsx';
-import Items from './Items.jsx';
+import Sidebar from './Sidebar';
+import Items from './Items';
+import { NewModal } from './Modals';
 
 
 
@@ -24,6 +25,8 @@ export default class Housekeeping extends Component {
         this.groupItems = this.groupItems.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
 
+        this.modals = {};
+
         this.state = {
             items: null,
             filter: null
@@ -37,6 +40,11 @@ export default class Housekeeping extends Component {
             this.setState({ items });
         });
 
+    }
+
+    openModal (modal) {
+        console.log(this.modals[modal]);
+        this.modals[modal].setState({open:true})
     }
 
     groupItems (_items) {
@@ -105,8 +113,11 @@ export default class Housekeeping extends Component {
                 <Sidebar
                     categories={categories}
                     handleSearch={ debounce(this.handleSearch, 200, { leading: false }) }
+                    newItem={() => this.openModal('newModal')}
                 />
                 <Items items={items} />
+
+                <NewModal ref={mod => this.modals.newModal = mod} />
             </div>
         )
 

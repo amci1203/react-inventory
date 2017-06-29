@@ -9,7 +9,7 @@ export default class Sidebar extends Component {
 
     render () {
         const
-            { handleSearch, categories } = this.props,
+            { handleSearch, categories, newItem } = this.props,
             _categories = categories.map((cat, key) => {
                 const href = `#${cat.replace(' ', '-').toLowerCase()}`;
                 return <li key={key}><a href={href}>{cat}</a></li>;
@@ -24,7 +24,10 @@ export default class Sidebar extends Component {
                 </aside>
                 <aside className='sidebar__aside-buttons'>
                     <div className='sidebar__aside-buttons__top'>
-                        <span className='icon icon--text'>+</span>
+                        <span
+                            className='icon icon--text'
+                            onClick={newItem}
+                        >+</span>
                         <span className='icon icon--text'>+</span>
                         <span className='icon icon--text'>+</span>
                     </div>
