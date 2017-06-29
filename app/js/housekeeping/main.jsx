@@ -66,15 +66,29 @@ export default class Housekeeping extends Component {
         return grouped;
     }
 
+    // for Sidebar component
+    // filter arg should be string (e.target.value); not the raw event.
     handleSearch (filter) {
         this.setState({ filter });
     }
 
+    // filter items then passes them to be grouped
     filter () {
         const
             { items, filter } = this.state,
             low = s => s.toLowerCase(),
-            filteredItems = items.filter(i => low(i.name).includes(low(filter)));
+            filteredItems = items.filter(item => {
+                const
+                    _filter = new RegExp(`^(${filter})`),
+                    words = low(item.name).split(' ');
+                for (let i = 0, len = words.length; i < len; i++) {
+                    if ( words[i].match(_filter) ) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
 
         return this.groupItems(filteredItems)
     }

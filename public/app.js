@@ -22304,11 +22304,18 @@
 
 	            return grouped;
 	        }
+
+	        // for Sidebar component
+	        // filter arg should be string (e.target.value); not the raw event.
+
 	    }, {
 	        key: 'handleSearch',
 	        value: function handleSearch(filter) {
 	            this.setState({ filter: filter });
 	        }
+
+	        // filter items then passes them to be grouped
+
 	    }, {
 	        key: 'filter',
 	        value: function filter() {
@@ -22318,8 +22325,16 @@
 	                low = function low(s) {
 	                return s.toLowerCase();
 	            },
-	                filteredItems = items.filter(function (i) {
-	                return low(i.name).includes(low(filter));
+	                filteredItems = items.filter(function (item) {
+	                var _filter = new RegExp('^(' + filter + ')'),
+	                    words = low(item.name).split(' ');
+	                for (var i = 0, len = words.length; i < len; i++) {
+	                    if (words[i].match(_filter)) {
+	                        return true;
+	                    }
+	                }
+
+	                return false;
 	            });
 
 	            return this.groupItems(filteredItems);
