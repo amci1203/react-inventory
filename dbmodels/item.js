@@ -22,7 +22,6 @@ const schema = new mongoose.Schema(
         log      : [ subSchema ]
     }, {
         timestamps: {
-            createdAt: 'date',
             updatedAt: 'lastModified'
         }
     }
@@ -43,23 +42,30 @@ Object.assign(schema.statics, statics);
 // gets all items from the the DB and groups them by category.
 function getAll (callback) {
     const sort = {category: 1, name: 1};
-    return this.find({}).sort(sort).exec((err, docs) => isOK(err, docs, callback))
+    return this
+        .find({})
+        .select('-log -createdAt')
+        .sort(sort)
+        .exec((err, docs) => isOK(err, docs, callback))
+    ;
 }
 
 // returns a single item; can only be retrieved by id
 function get (_id, callback) {
     return this.findOne({ _id })
-    .select('_id category name inStock log')
-    .sort('log.date')
-    .exec((err, doc) => isOK(err, doc, callback))
+        .select('_id category name inStock log')
+        .sort('log.date')
+        .exec((err, doc) => isOK(err, doc, callback))
+    ;
 }
 
 // PLAN TO DELETE. JUST WANT TO MAKE SURE ALTERNATIVE WORKS FIRST
 function getCategoryItems (category, callback) {
     return this.find({ category })
-    .select('_id name')
-    .sort('name')
-    .exec((err, docs) => isOK(err, docs, callback))
+        .select('_id name')
+        .sort('name')
+        .exec((err, docs) => isOK(err, docs, callback))
+    ;
 }
 
 // Saves a new item; adds first log; and returns the new item to the client

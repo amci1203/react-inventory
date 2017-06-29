@@ -60,8 +60,6 @@
 
 	var _axios2 = _interopRequireDefault(_axios);
 
-	__webpack_require__(210);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -69,6 +67,11 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	// import { debounce, trigger } from 'lodash';
+
+	// import 'smoothscroll';
+
 
 	var
 	// for axios
@@ -82,13 +85,14 @@
 	    function Housekeeping(props) {
 	        _classCallCheck(this, Housekeeping);
 
-	        // this.getItems = this.getItems.bind(this);
-
 	        var _this = _possibleConstructorReturn(this, (Housekeeping.__proto__ || Object.getPrototypeOf(Housekeeping)).call(this, props));
+
+	        _this.filter = _this.filter.bind(_this);
+	        _this.groupItems = _this.groupItems.bind(_this);
+	        _this.handleSearch = _this.handleSearch.bind(_this);
 
 	        _this.state = {
 	            items: null,
-	            categories: null,
 	            filter: null
 	        };
 	        return _this;
@@ -97,36 +101,79 @@
 	    _createClass(Housekeeping, [{
 	        key: 'componentWillMount',
 	        value: function componentWillMount() {
+	            var _this2 = this;
 
-	            _axios2.default.get('housekeeping').then(getData).then(function (data) {
+	            (0, _axios.get)('housekeeping').then(getData).then(function (data) {
 
-	                var items = data,
-	                    categories = items.map(function (i) {
-	                    return i.category;
-	                }).filter(function (e, i, self) {
-	                    return self.indexOf(e) === i;
-	                }),
-	                    state = { items: items, categories: categories };
+	                var items = data;
 
-	                console.log(categories);
-	                // this.setState(state);
+	                _this2.setState({ items: items });
 	            });
+	        }
+	    }, {
+	        key: 'groupItems',
+	        value: function groupItems(_items) {
+	            var grouped = [],
+	                items = _items ? _items : this.state.items;
+	            var tmp = {};
+	            items.forEach(function (item, i) {
+	                if (i === 0) {
+	                    Object.assign(tmp, {
+	                        category: item.category,
+	                        items: [item]
+	                    });
+	                } else {
+	                    if (item.category === items[i - 1].category) {
+	                        tmp.items.push(item);
+	                    } else {
+	                        grouped.push(tmp);
+	                        tmp = { category: item.category, items: [item] };
+	                    }
+	                    if (i === items.length - 1) grouped.push(tmp);
+	                }
+	            });
+
+	            return grouped;
+	        }
+	    }, {
+	        key: 'handleSearch',
+	        value: function handleSearch(filter) {
+	            this.setState({ filter: filter });
+	        }
+	    }, {
+	        key: 'filter',
+	        value: function filter() {
+	            var _state = this.state,
+	                items = _state.items,
+	                filter = _state.filter,
+	                low = function low(s) {
+	                return s.toLowerCase();
+	            },
+	                filteredItems = items.filter(function (i) {
+	                return low(i.name).includes(low(filter));
+	            });
+
+	            console.log(filter);
+
+	            return this.groupItems(filteredItems);
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _state = this.state,
-	                items = _state.items,
-	                categories = _state.categories,
-	                filter = _state.filter;
+	            if (this.state.items === null) return null;
 
-
-	            if (!items) return null;
+	            var items = this.state.filter ? this.filter() : this.groupItems(),
+	                categories = items.map(function (i) {
+	                return i.category;
+	            });
 
 	            return _react2.default.createElement(
 	                'div',
 	                null,
-	                _react2.default.createElement(Sidebar, { categories: categories }),
+	                _react2.default.createElement(Sidebar, {
+	                    categories: categories,
+	                    handleSearch: this.handleSearch
+	                }),
 	                _react2.default.createElement(Items, { items: items })
 	            );
 	        }
@@ -141,15 +188,17 @@
 	    function Sidebar(props) {
 	        _classCallCheck(this, Sidebar);
 
-	        var _this2 = _possibleConstructorReturn(this, (Sidebar.__proto__ || Object.getPrototypeOf(Sidebar)).call(this, props));
+	        var _this3 = _possibleConstructorReturn(this, (Sidebar.__proto__ || Object.getPrototypeOf(Sidebar)).call(this, props));
 
-	        _this2.state = {};
-	        return _this2;
+	        _this3.state = {};
+	        return _this3;
 	    }
 
 	    _createClass(Sidebar, [{
 	        key: 'render',
 	        value: function render() {
+	            var _this4 = this;
+
 	            var categories = this.props.categories.map(function (cat, key) {
 	                var href = '#' + cat.replace(' ', '-').toLowerCase();
 	                return _react2.default.createElement(
@@ -174,7 +223,9 @@
 	                        { className: 'sidebar__title' },
 	                        'HOUSEKEEPING'
 	                    ),
-	                    _react2.default.createElement('input', { placeholder: 'Search...' }),
+	                    _react2.default.createElement('input', { placeholder: 'Search...', onChange: function onChange(e) {
+	                            return _this4.props.handleSearch(e.target.value);
+	                        } }),
 	                    _react2.default.createElement(
 	                        'ul',
 	                        { className: 'categories-list' },
@@ -225,7 +276,7 @@
 	        all = items.map(function (group, key) {
 	        return _react2.default.createElement(CategoryGroup, {
 	            key: key,
-	            category: group._id,
+	            category: group.category,
 	            items: group.items
 	        });
 	    });
@@ -23977,130 +24028,6 @@
 	    return callback.apply(null, arr);
 	  };
 	};
-
-
-/***/ }),
-/* 210 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, smoothScroll) {
-	  'use strict';
-
-	  // Support RequireJS and CommonJS/NodeJS module formats.
-	  // Attach smoothScroll to the `window` when executed as a <script>.
-
-	  // RequireJS
-	  if (true) {
-	    !(__WEBPACK_AMD_DEFINE_FACTORY__ = (smoothScroll), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-	  // CommonJS
-	  } else if (typeof exports === 'object' && typeof module === 'object') {
-	    module.exports = smoothScroll();
-
-	  } else {
-	    root.smoothScroll = smoothScroll();
-	  }
-
-	})(this, function(){
-	'use strict';
-
-	// Do not initialize smoothScroll when running server side, handle it in client:
-	if (typeof window !== 'object') return;
-
-	// We do not want this script to be applied in browsers that do not support those
-	// That means no smoothscroll on IE9 and below.
-	if(document.querySelectorAll === void 0 || window.pageYOffset === void 0 || history.pushState === void 0) { return; }
-
-	// Get the top position of an element in the document
-	var getTop = function(element, start) {
-	    // return value of html.getBoundingClientRect().top ... IE : 0, other browsers : -pageYOffset
-	    if(element.nodeName === 'HTML') return -start
-	    return element.getBoundingClientRect().top + start
-	}
-	// ease in out function thanks to:
-	// http://blog.greweb.fr/2012/02/bezier-curve-based-easing-functions-from-concept-to-implementation/
-	var easeInOutCubic = function (t) { return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 }
-
-	// calculate the scroll position we should be in
-	// given the start and end point of the scroll
-	// the time elapsed from the beginning of the scroll
-	// and the total duration of the scroll (default 500ms)
-	var position = function(start, end, elapsed, duration) {
-	    if (elapsed > duration) return end;
-	    return start + (end - start) * easeInOutCubic(elapsed / duration); // <-- you can change the easing funtion there
-	    // return start + (end - start) * (elapsed / duration); // <-- this would give a linear scroll
-	}
-
-	// we use requestAnimationFrame to be called by the browser before every repaint
-	// if the first argument is an element then scroll to the top of this element
-	// if the first argument is numeric then scroll to this location
-	// if the callback exist, it is called when the scrolling is finished
-	// if context is set then scroll that element, else scroll window
-	var smoothScroll = function(el, duration, callback, context){
-	    duration = duration || 500;
-	    context = context || window;
-	    var start = context.scrollTop || window.pageYOffset;
-
-	    if (typeof el === 'number') {
-	      var end = parseInt(el);
-	    } else {
-	      var end = getTop(el, start);
-	    }
-
-	    var clock = Date.now();
-	    var requestAnimationFrame = window.requestAnimationFrame ||
-	        window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||
-	        function(fn){window.setTimeout(fn, 15);};
-
-	    var step = function(){
-	        var elapsed = Date.now() - clock;
-	        if (context !== window) {
-	          context.scrollTop = position(start, end, elapsed, duration);
-	        }
-	        else {
-	          window.scroll(0, position(start, end, elapsed, duration));
-	        }
-
-	        if (elapsed > duration) {
-	            if (typeof callback === 'function') {
-	                callback(el);
-	            }
-	        } else {
-	            requestAnimationFrame(step);
-	        }
-	    }
-	    step();
-	}
-
-	var linkHandler = function(ev) {
-	    ev.preventDefault();
-
-	    if (location.hash !== this.hash) window.history.pushState(null, null, this.hash)
-	    // using the history api to solve issue #1 - back doesn't work
-	    // most browser don't update :target when the history api is used:
-	    // THIS IS A BUG FROM THE BROWSERS.
-	    // change the scrolling duration in this call
-	    var node = document.getElementById(this.hash.substring(1))
-	    if(!node) return; // Do not scroll to non-existing node
-
-	    smoothScroll(node, 500, function(el) {
-	        location.replace('#' + el.id)
-	        // this will cause the :target to be activated.
-	    });
-	}
-
-	// We look for all the internal links in the documents and attach the smoothscroll function
-	document.addEventListener("DOMContentLoaded", function () {
-	    var internal = document.querySelectorAll('a[href^="#"]:not([href="#"])'), a;
-	    for(var i=internal.length; a=internal[--i];){
-	        a.addEventListener("click", linkHandler, false);
-	    }
-	});
-
-	// return smoothscroll API
-	return smoothScroll;
-
-	});
 
 
 /***/ })
