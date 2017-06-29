@@ -19,14 +19,15 @@ app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/icons'));
 
 // SET ENV VARIABLES
-
+// TMP SETTING: THIS IS CURRENTLY THE ONLY department
+app.set('department', 'housekeeping');
 
 // ROUTING
 //app.use('/_', routes)
 app.use('/housekeeping', housekeeping);
 //app.use('/snacks', snacks);
 
-app.get('/', (req, res) => { res.send('index.html') })
+app.get('/', (req, res) => res.send('index.html'))
 
 app.post('/connect/:dbName' , (req, res) => {
     const dbName = req.params.dbName.toLowerCase();
@@ -50,4 +51,4 @@ function connectDB (dbName) {
 }
 
 // Since so far there's only one department DB
-connectDB('housekeeping');
+connectDB( app.get('department') );

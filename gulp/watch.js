@@ -7,6 +7,7 @@ const gulp        = require('gulp'),
 gulp.task('default', () => {
     gulp.start('watch');
 })
+
 gulp.task('cssInject', ['css'], () => {
     return gulp.src('./public/styles.css')
         .pipe(browserSync.stream());
@@ -26,7 +27,7 @@ gulp.task('distView', () => {
 
 gulp.task('watch', ['css', 'scripts'], () => {
     browserSync.init({
-        open   : false, 
+        open   : false,
         notify : false,
         port   : 8888,
         proxy  : 'localhost:3000'

@@ -11,12 +11,13 @@
     color      : $sidebar-text;
     width      : $sidebarW;
 
-    padding: 50px 0;
+    padding: 20px 0;
     margin-right: $sidebarW;
 
     &--open { margin-right: 0 };
 
     &__title {
+        margin-top: 0;
         font-weight: 100;
         font-size: 1.65rem;
         text-align: center;
@@ -80,7 +81,7 @@
             a {
                 @mixin noTextDecoration;
                 display: block;
-                padding: 1rem 0.65rem;
+                padding: 0.5rem 0.65rem;
                 color: #FFF;
 
                 &:hover {

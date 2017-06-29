@@ -961,7 +961,7 @@ table td:first-child, table th:first-child {
     background: rgb(35, 70, 220);
     color: rgb(255, 255, 255);
     width: 240px;
-    padding: 50px 0;
+    padding: 20px 0;
     margin-right: 240px;
 }
 .sidebar input {
@@ -1003,7 +1003,7 @@ table td:first-child, table th:first-child {
     text-decoration: none;
     color: inherit;
     display: block;
-    padding: 1rem 0.65rem;
+    padding: 0.5rem 0.65rem;
     color: #FFF;
 }
 .sidebar .categories-list li a:hover {
@@ -1025,6 +1025,7 @@ table td:first-child, table th:first-child {
     margin-right: 0;
 }
 .sidebar__title {
+    margin-top: 0;
     font-weight: 100;
     font-size: 1.65rem;
     text-align: center;
@@ -1166,6 +1167,7 @@ table td:first-child, table th:first-child {
 .item-group .item-card {
     position: relative;
     font-weight: 100;
+    margin: 1.85rem 0;
     padding: 0.5rem 1.35rem;
     border-radius: 15px;
     transition: all 0.3s ease;
