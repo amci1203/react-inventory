@@ -583,6 +583,10 @@ table td:first-child, table th:first-child {
     background: rgb(240, 32, 32);
 }
 .modal__body {
+    display: none;
+    background-color: #FFF;
+    border: 1px solid #CCC;
+    box-shadow: 0 4px 3px 2px #333;
     padding: 35px;
     font-size: 1.3rem;
     position: absolute;
@@ -591,15 +595,14 @@ table td:first-child, table th:first-child {
     left: 50%;
     -webkit-transform: translate(-50%, -50%);
             transform: translate(-50%, -50%);
-    overflow-y: auto;
 }
-.modal__body--opaque {
-    background-color: #FFF;
-    border: 1px solid #CCC;
-    box-shadow: 0 4px 3px 2px #333;
+.modal__body.active {
+    display: block;
 }
 .modal__body--scrollable {
-    max-height: 100vh;
+    max-height: calc(100vh - 4rem);
+    margin-top: 2rem;
+    margin-bottom: 2rem;
     overflow-y: auto;
 }
 #log {

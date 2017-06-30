@@ -55,15 +55,10 @@
     }
 
     &__body {
-        &--opaque {
-           background-color: #FFF;
-            border: 1px solid #CCC;
-            box-shadow: 0 4px 3px 2px #333;
-        }
-        &--scrollable {
-            max-height: calc(100vh);
-            overflow-y: auto;
-        }
+        display: none;
+        background-color: #FFF;
+        border: 1px solid #CCC;
+        box-shadow: 0 4px 3px 2px #333;
         padding: 35px;
         font-size: 1.3rem;
         position: absolute;
@@ -71,7 +66,15 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        overflow-y: auto;
+
+        &.active { display: block }
+
+        &--scrollable {
+            max-height: calc(100vh - 4rem);
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            overflow-y: auto;
+        }
     }
 }
 

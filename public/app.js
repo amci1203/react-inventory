@@ -24700,6 +24700,147 @@
 
 	'use strict';
 
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _Modal = __webpack_require__(226);
+
+	var _Modal2 = _interopRequireDefault(_Modal);
+
+	var _new = __webpack_require__(227);
+
+	var _new2 = _interopRequireDefault(_new);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/***/ }),
+/* 226 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	exports.ModalBody = ModalBody;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	/*
+	    ModalBody is used to nest modal content
+	    Modals holds various bodies and handles opening and closing
+	*/
+
+	function ModalBody(_ref) {
+	    var open = _ref.open,
+	        children = _ref.children;
+
+
+	    return _react2.default.createElement(
+	        'div',
+	        { className:  true ? ' active' : '' },
+	        children
+	    );
+	}
+
+	var Modals = function (_Component) {
+	    _inherits(Modals, _Component);
+
+	    function Modals(props) {
+	        _classCallCheck(this, Modals);
+
+	        var _this = _possibleConstructorReturn(this, (Modals.__proto__ || Object.getPrototypeOf(Modals)).call(this, props));
+
+	        _this.close = _this.close.bind(_this);
+
+	        _this.state = {
+	            open: false // string value indicating the modal id || false if closed
+	        };
+
+	        _this.listen();
+	        return _this;
+	    }
+
+	    _createClass(Modals, [{
+	        key: 'listen',
+	        value: function listen() {
+	            var _this2 = this;
+
+	            click(window, function (e) {
+	                return e.keyCode == 27 && _this2.state.open && _this2.close();
+	            });
+	        }
+	    }, {
+	        key: 'open',
+	        value: function open(name) {
+	            if (!this.state.open) {
+	                this.setState({ open: name });
+	            }
+	        }
+	    }, {
+	        key: 'close',
+	        value: function close() {
+	            if (this.state.open) {
+	                this.setState({ open: false });
+	            }
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _props = this.props,
+	                close = _props.close,
+	                children = _props.children,
+	                open = this.state.open,
+	                isOpen = open ? 'modal--open' : '';
+
+
+	            _children = (0, _react.Children)(children, function (child) {
+	                return (0, _react.cloneElement)(child, [].concat(_toConsumableArray(child.props), [open]));
+	            });
+
+	            return _react2.default.createElement(
+	                'div',
+	                { className: 'modal ' + isOpen },
+	                _react2.default.createElement(
+	                    'span',
+	                    {
+	                        className: 'modal__close',
+	                        onClick: this.props.close
+	                    },
+	                    'X'
+	                ),
+	                _children
+	            );
+	        }
+	    }]);
+
+	    return Modals;
+	}(_react.Component);
+
+	exports.default = Modals;
+
+/***/ }),
+/* 227 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
@@ -24711,7 +24852,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Modal = __webpack_require__(226);
+	var _Modal = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"../shared/Modal\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 
@@ -24751,112 +24892,6 @@
 
 	    return NewModal;
 	}(_react.Component);
-
-/***/ }),
-/* 226 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	/*
-	    This Modal Component is a base component for the various forms
-	    that the app will employ.
-
-	    PROPS:
-	        action (Function): the function to invoke when the submit button is pressed
-	        opaque (Boolean): self explanatory
-
-	    STATE:
-	        open (Boolean): self explanatory
-	        // id: the id of the item that opened it (will remain null for new entries)
-	*/
-
-	var Modal = function (_Component) {
-	    _inherits(Modal, _Component);
-
-	    function Modal(props) {
-	        _classCallCheck(this, Modal);
-
-	        var _this = _possibleConstructorReturn(this, (Modal.__proto__ || Object.getPrototypeOf(Modal)).call(this, props));
-
-	        _this.listenForEscape();
-	        return _this;
-	    }
-
-	    _createClass(Modal, [{
-	        key: 'close',
-	        value: function close(caller) {
-	            caller.setState({
-	                open: false
-	            });
-	        }
-	    }, {
-	        key: 'listenForEscape',
-	        value: function listenForEscape() {
-	            var _this2 = this;
-
-	            window.addEventListener('keydown', function (e) {
-	                return e.keyCode == 27 && _this2.state.open && _this2.close();
-	            });
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            var _props = this.props,
-	                open = _props.open,
-	                opaque = _props.opaque,
-	                children = _props.children,
-	                title = _props.title,
-	                modalCls = 'modal ' + (open ? 'modal--open' : ''),
-	                bodyCls = 'modal__body ' + (opaque ? 'modal__body--opaque' : '');
-	            // MAY HAVE TO PASS SOME THINGS LATER
-	            // props    = {  }
-	            // children = Children.map(this.props.children, child => cloneElement(child, props));
-
-	            return _react2.default.createElement(
-	                'div',
-	                { className: modalCls },
-	                _react2.default.createElement(
-	                    'span',
-	                    { className: 'modal__close', onClick: this.close },
-	                    'X'
-	                ),
-	                title ? _react2.default.createElement(
-	                    'h1',
-	                    { className: 'modal__header' },
-	                    title
-	                ) : '',
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: bodyCls },
-	                    children
-	                )
-	            );
-	        }
-	    }]);
-
-	    return Modal;
-	}(_react.Component);
-
-	exports.default = Modal;
 
 /***/ })
 /******/ ]);

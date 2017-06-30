@@ -1,52 +1,68 @@
 import React, { Component, Children, cloneElement } from 'react';
 
 /*
-    This Modal Component is a base component for the various forms
-    that the app will employ.
-
-    PROPS:
-        action (Function): the function to invoke when the submit button is pressed
-        opaque (Boolean): self explanatory
-
-    STATE:
-        open (Boolean): self explanatory
-        // id: the id of the item that opened it (will remain null for new entries)
+    ModalBody is used to nest modal content
+    Modals holds various bodies and handles opening and closing
 */
 
-export default class Modal extends Component {
+export function ModalBody ({ open, children }) {
+
+    return (
+        <div className={'modal__body' + open ? ' active' : ''}>{children}</div>
+    )
+
+}
+
+export default class Modals extends Component {
 
     constructor (props) {
         super(props);
 
-        this.listenForEscape();
+        this.close = this.close.bind(this);
+
+        this.state = {
+            open: false, // string value indicating the modal id || false if closed
+        }
+
+        this.listen();
     }
 
-    close (caller) {
-        caller.setState({
-            open: false
-        })
+    listen() {
+        click(window, e => e.keyCode == 27 && this.state.open && this.close())
     }
 
-    listenForEscape () {
-        window.addEventListener('keydown', e => e.keyCode == 27 && this.state.open && this.close());
+    open (name) {
+        if (!this.state.open) {
+            this.setState({open: name});
+        }
+    }
+
+    close () {
+        if (this.state.open) {
+            this.setState({ open: false })
+        }
     }
 
     render () {
+
         const
-            { open, opaque, children, title } = this.props,
-            modalCls = `modal ${open ? 'modal--open' : ''}`,
-            bodyCls  = `modal__body ${opaque ? 'modal__body--opaque' : ''}`;
-            // MAY HAVE TO PASS SOME THINGS LATER
-            // props    = {  }
-            // children = Children.map(this.props.children, child => cloneElement(child, props));
+            { close, children } = this.props,
+            { open } = this.state,
+            isOpen = open ? 'modal--open' : '';
+
+            _children = Children(children, child => cloneElement(child, [...child.props, open]));
+
 
         return (
-            <div className={modalCls}>
-                <span className='modal__close' onClick={this.close}>X</span>
-                { title ? <h1 className="modal__header">{title}</h1> : '' }
-                <div className={bodyCls}>{children}</div>
+            <div className={'modal ' + isOpen}>
+                <span
+                    className='modal__close'
+                    onClick={this.props.close}
+                >X</span>
+            {_children}
             </div>
         )
+
     }
 
 }

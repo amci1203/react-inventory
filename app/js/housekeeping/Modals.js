@@ -1,24 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Children } from 'react';
 
-import Modal from '../shared/Modal';
+// base Component
+import Modals from '../shared/Modal';
+// child Components
+import NewModal from './modals/new.modal';
 
-export class NewModal extends Component {
-
-    constructor (props) {
-        super(props);
-
-        this.state = {
-            id: null,
-            open: false,
-        }
-    }
-
-    render () {
-        return (
-            <Modal open={this.state.open} opaque={true}>
-                THIS IS A TEST
-            </Modal>
-        )
-    }
-
-}
+/*
+    This is the parent component for all modals. this Component will handle opening/closing the various modals' bodies
+*/
