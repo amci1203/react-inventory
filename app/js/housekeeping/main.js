@@ -86,6 +86,9 @@ export default class Housekeeping extends Component {
             { items, filter } = this.state,
             low = s => s.toLowerCase(),
             filteredItems = items.filter(item => {
+                if (filter === '__low__') {
+                    return item.inStock < item.lowAt;
+                }
                 const
                     _filter = new RegExp(`^(${filter})`),
                     words = low(item.name).split(' ');
