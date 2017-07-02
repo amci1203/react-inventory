@@ -18,9 +18,16 @@ img {
     height    : auto;
 }
 
-main {
+.main-view {
     margin-left: $main-margin;
     margin-right: 1.15rem;
+
+    @mixin isSmall {
+        max-width: 1236px;
+        padding: 25px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
 
 .invisible { visibility : hidden }

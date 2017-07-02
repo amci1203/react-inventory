@@ -15,6 +15,7 @@
 @import './modules/row';
 @import './modules/sidebar';
 @import './modules/text';
+@import './modules/titles';
 @import './modules/tooltip';
 @import './modules/wrapper';
 

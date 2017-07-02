@@ -13,6 +13,7 @@
 
     padding: 20px 0;
     margin-right: $sidebarW;
+    box-shadow: 1px 0 4px 2px color($black a(0.5));
 
     &--open { margin-right: 0 };
 
@@ -70,6 +71,10 @@
             position: absolute;
             bottom: 0;
         }
+
+        @mixin isSmall {
+            display: none;
+        }
     }
 
     .categories-list {
@@ -89,5 +94,9 @@
                 }
             }
         }
+    }
+
+    @mixin isSmall {
+        display: none;
     }
 }
