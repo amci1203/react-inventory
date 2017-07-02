@@ -11,8 +11,12 @@
     text-align: center;
 
     &--text {
+        line-height: 40px;
         font-size: 2.15rem;
         font-weight: 600;
+        &.shrink {
+            font-size: 1.55rem;
+        }
     }
 
 

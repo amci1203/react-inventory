@@ -22371,8 +22371,10 @@
 	                items = _state2.items,
 	                filter = _state2.filter,
 	                activeView = _state2.activeView,
-	                activeItem = _state2.activeItem;
-
+	                activeItem = _state2.activeItem,
+	                deb = function deb(fn) {
+	                return (0, _debounce3.default)(fn, 300, { leading: false });
+	            };
 
 	            if (items === null) return null;
 
@@ -22386,9 +22388,12 @@
 	                null,
 	                _react2.default.createElement(_Sidebar2.default, {
 	                    categories: categories,
-	                    handleSearch: (0, _debounce3.default)(this.handleSearch, 200, { leading: false }),
+	                    handleSearch: deb(this.handleSearch),
 	                    newItem: function newItem() {
 	                        return _this3.views.select('new');
+	                    },
+	                    editItem: function editItem() {
+	                        return _this3.views.select('edit');
 	                    }
 	                }),
 	                _react2.default.createElement(
@@ -24534,6 +24539,7 @@
 	                handleSearch = _props.handleSearch,
 	                categories = _props.categories,
 	                newItem = _props.newItem,
+	                editItem = _props.editItem,
 	                _categories = categories.map(function (cat, key) {
 	                var href = '#' + cat.replace(' ', '-').toLowerCase();
 	                return _react2.default.createElement(
@@ -24581,16 +24587,12 @@
 	                            },
 	                            '+'
 	                        ),
-	                        _react2.default.createElement(
-	                            'span',
-	                            { className: 'icon icon--text' },
-	                            '+'
-	                        ),
-	                        _react2.default.createElement(
-	                            'span',
-	                            { className: 'icon icon--text' },
-	                            '+'
-	                        )
+	                        _react2.default.createElement('img', {
+	                            className: 'icon',
+	                            src: 'icons/edit.png',
+	                            onClick: editItem
+	                        }),
+	                        _react2.default.createElement('img', { className: 'icon', src: 'icons/delete.png' })
 	                    ),
 	                    _react2.default.createElement(
 	                        'div',
@@ -24960,6 +24962,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function Modal(props) {
+
 	    return _react2.default.createElement(
 	        'div',
 	        { className: 'modal modal--open' },

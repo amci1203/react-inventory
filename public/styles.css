@@ -207,8 +207,12 @@ header .section-title {
     cursor: pointer;
 }
 .icon--text {
+    line-height: 40px;
     font-size: 2.15rem;
     font-weight: 600;
+}
+.icon--text.shrink {
+    font-size: 1.55rem;
 }
 #item-pane {
     float: left;
@@ -533,6 +537,8 @@ table td:first-child, table th:first-child {
 }
 .modal {
     transition: all 0.3s ease-out;
+    -webkit-animation: modal-appear 0.3s;
+            animation: modal-appear 0.3s;
     opacity: 0;
     visibility: hidden;
     z-index: 0;
@@ -633,6 +639,38 @@ table td:first-child, table th:first-child {
 }
 #log {
     overflow-y: scroll;
+}
+@-webkit-keyframes modal-appear {
+    from {
+        opacity: 0;
+        visibility: hidden;
+        z-index: 0;
+        -webkit-transform: scale(1.2);
+                transform: scale(1.2);
+    }
+    to {
+        opacity: 1;
+        visibility: visible;
+        z-index: 900;
+        -webkit-transform: scale(1);
+                transform: scale(1);
+    }
+}
+@keyframes modal-appear {
+    from {
+        opacity: 0;
+        visibility: hidden;
+        z-index: 0;
+        -webkit-transform: scale(1.2);
+                transform: scale(1.2);
+    }
+    to {
+        opacity: 1;
+        visibility: visible;
+        z-index: 900;
+        -webkit-transform: scale(1);
+                transform: scale(1);
+    }
 }
 #options {
     position: absolute;

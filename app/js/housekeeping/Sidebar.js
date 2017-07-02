@@ -9,7 +9,7 @@ export default class Sidebar extends Component {
 
     render () {
         const
-            { handleSearch, categories, newItem } = this.props,
+            { handleSearch, categories, newItem, editItem } = this.props,
             _categories = categories.map((cat, key) => {
                 const href = `#${cat.replace(' ', '-').toLowerCase()}`;
                 return <li key={key}><a href={href}>{cat}</a></li>;
@@ -28,8 +28,12 @@ export default class Sidebar extends Component {
                             className='icon icon--text'
                             onClick={newItem}
                         >+</span>
-                        <span className='icon icon--text'>+</span>
-                        <span className='icon icon--text'>+</span>
+                        <img
+                            className='icon'
+                            src='icons/edit.png'
+                            onClick={editItem}
+                        />
+                        <img className='icon' src='icons/delete.png'/>
                     </div>
                     <div className='sidebar__aside-buttons__bottom'>
                         <span className='icon icon--text'>?</span>

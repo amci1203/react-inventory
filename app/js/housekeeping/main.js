@@ -111,7 +111,9 @@ export default class Housekeeping extends Component {
     }
 
     render () {
-        const { items, filter, activeView, activeItem } = this.state;
+        const
+            { items, filter, activeView, activeItem } = this.state,
+            deb = fn => debounce(fn, 300, { leading: false })
 
         if (items === null) return null;
 
@@ -123,8 +125,9 @@ export default class Housekeeping extends Component {
             <div>
                 <Sidebar
                     categories={categories}
-                    handleSearch={ debounce(this.handleSearch, 200, { leading: false }) }
+                    handleSearch={ deb(this.handleSearch) }
                     newItem={() => this.views.select('new')}
+                    editItem={() => this.views.select('edit')}
                 />
             <Views className='main-view' ref={v => this.views = v} default='items'>
                     <Items id='items' items={_items} />
