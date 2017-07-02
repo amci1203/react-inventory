@@ -22234,7 +22234,13 @@
 
 	var _Items2 = _interopRequireDefault(_Items);
 
-	var _Modals = __webpack_require__(225);
+	var _Views = __webpack_require__(225);
+
+	var _Views2 = _interopRequireDefault(_Views);
+
+	var _new = __webpack_require__(226);
+
+	var _new2 = _interopRequireDefault(_new);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -22263,10 +22269,11 @@
 	        _this.filter = _this.filter.bind(_this);
 	        _this.groupItems = _this.groupItems.bind(_this);
 	        _this.handleSearch = _this.handleSearch.bind(_this);
-
-	        _this.modals = {};
+	        _this.closeModal = _this.closeModal.bind(_this);
 
 	        _this.state = {
+	            activeitem: null,
+	            activeView: 'items',
 	            items: null,
 	            filter: null
 	        };
@@ -22284,10 +22291,9 @@
 	            });
 	        }
 	    }, {
-	        key: 'openModal',
-	        value: function openModal(modal) {
-	            console.log(this.modals[modal]);
-	            this.modals[modal].setState({ open: true });
+	        key: 'closeModal',
+	        value: function closeModal() {
+	            this.views.returnToDefaultView();
 	        }
 	    }, {
 	        key: 'groupItems',
@@ -22336,12 +22342,16 @@
 	                return s.toLowerCase();
 	            },
 	                filteredItems = items.filter(function (item) {
-	                var _filter = new RegExp('^(' + filter + ')'),
-	                    words = low(item.name).split(' ');
-	                for (var i = 0, len = words.length; i < len; i++) {
-	                    if (words[i].match(_filter)) {
-	                        return true;
-	                    }
+	                var _filter = new RegExp('^(' + filter + ')', 'i'),
+	                    nameWords = item.name.split(' '),
+	                    categoryWords = item.category.split(' '),
+	                    len = Math.max(nameWords.length, categoryWords.length);
+
+	                for (var i = 0; i < len; i++) {
+	                    var nameWord = nameWords[i],
+	                        categoryWord = categoryWords[i];
+	                    if (nameWord && nameWord.match(_filter)) return true;
+	                    if (categoryWord && categoryWord.match(_filter)) return true;
 	                }
 
 	                return false;
@@ -22354,10 +22364,17 @@
 	        value: function render() {
 	            var _this3 = this;
 
-	            if (this.state.items === null) return null;
+	            var _state2 = this.state,
+	                items = _state2.items,
+	                filter = _state2.filter,
+	                activeView = _state2.activeView,
+	                activeItem = _state2.activeItem;
 
-	            var items = this.state.filter ? this.filter() : this.groupItems(),
-	                categories = items.map(function (i) {
+
+	            if (items === null) return null;
+
+	            var _items = filter ? this.filter() : this.groupItems(),
+	                categories = _items.map(function (i) {
 	                return i.category;
 	            });
 
@@ -22368,13 +22385,17 @@
 	                    categories: categories,
 	                    handleSearch: (0, _debounce3.default)(this.handleSearch, 200, { leading: false }),
 	                    newItem: function newItem() {
-	                        return _this3.openModal('newModal');
+	                        return _this3.views.select('new');
 	                    }
 	                }),
-	                _react2.default.createElement(_Items2.default, { items: items }),
-	                _react2.default.createElement(_Modals.NewModal, { ref: function ref(mod) {
-	                        return _this3.modals.newModal = mod;
-	                    } })
+	                _react2.default.createElement(
+	                    _Views2.default,
+	                    { className: 'main-view', ref: function ref(v) {
+	                            return _this3.views = v;
+	                        }, 'default': 'items' },
+	                    _react2.default.createElement(_Items2.default, { id: 'items', items: _items }),
+	                    _react2.default.createElement(_new2.default, { id: 'new', categories: categories, onClose: this.closeModal })
+	                )
 	            );
 	        }
 	    }]);
@@ -24700,19 +24721,84 @@
 
 	'use strict';
 
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Modal = __webpack_require__(226);
-
-	var _Modal2 = _interopRequireDefault(_Modal);
-
-	var _new = __webpack_require__(227);
-
-	var _new2 = _interopRequireDefault(_new);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Views = function (_Component) {
+	    _inherits(Views, _Component);
+
+	    function Views(props) {
+	        _classCallCheck(this, Views);
+
+	        var _this = _possibleConstructorReturn(this, (Views.__proto__ || Object.getPrototypeOf(Views)).call(this, props));
+
+	        _this.select = _this.select.bind(_this);
+	        _this.returnToDefaultView = _this.returnToDefaultView.bind(_this);
+
+	        _this.state = {
+	            active: props.default
+	        };
+	        return _this;
+	    }
+
+	    _createClass(Views, [{
+	        key: 'select',
+	        value: function select(id) {
+	            this.setState({ active: id === '__default' ? this.props.default : id });
+	        }
+	    }, {
+	        key: 'returnToDefaultView',
+	        value: function returnToDefaultView() {
+	            this.select('__default');
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _props = this.props,
+	                children = _props.children,
+	                className = _props.className,
+	                active = this.state.active;
+
+
+	            var activeView = null;
+
+	            _react.Children.forEach(children, function (child) {
+	                if (!activeView) {
+	                    activeView = child.props.id === active ? child : null;
+	                }
+	            });
+
+	            var returnToDefaultView = this.returnToDefaultView,
+	                view = (0, _react.cloneElement)(activeView, [returnToDefaultView]);
+
+
+	            return _react2.default.createElement(
+	                'div',
+	                { className: className },
+	                view
+	            );
+	        }
+	    }]);
+
+	    return Views;
+	}(_react.Component);
+
+	exports.default = Views;
 
 /***/ }),
 /* 226 */
@@ -24726,133 +24812,11 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	exports.ModalBody = ModalBody;
-
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	/*
-	    ModalBody is used to nest modal content
-	    Modals holds various bodies and handles opening and closing
-	*/
-
-	function ModalBody(_ref) {
-	    var open = _ref.open,
-	        children = _ref.children;
-
-
-	    return _react2.default.createElement(
-	        'div',
-	        { className:  true ? ' active' : '' },
-	        children
-	    );
-	}
-
-	var Modals = function (_Component) {
-	    _inherits(Modals, _Component);
-
-	    function Modals(props) {
-	        _classCallCheck(this, Modals);
-
-	        var _this = _possibleConstructorReturn(this, (Modals.__proto__ || Object.getPrototypeOf(Modals)).call(this, props));
-
-	        _this.close = _this.close.bind(_this);
-
-	        _this.state = {
-	            open: false // string value indicating the modal id || false if closed
-	        };
-
-	        _this.listen();
-	        return _this;
-	    }
-
-	    _createClass(Modals, [{
-	        key: 'listen',
-	        value: function listen() {
-	            var _this2 = this;
-
-	            click(window, function (e) {
-	                return e.keyCode == 27 && _this2.state.open && _this2.close();
-	            });
-	        }
-	    }, {
-	        key: 'open',
-	        value: function open(name) {
-	            if (!this.state.open) {
-	                this.setState({ open: name });
-	            }
-	        }
-	    }, {
-	        key: 'close',
-	        value: function close() {
-	            if (this.state.open) {
-	                this.setState({ open: false });
-	            }
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            var _props = this.props,
-	                close = _props.close,
-	                children = _props.children,
-	                open = this.state.open,
-	                isOpen = open ? 'modal--open' : '';
-
-
-	            _children = (0, _react.Children)(children, function (child) {
-	                return (0, _react.cloneElement)(child, [].concat(_toConsumableArray(child.props), [open]));
-	            });
-
-	            return _react2.default.createElement(
-	                'div',
-	                { className: 'modal ' + isOpen },
-	                _react2.default.createElement(
-	                    'span',
-	                    {
-	                        className: 'modal__close',
-	                        onClick: this.props.close
-	                    },
-	                    'X'
-	                ),
-	                _children
-	            );
-	        }
-	    }]);
-
-	    return Modals;
-	}(_react.Component);
-
-	exports.default = Modals;
-
-/***/ }),
-/* 227 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.NewModal = undefined;
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _Modal = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"../shared/Modal\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	var _Modal = __webpack_require__(227);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 
@@ -24864,34 +24828,146 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var NewModal = exports.NewModal = function (_Component) {
-	    _inherits(NewModal, _Component);
+	var NewItem = function (_Component) {
+	    _inherits(NewItem, _Component);
 
-	    function NewModal(props) {
-	        _classCallCheck(this, NewModal);
+	    function NewItem(props) {
+	        _classCallCheck(this, NewItem);
 
-	        var _this = _possibleConstructorReturn(this, (NewModal.__proto__ || Object.getPrototypeOf(NewModal)).call(this, props));
+	        var _this = _possibleConstructorReturn(this, (NewItem.__proto__ || Object.getPrototypeOf(NewItem)).call(this, props));
 
-	        _this.state = {
-	            id: null,
-	            open: false
-	        };
+	        _this.state = {};
 	        return _this;
 	    }
 
-	    _createClass(NewModal, [{
+	    _createClass(NewItem, [{
+	        key: 'save',
+	        value: function save() {}
+	    }, {
 	        key: 'render',
 	        value: function render() {
+	            var _this2 = this;
+
+	            var _props = this.props,
+	                open = _props.open,
+	                categories = _props.categories,
+	                onClose = _props.onClose,
+	                _categories = categories.map(function (c, i) {
+	                return _react2.default.createElement(
+	                    'option',
+	                    { key: i },
+	                    c
+	                );
+	            });
+
 	            return _react2.default.createElement(
 	                _Modal2.default,
-	                { open: this.state.open, opaque: true },
-	                'THIS IS A TEST'
+	                { onClose: onClose },
+	                _react2.default.createElement(
+	                    'h1',
+	                    { className: 'section-title' },
+	                    'NEW ITEM'
+	                ),
+	                _react2.default.createElement(
+	                    'form',
+	                    null,
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'form-group' },
+	                        _react2.default.createElement(
+	                            'p',
+	                            null,
+	                            'Category'
+	                        ),
+	                        _react2.default.createElement('input', { list: 'categories', ref: function ref(c) {
+	                                return _this2.category = c;
+	                            }, required: true })
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'form-group' },
+	                        _react2.default.createElement(
+	                            'p',
+	                            null,
+	                            'Name'
+	                        ),
+	                        _react2.default.createElement('input', { ref: function ref(n) {
+	                                return _this2.name = n;
+	                            }, required: true })
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'form-group' },
+	                        _react2.default.createElement(
+	                            'p',
+	                            null,
+	                            'In Stock'
+	                        ),
+	                        _react2.default.createElement('input', { type: 'number', ref: function ref(s) {
+	                                return _this2.inStock = s;
+	                            }, required: true })
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'form-group' },
+	                        _react2.default.createElement(
+	                            'p',
+	                            null,
+	                            'Low At'
+	                        ),
+	                        _react2.default.createElement('input', { type: 'number', ref: function ref(l) {
+	                                return _this2.lowAt = l;
+	                            }, required: true })
+	                    ),
+	                    _react2.default.createElement(
+	                        'button',
+	                        { className: 'submit' },
+	                        'SAVE'
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'datalist',
+	                    { id: 'categories' },
+	                    _categories
+	                )
 	            );
 	        }
 	    }]);
 
-	    return NewModal;
+	    return NewItem;
 	}(_react.Component);
+
+	exports.default = NewItem;
+
+/***/ }),
+/* 227 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = Modal;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function Modal(props) {
+	    return _react2.default.createElement(
+	        'div',
+	        { className: 'modal modal--open' },
+	        _react2.default.createElement('span', { className: 'modal__close', onClick: props.onClose }),
+	        _react2.default.createElement(
+	            'div',
+	            { className: 'modal__body' },
+	            props.children
+	        )
+	    );
+	}
 
 /***/ })
 /******/ ]);

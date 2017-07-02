@@ -6,21 +6,25 @@ form {
         color: #C00
     }
     .form-group {
-        &.row {
-            padding: 5px 0;
-            input {
-                border: 0;
-                border-bottom: 2px solid #CCC;
-                height: 25px;
-                width: 100%
-            }
-        }
         @mixin clearfix;
         font-size: 1.35rem;
         margin: 0;
         padding: 7px 0;
-        border-bottom: 1px solid #DDD;
-        & > label { float: left }
+
+        &.row {
+            padding: 5px 0;
+            input {
+                border: 0;
+                height: 25px;
+                width: 100%
+            }
+        }
+
+        p {
+            margin: 0;
+            margin-bottom: 5px;
+        }
+
         input {
             &.bordered {
                 border: 1px solid #CCC;
@@ -28,6 +32,7 @@ form {
             }
             font-size: inherit;
         }
+
         textarea {
             padding: 15px;
             width: 100%;
@@ -73,7 +78,11 @@ form {
 }
 
 .modal__body {
-    label {font-weight: 600}
+    label, p {
+        height: 35px;
+        font-weight: 600;
+        float: left;
+    }
     input {
         float: right;
         border: 0;

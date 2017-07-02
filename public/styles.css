@@ -47,9 +47,17 @@ img {
     max-width: 100%;
     height: auto;
 }
-main {
+.main-view {
     margin-left: calc(304px + 1.5rem);
     margin-right: 1.15rem;
+}
+@media (max-width: 480px) {
+    .main-view {
+        max-width: 1236px;
+        padding: 25px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
 .invisible {
     visibility: hidden;
@@ -363,7 +371,10 @@ form .form-group {
     font-size: 1.35rem;
     margin: 0;
     padding: 7px 0;
-    border-bottom: 1px solid #DDD;
+}
+form .form-group p {
+    margin: 0;
+    margin-bottom: 5px;
 }
 form .form-group input {
     font-size: inherit;
@@ -377,22 +388,18 @@ form .form-group textarea {
     width: 100%;
     font-size: inherit;
 }
-form .form-group.row {
-    padding: 5px 0;
-}
-form .form-group.row input {
-    border: 0;
-    border-bottom: 2px solid #CCC;
-    height: 25px;
-    width: 100%;
-}
 form .form-group::after {
     content: '';
     clear: both;
     display: table;
 }
-form .form-group > label {
-    float: left;
+form .form-group.row {
+    padding: 5px 0;
+}
+form .form-group.row input {
+    border: 0;
+    height: 25px;
+    width: 100%;
 }
 form .form-group--inline {
     margin: 0;
@@ -436,8 +443,10 @@ form .form-group--inline input {
 .headings .right {
     float: right;
 }
-.modal__body label {
+.modal__body label, .modal__body p {
+    height: 35px;
     font-weight: 600;
+    float: left;
 }
 .modal__body input {
     float: right;
@@ -541,7 +550,7 @@ table td:first-child, table th:first-child {
 .modal--open {
     opacity: 1;
     visibility: visible;
-    z-index: 9000;
+    z-index: 900;
     -webkit-transform: scale(1);
             transform: scale(1);
 }
@@ -560,30 +569,44 @@ table td:first-child, table th:first-child {
 }
 .modal__close {
     display: block;
+    z-index: 910;
     width: 4rem;
     height: 4rem;
-    padding: 10px 0;
     border-radius: 999px;
     background: rgb(35, 70, 220);
     text-align: center;
     position: absolute;
     top: 20px;
     right: 20px;
-    font-size: 2.5rem;
+    cursor: pointer;
+    color: rgb(255, 255, 255);
+    /*text-shadow: 1px 2px 3px #333;*/
+}
+.modal__close::after {
+    position: relative;
+    top: 1rem;
+    font-size: 2rem;
     font-weight: 800;
     -webkit-transform-origin: top right;
             transform-origin: top right;
     -webkit-transform: scaleX(1.2);
             transform: scaleX(1.2);
-    cursor: pointer;
-    color: rgb(255, 255, 255);
-    /*text-shadow: 1px 2px 3px #333;*/
+    content: 'X';
 }
 .modal__close:hover {
-    background: rgb(240, 32, 32);
+    background: rgb(36, 65, 194);
+}
+@media (max-width: 480px) {
+    .modal__close {
+        top: 10px;
+        right: 10px;
+        -webkit-transform-origin: top right;
+                transform-origin: top right;
+        -webkit-transform: scale(0.6);
+                transform: scale(0.6);
+    }
 }
 .modal__body {
-    display: none;
     background-color: #FFF;
     border: 1px solid #CCC;
     box-shadow: 0 4px 3px 2px #333;
@@ -596,14 +619,17 @@ table td:first-child, table th:first-child {
     -webkit-transform: translate(-50%, -50%);
             transform: translate(-50%, -50%);
 }
-.modal__body.active {
-    display: block;
-}
 .modal__body--scrollable {
     max-height: calc(100vh - 4rem);
     margin-top: 2rem;
     margin-bottom: 2rem;
     overflow-y: auto;
+}
+@media (max-width: 480px) {
+    .modal__body {
+        width: 100%;
+        height: 100%;
+    }
 }
 #log {
     overflow-y: scroll;
@@ -974,6 +1000,7 @@ table td:first-child, table th:first-child {
     width: 240px;
     padding: 20px 0;
     margin-right: 240px;
+    box-shadow: 1px 0 4px 2px rgba(0, 0, 0, 0.5);
 }
 .sidebar input {
     display: block;
@@ -1062,6 +1089,16 @@ table td:first-child, table th:first-child {
     position: absolute;
     bottom: 0;
 }
+@media (max-width: 480px) {
+    .sidebar__aside-buttons {
+        display: none;
+    }
+}
+@media (max-width: 480px) {
+    .sidebar {
+        display: none;
+    }
+}
 .text {}
 .text-center {
     text-align: center !important;
@@ -1089,6 +1126,46 @@ table td:first-child, table th:first-child {
 }
 .text-black {
     color: #111;
+}
+.section-title {
+    text-align: center;
+    font-size: 2.15rem;
+    font-weight: 100;
+    margin-bottom: 1.5rem;
+}
+.section-title strong {
+    font-weight: 500;
+}
+.section-title--less-margin {
+    margin-top: 0;
+    margin-bottom: 0.3rem !important;
+}
+.section-title--medium {
+    font-weight: 300;
+}
+@media (min-width: 768px) {
+    .section-title {
+        font-size: 3.15rem;
+        margin-bottom: 1.85rem;
+    }
+}
+.section-title__icon {
+    display: block;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 0.6rem;
+}
+@media (min-width: 480px) {
+    .section-title__icon {
+        display: inline-block;
+        text-align: left;
+        position: relative;
+        top: 8px;
+        margin-right: 0.5rem;
+        margin-left: 0;
+        margin-bottom: 0;
+    }
 }
 .tooltip {
     position: relative;

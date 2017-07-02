@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Children } from 'react';
 import axios, { get, post } from 'axios';
 import { debounce, trigger } from 'lodash';
 
@@ -6,9 +6,10 @@ import { debounce, trigger } from 'lodash';
 
 import Sidebar from './Sidebar';
 import Items from './Items';
-import { NewModal } from './Modals';
 
+import Views from '../shared/Views';
 
+import NewItem from './views/new';
 
 const
     // for axios
@@ -24,10 +25,11 @@ export default class Housekeeping extends Component {
         this.filter = this.filter.bind(this);
         this.groupItems = this.groupItems.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
-
-        this.modals = {};
+        this.closeModal = this.closeModal.bind(this);
 
         this.state = {
+            activeitem: null,
+            activeView: 'items',
             items: null,
             filter: null
         }
@@ -42,9 +44,8 @@ export default class Housekeeping extends Component {
 
     }
 
-    openModal (modal) {
-        console.log(this.modals[modal]);
-        this.modals[modal].setState({open:true})
+    closeModal () {
+        this.views.returnToDefaultView();
     }
 
     groupItems (_items) {
@@ -87,12 +88,17 @@ export default class Housekeeping extends Component {
             low = s => s.toLowerCase(),
             filteredItems = items.filter(item => {
                 const
-                    _filter = new RegExp(`^(${filter})`),
-                    words = low(item.name).split(' ');
-                for (let i = 0, len = words.length; i < len; i++) {
-                    if ( words[i].match(_filter) ) {
-                        return true;
-                    }
+                    _filter = new RegExp(`^(${filter})`, 'i'),
+                    nameWords = item.name.split(' '),
+                    categoryWords = item.category.split(' '),
+                    len = Math.max(nameWords.length, categoryWords.length);
+
+                for (let i = 0; i < len; i++) {
+                    let
+                        nameWord = nameWords[i],
+                        categoryWord = categoryWords[i];
+                    if (nameWord && nameWord.match(_filter)) return true;
+                    if (categoryWord && categoryWord.match(_filter)) return true;
                 }
 
                 return false;
@@ -102,22 +108,25 @@ export default class Housekeeping extends Component {
     }
 
     render () {
-        if (this.state.items === null) return null;
+        const { items, filter, activeView, activeItem } = this.state;
+
+        if (items === null) return null;
 
         const
-            items = this.state.filter ? this.filter() : this.groupItems(),
-            categories = items.map(i => i.category);
+            _items = filter ? this.filter() : this.groupItems(),
+            categories  = _items.map(i => i.category);
 
         return (
             <div>
                 <Sidebar
                     categories={categories}
                     handleSearch={ debounce(this.handleSearch, 200, { leading: false }) }
-                    newItem={() => this.openModal('newModal')}
+                    newItem={() => this.views.select('new')}
                 />
-                <Items items={items} />
-
-                <NewModal ref={mod => this.modals.newModal = mod} />
+            <Views className='main-view' ref={v => this.views = v} default='items'>
+                    <Items id='items' items={_items} />
+                    <NewItem id='new' categories={categories} onClose={this.closeModal}/>
+                </Views>
             </div>
         )
 
