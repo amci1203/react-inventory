@@ -19,8 +19,8 @@ app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/icons'));
 
 // SET ENV VARIABLES
-// TMP SETTING: THIS IS CURRENTLY THE ONLY department
-app.set('department', 'housekeeping');
+
+app.set('department', 'housekeeping'); // TMP SETTING: This is currently the ONLY department
 
 // ROUTING
 //app.use('/_', routes)

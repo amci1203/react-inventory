@@ -6,7 +6,7 @@ const
     ass = Object.assign;
 
 const subSchema = new mongoose.Schema({
-    date     : ass(str, {unique: true}),
+    date     : ass(str, { unique: true }),
     added    : num,
     removed  : num,
     balance  : num,
@@ -16,14 +16,12 @@ const subSchema = new mongoose.Schema({
 const schema = new mongoose.Schema(
     {
         name     : ass(str, {unique: true}),
-        category : ass(str, {default: 'Uncategorized'}),
+        category : ass(str, { default: 'Uncategorized' }),
         inStock  : num,
         lowAt    : num,
         log      : [ subSchema ]
     }, {
-        timestamps: {
-            updatedAt: 'lastModified'
-        }
+        timestamps: { updatedAt: 'lastModified' }
     }
 );
 
@@ -70,6 +68,7 @@ function getCategoryItems (category, callback) {
 
 // Saves a new item; adds first log; and returns the new item to the client
 function add (item, callback) {
+    item.category = item.category || 'Uncategorized';
     item.log  = [{
         date     : item.date,
         added    : item.inStock,
@@ -80,49 +79,55 @@ function add (item, callback) {
 }
 
 function push (isById, item, log, callback) {
-    let query   = isById ? {_id: item}  :  {name: new RegExp(`${item}`)}
-    balance = log.added - log.removed;
-    this.findOne(query).select('_id inStock log').exec((err, doc) => {
-        if (!doc) callback(`${item} not found.`);
-        else {
-            const itemId = doc._id;
-            hasNoErrors(err);
-            doc.log.forEach(item => {
-                if (item.date == log.date) return callback('Log with that date is already in the database.');
-            })
-            log.balance = doc.inStock + balance;
+    const
+        query    = isById ? {_id: item}  :  {name: new RegExp(`${item}`)},
+        balance  = log.added - log.removed,
+        { date } = item;
+
+    this
+        .findOne(query)
+        .select('_id inStock log')
+        .exec((err, doc) => {
+            if (!doc) return callback(`${item} not found.`);
+            if (err) return callback(err);
+
+            const { log, inStock } = doc;
+            for (let i = 0, len = log.length; i < len; i++) {
+                if (date === log[i].date) {
+                    return callback('Log with that date is already in the database.');
+                }
+            }
+
+            log.balance = inStock + balance;
+
             return this.findOneAndUpdate(
                 {_id: doc._id},
                 {
                     $inc:  { inStock  : balance },
                     $push: { log : {
                         $each: [ log ],
-                        $sort: { date:1 }
+                        $sort: { date: 1 }
                     }}
                 },
                 { upsert: true },
-                (err, id) => {
-                    if (hasNoErrors(err)) callback(err);
-                    else callback(err, id);
-                }
+                (err, id) => isOk(err, id, callback)
             )
-        }
-    })
+        })
 }
 
 function editItem (_id, data, callback) {
     const { name } = data;
     this.findOne({name}, (err, doc) => {
-        if (doc) return callback({error: 'An item with this name already exists'});
+        if (doc) return callback('An item with this name already exists');
         return this.findOneAndUpdate({_id}, data, {upsert: false}, (err, numAffected) => {
-            hasNoErrors(err);
-            callback(data);
+            isOk(err, data, callback);
         })
     })
 }
 
 function editItemLog (itemId, logId, newLog, callback) {
     let update = {};
+
     if (newLog.hasOwnProperty('comments'))  {
         update = {
             $set: {
@@ -141,53 +146,51 @@ function editItemLog (itemId, logId, newLog, callback) {
             }
         }
     }
-    return this.update(
+
+    this.update(
         {
             "_id"     : itemId,
             "log._id" : logId
-        }, update, { upsert : false },
+        },
+        update,
+        { upsert : false },
         (err, numAffected) => {
-            if (hasNoErrors(err)) callback(err)
-            //            else if (!newLog.hasOwnProperty('comments')) this.checkBalances(itemId, newLog, callback);
-            callback(err, numAffected);
+            if (err) return callback(err)
+            if (numAffected === 0) return // don't know what I want to do here yet
+            return correctBalances.call(this, itemId, logId, newLog.balance)
         }
     )
 }
 
-function remove (itemId, callback) {
-    return this.where({_id: itemId}).remove((err, removedId) => {
-        hasNoErrors(err);
-        if (callback !== undefined) callback(removedId)
-    })
+function remove (_id, callback) {
+    return this
+        .where({ _id })
+        .remove((err, removed) => isOK(err, removed, callback))
 }
 
 function getRecordsForDate (dateString, callback) {
-    return this.aggregate(
-        [
-            {$project: {
-                name     : 1,
-                category : 1,
-                log      : 1,
-            }},
-            {$group: {
-                _id   : '$category',
-                items : {$push: {
-                    name : '$name',
-                    log  : {
-                        $filter: {
-                            input : '$log',
-                            as    : 'log',
-                            cond  : {$eq: ['$$log.date', dateString]}
-                        }
+    const aggr = [
+        {$project: {
+            name     : 1,
+            category : 1,
+            log      : 1,
+        }},
+        {$group: {
+            _id   : '$category',
+            items : {$push: {
+                name : '$name',
+                log  : {
+                    $filter: {
+                        input : '$log',
+                        as    : 'log',
+                        cond  : {$eq: ['$$log.date', dateString]}
                     }
-                }}
-            }},
-            {$sort: {_id: 1}}
-        ], (err, result) => {
-            hasNoErrors(err);
-            callback(err, result);
-        }
-    )
+                }
+            }}
+        }},
+        {$sort: {_id: 1}}
+    ]
+    return this.aggregate(aggr, (err, result) => isOk(err, result, callback))
 }
 
 function checkBalances (id, log, callback) {
@@ -234,4 +237,30 @@ function isOK (err, data, cb) {
     }
     if (typeof cb == 'function') cb(null, data);
     return true;
+}
+
+function correctBalances (itemId, logId, balance) {
+    const id = { _id: itemId };
+    this
+        .findOne(id)
+        .select('log')
+        .exec((err, doc) => {
+            if (err) return err;
+
+            const
+                { log } = doc,
+                len = log.length,
+                start = log.map(l => l._id).indexOf(logId) + 1;
+            let prev = balance;
+
+            for (let i = start; i < len; i++) {
+                const balance = prev + log[i].added - log[i].removed;
+                Object.assign(log[i], { balance });
+                prev = balance;
+            }
+
+            this.update(id, { $set: { log } }, { upsert: false }, err => {
+                isOk(err, log, callback);
+            })
+        })
 }

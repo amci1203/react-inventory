@@ -13,6 +13,10 @@ export default class Views extends Component {
         }
     }
 
+    getCurrentViewId () {
+        return this.state.active
+    }
+
     select (id) {
         this.setState({ active: id === '__default' ? this.props.default : id });
     }

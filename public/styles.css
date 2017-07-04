@@ -362,11 +362,14 @@ header .section-title {
 form {
     margin: 0;
 }
-form .error {
+form .errors {
     text-align: center;
     color: #C00;
+    background: #FCC;
+    border: 1px solid #F77;
+    padding: 1.15rem 0.15rem;
 }
-form .error::after {
+form .errors::after {
     content: '';
     clear: both;
     display: table;
@@ -447,13 +450,16 @@ form .form-group--inline input {
 .headings .right {
     float: right;
 }
-.modal__body label, .modal__body p {
+.modal__body label, .modal__body p:not(.errors) {
     height: 35px;
+    text-align: right;
+    padding-right: 25px;
     font-weight: 600;
     float: left;
+    width: 40%;
 }
 .modal__body input {
-    float: right;
+    float: left;
     border: 0;
     border-bottom: 2px solid #CCC;
     height: 35px;
@@ -537,8 +543,8 @@ table td:first-child, table th:first-child {
 }
 .modal {
     transition: all 0.3s ease-out;
-    -webkit-animation: modal-appear 0.3s;
-            animation: modal-appear 0.3s;
+    -webkit-animation: modal-appear 0.25s;
+            animation: modal-appear 0.25s;
     opacity: 0;
     visibility: hidden;
     z-index: 0;
@@ -615,6 +621,7 @@ table td:first-child, table th:first-child {
 .modal__body {
     background-color: #FFF;
     border: 1px solid #CCC;
+    border-radius: 2.4rem;
     box-shadow: 0 4px 3px 2px #333;
     padding: 35px;
     font-size: 1.3rem;
@@ -635,6 +642,7 @@ table td:first-child, table th:first-child {
     .modal__body {
         width: 100%;
         height: 100%;
+        border-radius: 0;
     }
 }
 #log {

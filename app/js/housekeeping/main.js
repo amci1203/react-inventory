@@ -1,6 +1,6 @@
 import React, { Component, Children } from 'react';
 import axios, { get, post } from 'axios';
-import { debounce, trigger } from 'lodash';
+import { debounce } from 'lodash';
 
 // import 'smoothscroll';
 
@@ -10,6 +10,7 @@ import Items from './Items';
 import Views from '../shared/Views';
 
 import NewItem from './views/new';
+import DeleteItem from './views/delete';
 
 const
     // for axios
@@ -22,10 +23,12 @@ export default class Housekeeping extends Component {
     constructor (props) {
         super(props);
 
-        this.filter = this.filter.bind(this);
-        this.groupItems = this.groupItems.bind(this);
+        this.filter       = this.filter.bind(this);
+        this.groupItems   = this.groupItems.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
-        this.closeModal = this.closeModal.bind(this);
+        this.closeModal   = this.closeModal.bind(this);
+        this.saveItem     = this.saveItem.bind(this);
+        this.deleteItem   = this.deleteItem.bind(this);
 
         this.state = {
             activeitem: null,
@@ -110,6 +113,26 @@ export default class Housekeeping extends Component {
         return this.groupItems(filteredItems)
     }
 
+    saveItem (item) {
+        const items = insertItem(item, this.state.items);
+        this.setState({ items });
+        this.closeModal()
+    }
+
+    deleteItem (_name) {
+        const
+            { items } = this.state,
+            names = items.map(n => n.name.toLowerCase()),
+            name = _name.toLowerCase();
+        for (let i = 0, len = items.length; i < len; i++) {
+            if (name === names[i]) {
+                const _items = [ ...this.state.items.slice(0, i), ...this.state.items.slice(i + 1)];
+                this.setState({ items: _items });
+                this.closeModal();
+            }
+        }
+    }
+
     render () {
         const
             { items, filter, activeView, activeItem } = this.state,
@@ -119,7 +142,11 @@ export default class Housekeeping extends Component {
 
         const
             _items = filter ? this.filter() : this.groupItems(),
-            categories  = _items.map(i => i.category);
+            categories  = _items.map(i => i.category),
+            deleteArr = items.map(n => {
+                const { name, _id } = n;
+                return { name, _id };
+            });
 
         return (
             <div>
@@ -128,13 +155,60 @@ export default class Housekeeping extends Component {
                     handleSearch={ deb(this.handleSearch) }
                     newItem={() => this.views.select('new')}
                     editItem={() => this.views.select('edit')}
+                    deleteItem={() => this.views.select('delete')}
                 />
             <Views className='main-view' ref={v => this.views = v} default='items'>
                     <Items id='items' items={_items} />
-                    <NewItem id='new' categories={categories} onClose={this.closeModal}/>
+                    <NewItem
+                        id='new'
+                        items={items.map(n => n.name.toLowerCase())}
+                        categories={categories}
+                        onSave={this.saveItem}
+                        onClose={this.closeModal}
+                    />
+                <DeleteItem
+                    id='delete'
+                    activeItem={this.state.activeItem}
+                    items={deleteArr}
+                    onDelete={this.deleteItem}
+                    onClose={this.closeModal}
+                />
                 </Views>
             </div>
         )
 
     }
+}
+
+function insertItem (item, arr) {
+    const
+        name        = item.name.toLowerCase(),
+        category    = item.category.toLowerCase(),
+        categories  = arr.map(c => c.category.toLowerCase()),
+        items       = arr.map(n => n.name.toLowerCase()),
+        categoryArr = [...categories, category].sort(),
+
+        // first & last occurence of the new item's category
+        fc = categoryArr.indexOf(category),
+        lc = categoryArr.lastIndexOf(category);
+
+    if (fc === lc) { // new category; secondary sort not required
+        const pos = newArr.indexOf(category);
+        return [
+            ...arr.slice(0, pos + 1),
+            item,
+            ...arr.slice(pos + 1)
+        ];
+    }
+
+    const
+        categoryItemsArr = [...items.slice(fc, lc + 1), name].sort(),
+        itemPos = categoryItemsArr.indexOf(name);
+
+    return [
+        ...arr.slice(0, fc + itemPos + 1),
+        item,
+        ...arr.slice(itemPos + 1)
+    ];
+
 }

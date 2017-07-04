@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "mongod --fork --logpath 'logs/mongo.log' && node index.js",
+    "start": "npm rum mongod && node index.js",
     "start:watch": "mongod --fork --logpath 'logs/mongo.log' && nodemon index.js",
+    "mongod": "mongod --fork --logpath 'logs/mongo.log'",
     "stop": "pkill mongod",
     "test": "mocha --compilers js:babel-core/register --require ./test/test_helper.js 'app/**/*test.js'",
     "test:watch": "npm run test -- --watch"

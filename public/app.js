@@ -22242,7 +22242,13 @@
 
 	var _new2 = _interopRequireDefault(_new);
 
+	var _delete = __webpack_require__(228);
+
+	var _delete2 = _interopRequireDefault(_delete);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -22270,6 +22276,8 @@
 	        _this.groupItems = _this.groupItems.bind(_this);
 	        _this.handleSearch = _this.handleSearch.bind(_this);
 	        _this.closeModal = _this.closeModal.bind(_this);
+	        _this.saveItem = _this.saveItem.bind(_this);
+	        _this.deleteItem = _this.deleteItem.bind(_this);
 
 	        _this.state = {
 	            activeitem: null,
@@ -22363,6 +22371,30 @@
 	            return this.groupItems(filteredItems);
 	        }
 	    }, {
+	        key: 'saveItem',
+	        value: function saveItem(item) {
+	            var items = insertItem(item, this.state.items);
+	            this.setState({ items: items });
+	            this.closeModal();
+	        }
+	    }, {
+	        key: 'deleteItem',
+	        value: function deleteItem(_name) {
+	            var items = this.state.items,
+	                names = items.map(function (n) {
+	                return n.name.toLowerCase();
+	            }),
+	                name = _name.toLowerCase();
+
+	            for (var i = 0, len = items.length; i < len; i++) {
+	                if (name === names[i]) {
+	                    var _items = [].concat(_toConsumableArray(this.state.items.slice(0, i)), _toConsumableArray(this.state.items.slice(i + 1)));
+	                    this.setState({ items: _items });
+	                    this.closeModal();
+	                }
+	            }
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var _this3 = this;
@@ -22381,6 +22413,12 @@
 	            var _items = filter ? this.filter() : this.groupItems(),
 	                categories = _items.map(function (i) {
 	                return i.category;
+	            }),
+	                deleteArr = items.map(function (n) {
+	                var name = n.name,
+	                    _id = n._id;
+
+	                return { name: name, _id: _id };
 	            });
 
 	            return _react2.default.createElement(
@@ -22394,6 +22432,9 @@
 	                    },
 	                    editItem: function editItem() {
 	                        return _this3.views.select('edit');
+	                    },
+	                    deleteItem: function deleteItem() {
+	                        return _this3.views.select('delete');
 	                    }
 	                }),
 	                _react2.default.createElement(
@@ -22402,7 +22443,22 @@
 	                            return _this3.views = v;
 	                        }, 'default': 'items' },
 	                    _react2.default.createElement(_Items2.default, { id: 'items', items: _items }),
-	                    _react2.default.createElement(_new2.default, { id: 'new', categories: categories, onClose: this.closeModal })
+	                    _react2.default.createElement(_new2.default, {
+	                        id: 'new',
+	                        items: items.map(function (n) {
+	                            return n.name.toLowerCase();
+	                        }),
+	                        categories: categories,
+	                        onSave: this.saveItem,
+	                        onClose: this.closeModal
+	                    }),
+	                    _react2.default.createElement(_delete2.default, {
+	                        id: 'delete',
+	                        activeItem: this.state.activeItem,
+	                        items: deleteArr,
+	                        onDelete: this.deleteItem,
+	                        onClose: this.closeModal
+	                    })
 	                )
 	            );
 	        }
@@ -22412,6 +22468,35 @@
 	}(_react.Component);
 
 	exports.default = Housekeeping;
+
+
+	function insertItem(item, arr) {
+	    var name = item.name.toLowerCase(),
+	        category = item.category.toLowerCase(),
+	        categories = arr.map(function (c) {
+	        return c.category.toLowerCase();
+	    }),
+	        items = arr.map(function (n) {
+	        return n.name.toLowerCase();
+	    }),
+	        categoryArr = [].concat(_toConsumableArray(categories), [category]).sort(),
+
+
+	    // first & last occurence of the new item's category
+	    fc = categoryArr.indexOf(category),
+	        lc = categoryArr.lastIndexOf(category);
+
+	    if (fc === lc) {
+	        // new category; secondary sort not required
+	        var pos = newArr.indexOf(category);
+	        return [].concat(_toConsumableArray(arr.slice(0, pos + 1)), [item], _toConsumableArray(arr.slice(pos + 1)));
+	    }
+
+	    var categoryItemsArr = [].concat(_toConsumableArray(items.slice(fc, lc + 1)), [name]).sort(),
+	        itemPos = categoryItemsArr.indexOf(name);
+
+	    return [].concat(_toConsumableArray(arr.slice(0, fc + itemPos + 1)), [item], _toConsumableArray(arr.slice(itemPos + 1)));
+	}
 
 /***/ }),
 /* 185 */
@@ -24540,6 +24625,7 @@
 	                categories = _props.categories,
 	                newItem = _props.newItem,
 	                editItem = _props.editItem,
+	                deleteItem = _props.deleteItem,
 	                _categories = categories.map(function (cat, key) {
 	                var href = '#' + cat.replace(' ', '-').toLowerCase();
 	                return _react2.default.createElement(
@@ -24592,7 +24678,11 @@
 	                            src: 'icons/edit.png',
 	                            onClick: editItem
 	                        }),
-	                        _react2.default.createElement('img', { className: 'icon', src: 'icons/delete.png' })
+	                        _react2.default.createElement('img', {
+	                            className: 'icon',
+	                            src: 'icons/delete.png',
+	                            onClick: deleteItem
+	                        })
 	                    ),
 	                    _react2.default.createElement(
 	                        'div',
@@ -24762,6 +24852,11 @@
 	    }
 
 	    _createClass(Views, [{
+	        key: 'getCurrentViewId',
+	        value: function getCurrentViewId() {
+	            return this.state.active;
+	        }
+	    }, {
 	        key: 'select',
 	        value: function select(id) {
 	            this.setState({ active: id === '__default' ? this.props.default : id });
@@ -24815,11 +24910,19 @@
 	    value: true
 	});
 
+	var _debounce2 = __webpack_require__(185);
+
+	var _debounce3 = _interopRequireDefault(_debounce2);
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
+
+	var _axios = __webpack_require__(197);
+
+	var _axios2 = _interopRequireDefault(_axios);
 
 	var _Modal = __webpack_require__(227);
 
@@ -24841,19 +24944,75 @@
 
 	        var _this = _possibleConstructorReturn(this, (NewItem.__proto__ || Object.getPrototypeOf(NewItem)).call(this, props));
 
-	        _this.state = {};
+	        _this.save = _this.save.bind(_this);
+	        _this.checkUniqueness = _this.checkUniqueness.bind(_this);
+
+	        _this.state = {
+	            error: null
+	        };
 	        return _this;
 	    }
 
 	    _createClass(NewItem, [{
+	        key: 'checkUniqueness',
+	        value: function checkUniqueness() {
+	            var items = this.props.items,
+	                name = this.name,
+	                _name = name.value.toLowerCase();
+
+	            for (var i = 0, len = items.length; i < len; i++) {
+	                if (_name === items[i]) {
+	                    var _error = 'An item with that name already exists';
+	                    this.setState({ error: _error });
+	                    return;
+	                }
+	            }
+	            var error = this.state.error;
+
+	            if (error === 'An item with that name already exists') {
+	                this.setState({ error: null });
+	            }
+	        }
+	    }, {
 	        key: 'save',
-	        value: function save() {}
+	        value: function save() {
+	            var _this2 = this;
+
+	            var category = this.category,
+	                name = this.name,
+	                inStock = this.inStock,
+	                lowAt = this.lowAt;
+
+
+	            if (name.value.trim() === '') {
+	                var error = 'A name must be specified';
+	                this.setState({ error: error });
+	                return;
+	            }
+	            var body = { item: {
+	                    category: category.value,
+	                    name: name.value,
+	                    inStock: Number(inStock.value),
+	                    lowAt: Number(lowAt.value)
+	                } };
+
+	            (0, _axios.post)('housekeeping', body).then(function (res) {
+	                return _this2.props.onSave(res.data);
+	            }).catch(function (e) {
+	                return console.log(e.toString());
+	            });
+	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this2 = this;
+	            var _this3 = this;
 
-	            var _props = this.props,
+	            var error = this.state.error ? _react2.default.createElement(
+	                'p',
+	                { className: 'errors' },
+	                this.state.error
+	            ) : null,
+	                _props = this.props,
 	                open = _props.open,
 	                categories = _props.categories,
 	                onClose = _props.onClose,
@@ -24864,6 +25023,7 @@
 	                    c
 	                );
 	            });
+
 
 	            return _react2.default.createElement(
 	                _Modal2.default,
@@ -24876,6 +25036,7 @@
 	                _react2.default.createElement(
 	                    'form',
 	                    null,
+	                    error,
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'form-group' },
@@ -24884,9 +25045,12 @@
 	                            null,
 	                            'Category'
 	                        ),
-	                        _react2.default.createElement('input', { list: 'categories', ref: function ref(c) {
-	                                return _this2.category = c;
-	                            }, required: true })
+	                        _react2.default.createElement('input', {
+	                            list: 'categories',
+	                            ref: function ref(c) {
+	                                return _this3.category = c;
+	                            }
+	                        })
 	                    ),
 	                    _react2.default.createElement(
 	                        'div',
@@ -24896,9 +25060,12 @@
 	                            null,
 	                            'Name'
 	                        ),
-	                        _react2.default.createElement('input', { ref: function ref(n) {
-	                                return _this2.name = n;
-	                            }, required: true })
+	                        _react2.default.createElement('input', {
+	                            onChange: (0, _debounce3.default)(this.checkUniqueness, 200, { leading: false }),
+	                            ref: function ref(n) {
+	                                return _this3.name = n;
+	                            }
+	                        })
 	                    ),
 	                    _react2.default.createElement(
 	                        'div',
@@ -24908,9 +25075,14 @@
 	                            null,
 	                            'In Stock'
 	                        ),
-	                        _react2.default.createElement('input', { type: 'number', ref: function ref(s) {
-	                                return _this2.inStock = s;
-	                            }, required: true })
+	                        _react2.default.createElement('input', {
+	                            type: 'number',
+	                            'default': '0',
+	                            min: '0',
+	                            ref: function ref(s) {
+	                                return _this3.inStock = s;
+	                            }
+	                        })
 	                    ),
 	                    _react2.default.createElement(
 	                        'div',
@@ -24920,15 +25092,23 @@
 	                            null,
 	                            'Low At'
 	                        ),
-	                        _react2.default.createElement('input', { type: 'number', ref: function ref(l) {
-	                                return _this2.lowAt = l;
-	                            }, required: true })
-	                    ),
-	                    _react2.default.createElement(
-	                        'button',
-	                        { className: 'submit' },
-	                        'SAVE'
+	                        _react2.default.createElement('input', {
+	                            type: 'number',
+	                            'default': '0',
+	                            min: '0',
+	                            ref: function ref(l) {
+	                                return _this3.lowAt = l;
+	                            }
+	                        })
 	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'button',
+	                    {
+	                        className: 'submit',
+	                        onClick: this.save
+	                    },
+	                    'SAVE'
 	                ),
 	                _react2.default.createElement(
 	                    'datalist',
@@ -24953,7 +25133,8 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.default = Modal;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(1);
 
@@ -24961,19 +25142,221 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function Modal(props) {
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	    return _react2.default.createElement(
-	        'div',
-	        { className: 'modal modal--open' },
-	        _react2.default.createElement('span', { className: 'modal__close', onClick: props.onClose }),
-	        _react2.default.createElement(
-	            'div',
-	            { className: 'modal__body' },
-	            props.children
-	        )
-	    );
-	}
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Modal = function (_Component) {
+	    _inherits(Modal, _Component);
+
+	    function Modal(props) {
+	        _classCallCheck(this, Modal);
+
+	        var _this = _possibleConstructorReturn(this, (Modal.__proto__ || Object.getPrototypeOf(Modal)).call(this, props));
+
+	        _this.initListener.call(_this);
+	        return _this;
+	    }
+
+	    _createClass(Modal, [{
+	        key: 'initListener',
+	        value: function initListener() {
+	            var _this2 = this;
+
+	            this.close = function (e) {
+	                return e.keyCode == 27 && _this2.props.onClose();
+	            };
+	            window.addEventListener('keydown', this.close);
+	        }
+	    }, {
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {
+	            window.removeEventListener('keydown', this.close);
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _props = this.props,
+	                onClose = _props.onClose,
+	                children = _props.children;
+
+	            return _react2.default.createElement(
+	                'div',
+	                { className: 'modal modal--open' },
+	                _react2.default.createElement('span', { className: 'modal__close', onClick: onClose }),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'modal__body' },
+	                    children
+	                )
+	            );
+	        }
+	    }]);
+
+	    return Modal;
+	}(_react.Component);
+
+	exports.default = Modal;
+
+/***/ }),
+/* 228 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _debounce2 = __webpack_require__(185);
+
+	var _debounce3 = _interopRequireDefault(_debounce2);
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _axios = __webpack_require__(197);
+
+	var _axios2 = _interopRequireDefault(_axios);
+
+	var _Modal = __webpack_require__(227);
+
+	var _Modal2 = _interopRequireDefault(_Modal);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var DeleteItem = function (_Component) {
+	    _inherits(DeleteItem, _Component);
+
+	    function DeleteItem(props) {
+	        _classCallCheck(this, DeleteItem);
+
+	        var _this = _possibleConstructorReturn(this, (DeleteItem.__proto__ || Object.getPrototypeOf(DeleteItem)).call(this, props));
+
+	        _this.delete = _this.delete.bind(_this);
+	        _this.checkIfExists = _this.checkIfExists.bind(_this);
+
+	        _this.state = {
+	            id: null,
+	            error: null
+	        };
+	        return _this;
+	    }
+
+	    _createClass(DeleteItem, [{
+	        key: 'checkIfExists',
+	        value: function checkIfExists() {
+	            var items = this.props.items,
+	                len = items.length,
+	                name = this.name.value;
+
+	            for (var i = 0; i < len; i++) {
+	                if (name === items[i].name) {
+	                    this.setState({ id: items[i]._id, error: null });
+	                    return;
+	                };
+	            }
+	            var error = 'The item \'' + name + '\' does not exist';
+	            this.setState({ id: null, error: error });
+	        }
+	    }, {
+	        key: 'delete',
+	        value: function _delete() {
+	            var _this2 = this;
+
+	            _axios2.default.delete('housekeeping/' + this.state.id).then(function (res) {
+	                return _this2.props.onDelete(_this2.name.value);
+	            }).catch(function (e) {
+	                return console.log(e.toString());
+	            });
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this3 = this;
+
+	            var id = this.state.id,
+	                onClose = this.props.onClose,
+	                error = this.state.error ? _react2.default.createElement(
+	                'p',
+	                { className: 'errors' },
+	                this.state.error
+	            ) : null,
+	                items = this.props.items.map(function (item, i) {
+	                return _react2.default.createElement(
+	                    'option',
+	                    { key: i },
+	                    item.name
+	                );
+	            }),
+	                submit = id ? _react2.default.createElement(
+	                'button',
+	                {
+	                    className: 'submit',
+	                    onClick: this.delete
+	                },
+	                'DELETE'
+	            ) : _react2.default.createElement(
+	                'button',
+	                {
+	                    className: 'submit',
+	                    onClick: this.delete,
+	                    disabled: 'disabled'
+	                },
+	                'DELETE'
+	            );
+
+
+	            return _react2.default.createElement(
+	                _Modal2.default,
+	                { onClose: onClose },
+	                _react2.default.createElement(
+	                    'h1',
+	                    { className: 'section-title' },
+	                    'DELETE ITEM'
+	                ),
+	                _react2.default.createElement(
+	                    'form',
+	                    null,
+	                    error,
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'form-group' },
+	                        _react2.default.createElement('input', {
+	                            className: 'wide',
+	                            list: 'items',
+	                            onChange: (0, _debounce3.default)(this.checkIfExists, 200, { leading: false }),
+	                            ref: function ref(n) {
+	                                return _this3.name = n;
+	                            }
+	                        })
+	                    )
+	                ),
+	                submit,
+	                _react2.default.createElement(
+	                    'datalist',
+	                    { id: 'items' },
+	                    items
+	                )
+	            );
+	        }
+	    }]);
+
+	    return DeleteItem;
+	}(_react.Component);
+
+	exports.default = DeleteItem;
 
 /***/ })
 /******/ ]);

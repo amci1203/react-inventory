@@ -16,8 +16,8 @@ module.exports = app => {
     app.get('/', getAllItems);
     app.post('/', saveItem);
 
-    app.post('/multi-items', saveManyItems);
-    app.post('/multi-logs', saveManyLogs);
+    app.post('/items', saveManyItems);
+    app.post('/logs', saveManyLogs);
 
     app.get('/utils/fix-logs', fixBalances);
 
@@ -38,10 +38,14 @@ module.exports = app => {
 
 
 function getAllItems (req, res) {
-    Item.getAll((err, docs) => {
-        if (err) res.status(500).json(error(err));
-        res.json(docs)
-    });
+    try {
+        Item.getAll((err, docs) => {
+            if (err) res.status(403).json(error(err));
+            res.json(docs)
+        });
+    } catch (e) {
+        res.error(e);
+    }
 }
 
 function saveItem (req, res) {
@@ -54,16 +58,10 @@ function saveItem (req, res) {
     })
 }
 
-function editItem (req, res) {
-    Item.editItem(req.params.itemId, req.body.update, (err, affected) => {
-        if (err) res.json({error: 'An item already has that name.'})
-    })
-}
-
 function saveManyItems (req, res) {
     const
-        { category, items } = req.body,
-        nItems = items.length;
+    { category, items } = req.body,
+    nItems = items.length;
     let savesCompleted = 0;
     items.forEach(item => {
         item.category  = category;
@@ -72,6 +70,12 @@ function saveManyItems (req, res) {
             savesCompleted++;
             if (savesCompleted === nItems) res.json(items)
         })
+    })
+}
+
+function editItem (req, res) {
+    Item.editItem(req.params.itemId, req.body.update, (err, affected) => {
+        if (err) res.json({error: 'An item already has that name.'})
     })
 }
 
@@ -85,8 +89,8 @@ function getItem (req, res) {
 }
 
 function deleteItem (req, res) {
-    const { itemId } = req.params;
-    Item.remove(itemId, (id) => {
+    const {itemId } = req.params;
+    Item.remove(itemId, (err, id) => {
         if (id) res.end()
         else res.status(404).json(error(`No item with the id [${itemId}] exists.`))
     })

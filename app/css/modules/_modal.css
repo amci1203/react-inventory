@@ -1,6 +1,6 @@
 .modal {
     transition: all 0.3s ease-out;
-    animation: modal-appear 0.3s; 
+    animation: modal-appear 0.25s;
 
     opacity: 0;
     visibility: hidden;
@@ -70,6 +70,7 @@
     &__body {
         background-color: #FFF;
         border: 1px solid #CCC;
+        border-radius: 2.4rem;
         box-shadow: 0 4px 3px 2px #333;
         padding: 35px;
         font-size: 1.3rem;
@@ -89,6 +90,7 @@
         @mixin isSmall {
             width: 100%;
             height: 100%;
+            border-radius: 0;
         }
     }
 }
