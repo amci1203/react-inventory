@@ -208,7 +208,7 @@ function insertItem (item, arr) {
     return [
         ...arr.slice(0, fc + itemPos + 1),
         item,
-        ...arr.slice(itemPos + 1)
+        ...arr.slice(fc + itemPos + 1)
     ];
 
 }

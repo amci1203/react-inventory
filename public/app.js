@@ -22495,7 +22495,7 @@
 	    var categoryItemsArr = [].concat(_toConsumableArray(items.slice(fc, lc + 1)), [name]).sort(),
 	        itemPos = categoryItemsArr.indexOf(name);
 
-	    return [].concat(_toConsumableArray(arr.slice(0, fc + itemPos + 1)), [item], _toConsumableArray(arr.slice(itemPos + 1)));
+	    return [].concat(_toConsumableArray(arr.slice(0, fc + itemPos + 1)), [item], _toConsumableArray(arr.slice(fc + itemPos + 1)));
 	}
 
 /***/ }),
