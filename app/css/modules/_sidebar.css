@@ -61,9 +61,28 @@
         .icon.icon.icon {
             width: calc($sidebar-buttonsW - ($sidebar-buttonsP * 2));
             height: calc($sidebar-buttonsW - ($sidebar-buttonsP * 2));
+            margin: 10px 0;
+
+            &--text {
+                line-height: calc($sidebar-buttonsW - ($sidebar-buttonsP * 2));
+                font-size: 2.5rem;
+                font-weight: 600;
+                &.shrink {
+                    font-size: 1.55rem;
+                }
+            }
 
             &:hover {
                 background: color($sidebar-color b(+30));
+            }
+
+            img {
+                position: relative;
+                top: 7px;
+                display: block;
+                margin: auto;
+                width: calc($sidebar-buttonsW - ($sidebar-buttonsP * 4));
+                height: calc($sidebar-buttonsW - ($sidebar-buttonsP * 4));
             }
         }
 

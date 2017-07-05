@@ -3,9 +3,9 @@ import React, { Component } from 'react';
 export default function Items (props) {
 
     const
-        { items } = props,
+        { items, onEditClick, onDeleteClick } = props,
         all = items.map((props, key) => {
-            props.key = key;
+            Object.assign(props, { key, onEditClick, onDeleteClick });
             return <CategoryGroup {...props} ></CategoryGroup>
         });
 
@@ -14,10 +14,10 @@ export default function Items (props) {
 
 function CategoryGroup (props) {
     const
-        { category, items } = props,
+        { category, items, onEditClick, onDeleteClick } = props,
         href   = category ? category.replace(' ', '-').toLowerCase() : 'uncategorized',
         _items = items.map((item, key) => {
-            const props = { item, key };
+            const props = { item, key, onEditClick, onDeleteClick };
             return <Item {...props} ></Item>
         });
 
@@ -42,10 +42,14 @@ function Item (props) {
             <span className='item-card__item-stock'>{inStock}</span>
             <span className='item-card__item-last-modified'>{_lastModified}</span>
             <div className='item-card__options'>
-                <span>TEST</span>
-                <span>TEST</span>
-                <span>TEST</span>
-                <span>TEST</span>
+                <span
+                    className='btn btn--primary btn--small'
+                    onClick={() => props.onEditClick(props.item)}
+                >EDIT</span>
+                <span
+                    className='btn btn--danger btn--small'
+                    onClick={() => props.onDeleteClick(props.item)}
+                >DELETE</span>
             </div>
         </article>
     )

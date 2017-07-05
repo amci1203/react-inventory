@@ -28,16 +28,16 @@ export default class Sidebar extends Component {
                             className='icon icon--text'
                             onClick={newItem}
                         >+</span>
-                        <img
+                        <span
                             className='icon'
-                            src='icons/edit.png'
                             onClick={editItem}
-                        />
-                        <img
+                        ><img src='icons/log.png' />
+                        </span>
+                        <span
                             className='icon'
-                            src='icons/delete.png'
                             onClick={deleteItem}
-                        />
+                        ><img src='icons/delete.png' />
+                        </span>
                     </div>
                     <div className='sidebar__aside-buttons__bottom'>
                         <span className='icon icon--text'>?</span>

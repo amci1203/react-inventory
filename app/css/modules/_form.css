@@ -29,11 +29,20 @@ form {
         }
 
         input {
+            font-size: inherit;
             &.bordered {
                 border: 1px solid #CCC;
                 padding: 0.15rem 0.2rem;
             }
-            font-size: inherit;
+        }
+
+        .wide.wide.wide {
+            display: block;
+            float: none;
+            text-align: center;
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         textarea {
@@ -80,7 +89,7 @@ form {
     .right { float: right }
 }
 
-.modal__body {
+.modal__body form {
     label, p:not(.errors) {
         height: 35px;
         text-align: right;

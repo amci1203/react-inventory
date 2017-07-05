@@ -32,7 +32,7 @@
 
     $primary-navZ : 500;
     $sidebarZ     : 400;
-    $modalsZ      : 900; 
+    $modalsZ      : 900;
 
 /* Z-INDEXES END */
 
@@ -84,7 +84,7 @@
     $sidebar-text: $white;
         /* SIDEBAR BUTTONS */
         $sidebar-buttonsW: 64px;
-        $sidebar-buttonsP: 0.75rem;
+        $sidebar-buttonsP: 0.45rem;
 
     $navs-text         : #FFF;
     $navs-hover-text   : $navs-text;

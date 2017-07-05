@@ -64,6 +64,7 @@ export default class DeleteItem extends Component {
                     <form>
                         { error }
                         <div className='form-group'>
+                            <p className='wide'>Select the item you wish to remove</p>
                             <input
                                 className='wide'
                                 list='items'

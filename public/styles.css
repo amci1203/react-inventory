@@ -153,6 +153,20 @@ img {
     background-color: rgb(204, 83, 79);
 }
 
+.btn--small {
+    font-size: 0.65rem;
+    padding-top: 0.4875rem;
+    padding-bottom: 0.4875rem;
+    padding-left: 0.78rem;
+    padding-right: 0.78rem;
+    padding-right: 0.78rem;
+    margin-top: 0.1625rem;
+    margin-bottom: 0.1625rem;
+    margin-left: 0.26rem;
+    margin-right: 0.26rem;
+    font-size: 1rem;
+}
+
 .btn--large {
     font-size: 1.25rem;
     padding-top: 0.9375rem;
@@ -177,6 +191,13 @@ img {
     margin-bottom: 0.4rem;
     margin-left: 0.64rem;
     margin-right: 0.64rem;
+}
+
+.btn--wide {
+    display: block;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
 }
 header {
     position: relative;
@@ -213,6 +234,10 @@ header .section-title {
 }
 .icon--text.shrink {
     font-size: 1.55rem;
+}
+.icon--img {
+    width: 28px;
+    height: 28px;
 }
 #item-pane {
     float: left;
@@ -390,6 +415,14 @@ form .form-group input.bordered {
     border: 1px solid #CCC;
     padding: 0.15rem 0.2rem;
 }
+form .form-group .wide.wide.wide {
+    display: block;
+    float: none;
+    text-align: center;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
 form .form-group textarea {
     padding: 15px;
     width: 100%;
@@ -450,7 +483,7 @@ form .form-group--inline input {
 .headings .right {
     float: right;
 }
-.modal__body label, .modal__body p:not(.errors) {
+.modal__body form label, .modal__body form p:not(.errors) {
     height: 35px;
     text-align: right;
     padding-right: 25px;
@@ -458,7 +491,7 @@ form .form-group--inline input {
     float: left;
     width: 40%;
 }
-.modal__body input {
+.modal__body form input {
     float: left;
     border: 0;
     border-bottom: 2px solid #CCC;
@@ -1122,11 +1155,28 @@ table td:first-child, table th:first-child {
     left: 0;
     height: 100%;
     width: 64px;
-    padding: 1rem 0.75rem;
+    padding: 1rem 0.45rem;
 }
 .sidebar__aside-buttons .icon.icon.icon {
-    width: calc(64px - 1.5rem);
-    height: calc(64px - 1.5rem);
+    width: calc(64px - 0.9rem);
+    height: calc(64px - 0.9rem);
+    margin: 10px 0;
+}
+.sidebar__aside-buttons .icon.icon.icon img {
+    position: relative;
+    top: 7px;
+    display: block;
+    margin: auto;
+    width: calc(64px - 1.8rem);
+    height: calc(64px - 1.8rem);
+}
+.sidebar__aside-buttons .icon.icon.icon--text {
+    line-height: calc(64px - 0.9rem);
+    font-size: 2.5rem;
+    font-weight: 600;
+}
+.sidebar__aside-buttons .icon.icon.icon--text.shrink {
+    font-size: 1.55rem;
 }
 .sidebar__aside-buttons .icon.icon.icon:hover {
     background: rgb(36, 55, 143);

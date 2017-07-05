@@ -10,7 +10,9 @@ import Items from './Items';
 import Views from '../shared/Views';
 
 import NewItem from './views/new';
+import EditItem from './views/edit';
 import DeleteItem from './views/delete';
+import ConfirmDelete from './views/confirm-delete';
 
 const
     // for axios
@@ -29,9 +31,10 @@ export default class Housekeeping extends Component {
         this.closeModal   = this.closeModal.bind(this);
         this.saveItem     = this.saveItem.bind(this);
         this.deleteItem   = this.deleteItem.bind(this);
+        this.setActive    = this.setActive.bind(this);
 
         this.state = {
-            activeitem: null,
+            activeItem: null,
             activeView: 'items',
             items: null,
             filter: null
@@ -119,19 +122,38 @@ export default class Housekeeping extends Component {
         this.closeModal()
     }
 
-    deleteItem (_name) {
-        const
-            { items } = this.state,
-            names = items.map(n => n.name.toLowerCase()),
-            name = _name.toLowerCase();
-        for (let i = 0, len = items.length; i < len; i++) {
-            if (name === names[i]) {
-                const _items = [ ...this.state.items.slice(0, i), ...this.state.items.slice(i + 1)];
-                this.setState({ items: _items });
-                this.closeModal();
-            }
-        }
+    deleteItem (item) {
+        const items = removeItem(item, this.state.items);
+        this.setState({ items });
+        this.closeModal();
     }
+
+    deleteActiveItem () {
+        const { _id, name } = this.state.activeItem;
+        axios.delete('housekeeping/' + _id)
+            .then(res => this.deleteItem(name));
+    }
+
+    editItem (item, prev) {
+        const items = insertItem(item, removeItem(prev, this.state.items));
+        this.setState({ items });
+        this.closeModal();
+    }
+
+    setActive (activeItem) {
+        this.setState({ activeItem });
+    }
+
+    setActiveAndOpenEdit (item) {
+        this.setActive(item);
+        this.views.select('edit');
+    }
+
+    setActiveAndOpenConfirmDelete (item) {
+        this.setActive(item);
+        this.views.select('confirm-delete');
+    }
+
 
     render () {
         const
@@ -157,8 +179,17 @@ export default class Housekeeping extends Component {
                     editItem={() => this.views.select('edit')}
                     deleteItem={() => this.views.select('delete')}
                 />
-            <Views className='main-view' ref={v => this.views = v} default='items'>
-                    <Items id='items' items={_items} />
+                <Views
+                    className='main-view'
+                    ref={v => this.views = v}
+                    default='items'
+                >
+                    <Items
+                        id='items'
+                        items={_items}
+                        onEditClick={this.setActiveAndOpenEdit.bind(this)}
+                        onDeleteClick={this.setActiveAndOpenConfirmDelete.bind(this)}
+                    />
                     <NewItem
                         id='new'
                         items={items.map(n => n.name.toLowerCase())}
@@ -166,13 +197,25 @@ export default class Housekeeping extends Component {
                         onSave={this.saveItem}
                         onClose={this.closeModal}
                     />
-                <DeleteItem
-                    id='delete'
-                    activeItem={this.state.activeItem}
-                    items={deleteArr}
-                    onDelete={this.deleteItem}
-                    onClose={this.closeModal}
-                />
+                    <EditItem
+                        id='edit'
+                        defaults={this.state.activeItem}
+                        items={items.map(n => n.name.toLowerCase())}
+                        categories={categories}
+                        onEdit={this.saveItem}
+                        onClose={this.closeModal}
+                    />
+                    <DeleteItem
+                        id='delete'
+                        items={deleteArr}
+                        onDelete={this.deleteItem}
+                        onClose={this.closeModal}
+                    />
+                    <ConfirmDelete
+                        id='confirm-delete'
+                        active={this.state.activeItem}
+                        onConfirm={this.deleteActiveItem.bind(this)}
+                    />
                 </Views>
             </div>
         )
@@ -206,9 +249,20 @@ function insertItem (item, arr) {
         itemPos = categoryItemsArr.indexOf(name);
 
     return [
-        ...arr.slice(0, fc + itemPos + 1),
+        ...arr.slice(0, fc + itemPos),
         item,
-        ...arr.slice(fc + itemPos + 1)
+        ...arr.slice(fc + itemPos)
     ];
 
+}
+
+function removeItem (item, arr) {
+    const
+        names  = items.map(n => n.name.toLowerCase()),
+        name   = item.toLowerCase();
+    for (let i = 0, len = items.length; i < len; i++) {
+        if (name === names[i]) {
+            return _items = [ ...arr.slice(0, i), ...arr.slice(i + 1)];
+        }
+    }
 }

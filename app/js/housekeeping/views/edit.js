@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import axios, { post } from 'axios';
+import axios, { put } from 'axios';
 import { debounce } from 'lodash';
 
 import Modal from '../../shared/Modal';
 
 
-export default class NewItem extends Component {
+export default class EditItem extends Component {
 
     constructor (props) {
         super(props);
@@ -19,13 +19,21 @@ export default class NewItem extends Component {
         };
     }
 
+    componentDidMount () {
+        const { name, category, lowAt } = this.props.defaults;
+        this.name.value = name;
+        this.category.value = category;
+        this.lowAt.value = lowAt;
+    }
+
     checkUniqueness () {
         const
+            defaultName = this.props.defaults.name.toLowerCase(),
             { items } = this.props,
             { name } = this,
             _name = name.value.toLowerCase();
         for (let i = 0, len = items.length; i < len; i++) {
-            if (_name === items[i]) {
+            if (_name !== defaultName && _name === items[i]) {
                 const error = 'An item with that name already exists';
                 this.setState({ error });
                 return
@@ -38,7 +46,9 @@ export default class NewItem extends Component {
     }
 
     save () {
-        const { category, name, inStock, lowAt } = this;
+        const
+            { category, name, lowAt } = this,
+            { defaults } = this.props;
 
         if (name.value.trim() === '') {
             const error = 'A name must be specified';
@@ -46,38 +56,26 @@ export default class NewItem extends Component {
             return
         }
         const body = { item: {
-            category: category.value,
-            name: name.value,
-            inStock: Number(inStock.value),
-            lowAt: Number(lowAt.value)
+            category: category.value || defaults.category,
+            name: name.value || defaults.category,
+            lowAt: Number(lowAt.value) || defaults.category
         }};
 
-        post('housekeeping', body)
-            .then(res => this.props.onSave(res.data))
+        put('housekeeping', body)
+            .then(res => this.props.onEdit(res.data))
             .catch(e => console.log(e.toString()));
     }
 
     render() {
         const
+            { name, category, lowAt } = this.props.defaults,
             error = this.state.error ? <p className='errors'>{this.state.error}</p> : null,
             { open, categories, onClose } = this.props,
-            _categories = categories.map((c, i) => <option key={i}>{c}</option>),
-            submit = error ? (
-                <button
-                    className="submit"
-                    onClick={this.save}
-                    disabled
-                >SAVE</button>
-            ) : (
-                <button
-                    className="submit"
-                    onClick={this.save}
-                >SAVE</button>
-        );
+            _categories = categories.map((c, i) => <option key={i}>{c}</option>);
 
         return (
             <Modal onClose={onClose}>
-                <h1 className='section-title'>NEW ITEM</h1>
+                <h1 className='section-title'>EDIT ITEM</h1>
                 <form>
                     {error}
                     <div className="form-group">
@@ -85,6 +83,7 @@ export default class NewItem extends Component {
                         <input
                             list='categories'
                             ref={c => this.category = c}
+                            default={category}
                         />
                     </div>
                     <div className="form-group">
@@ -92,15 +91,7 @@ export default class NewItem extends Component {
                         <input
                             onChange={debounce(this.checkUniqueness, 200, { leading: false })}
                             ref={n => this.name = n}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <p>In Stock</p>
-                        <input
-                            type='number'
-                            default='0'
-                            min='0'
-                            ref={s => this.inStock = s}
+                            default={name}
                         />
                     </div>
                     <div className="form-group">
@@ -110,10 +101,14 @@ export default class NewItem extends Component {
                             default='0'
                             min='0'
                             ref={l => this.lowAt = l}
+                            default={lowAt}
                         />
                     </div>
                 </form>
-                { submit }
+                <button
+                    className="submit"
+                    onClick={this.save}
+                >SAVE</button>
                 <datalist id='categories'>{_categories}</datalist>
             </Modal>
         )

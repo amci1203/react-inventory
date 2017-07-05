@@ -10,6 +10,14 @@
     &--warning { @mixin btn-color $brand-warning }
     &--danger  { @mixin btn-color $brand-danger  }
 
+    &--small  { @mixin btn-size 0.65; font-size: 1rem }
     &--large  { @mixin btn-size 1.25 }
     &--xlarge { @mixin btn-size 1.60 }
+
+    &--wide {
+        display: block;
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
