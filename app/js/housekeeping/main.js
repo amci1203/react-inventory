@@ -14,20 +14,14 @@ import EditItem from './views/edit';
 import DeleteItem from './views/delete';
 import ConfirmDelete from './views/confirm-delete';
 
-const
-    // for axios
-    getData = data => data.data;
-
-
-
 export default class Housekeeping extends Component {
 
     constructor (props) {
         super(props);
 
-        this.filter       = this.filter.bind(this);
         this.groupItems   = this.groupItems.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
+        this.handleFilter = this.handleFilter.bind(this);
         this.closeModal   = this.closeModal.bind(this);
         this.saveItem     = this.saveItem.bind(this);
         this.deleteItem   = this.deleteItem.bind(this);
@@ -37,83 +31,34 @@ export default class Housekeeping extends Component {
             activeItem: null,
             activeView: 'items',
             items: null,
-            filter: null
+            search: null,
+            filter: null,
         }
     }
 
     componentWillMount () {
-
-        get('housekeeping').then(getData).then(data => {
-            const items = data;
+        get('housekeeping').then(data => {
+            const items = data.data;
             this.setState({ items });
         });
-
     }
 
     closeModal () {
         this.views.returnToDefaultView();
     }
 
-    groupItems (_items) {
-        const
-            grouped = [],
-            items   = _items ? _items : this.state.items;
-        let tmp = {};
-        items.forEach((item, i) => {
-            if (i === 0) {
-                Object.assign(tmp, {
-                    category: item.category,
-                    items: [item]
-                })
-            }
-            else {
-                 if (item.category === items[i - 1].category) {
-                     tmp.items.push(item)
-                 } else {
-                     grouped.push(tmp);
-                     tmp = {category: item.category, items: [item]};
-                 }
-                 if (i === items.length - 1) grouped.push(tmp);
-            }
-
-        })
-
-        return grouped;
-    }
-
     // for Sidebar component
-    // filter arg should be string (e.target.value); not the raw event.
-    handleSearch (filter) {
-        this.setState({ filter });
+    // search arg should be string (e.target.value); not the raw event.
+    handleSearch (search) {
+        this.setState({ search });
     }
 
-    // filter items then passes them to be grouped
-    filter () {
-        const
-            { items, filter } = this.state,
-            low = s => s.toLowerCase(),
-            filteredItems = items.filter(item => {
-                if (filter === '__low__') {
-                    return item.inStock < item.lowAt;
-                }
-                const
-                    _filter = new RegExp(`^(${filter})`, 'i'),
-                    nameWords = item.name.split(' '),
-                    categoryWords = item.category.split(' '),
-                    len = Math.max(nameWords.length, categoryWords.length);
-
-                for (let i = 0; i < len; i++) {
-                    let
-                        nameWord = nameWords[i],
-                        categoryWord = categoryWords[i];
-                    if (nameWord && nameWord.match(_filter)) return true;
-                    if (categoryWord && categoryWord.match(_filter)) return true;
-                }
-
-                return false;
-            });
-
-        return this.groupItems(filteredItems)
+    handleFilter (current) {
+        const filter = (f => {
+            const options = [null, 'inStock', 'low', 'depleted'];
+            return options[options.indexOf(f) + 1] || null;
+        })(current);
+        this.setState({ filter });
     }
 
     saveItem (item) {
@@ -155,15 +100,47 @@ export default class Housekeeping extends Component {
     }
 
 
+    groupItems (_items, filter, search) {
+        const
+            _search = new RegExp(`^(${search})`, 'i'),
+            grouped = [],
+            items   = _items
+                .filter(i => matchFilter(i, filter))
+                .filter(i => matchSearch(i, _search))
+            ;
+
+        let tmp = {};
+        items.forEach((item, i) => {
+            if (i === 0) {
+                Object.assign(tmp, {
+                    category: item.category,
+                    items: [item]
+                })
+            }
+            else {
+                 if (item.category === items[i - 1].category) {
+                     tmp.items.push(item)
+                 } else {
+                     grouped.push(tmp);
+                     tmp = {category: item.category, items: [item]};
+                 }
+                 if (i === items.length - 1) grouped.push(tmp);
+            }
+
+        })
+
+        return grouped;
+    }
+
     render () {
         const
-            { items, filter, activeView, activeItem } = this.state,
+            { items, filter, search, activeView, activeItem } = this.state,
             deb = fn => debounce(fn, 300, { leading: false })
 
         if (items === null) return null;
 
         const
-            _items = filter ? this.filter() : this.groupItems(),
+            _items = this.groupItems(items, filter, search),
             categories  = _items.map(i => i.category),
             deleteArr = items.map(n => {
                 const { name, _id } = n;
@@ -175,6 +152,7 @@ export default class Housekeeping extends Component {
                 <Sidebar
                     categories={categories}
                     handleSearch={ deb(this.handleSearch) }
+                    handleFilter={ this.handleFilter.bind(this, ) }
                     newItem={() => this.views.select('new')}
                     editItem={() => this.views.select('edit')}
                     deleteItem={() => this.views.select('delete')}
@@ -258,11 +236,39 @@ function insertItem (item, arr) {
 
 function removeItem (item, arr) {
     const
-        names  = items.map(n => n.name.toLowerCase()),
+        names  = arr.map(n => n.name.toLowerCase()),
         name   = item.toLowerCase();
     for (let i = 0, len = items.length; i < len; i++) {
         if (name === names[i]) {
             return _items = [ ...arr.slice(0, i), ...arr.slice(i + 1)];
         }
     }
+}
+
+function matchSearch (item, search) {
+    if ('null'.match(search)) return true;
+
+    const
+        nameWords = item.name.split(' '),
+        categoryWords = item.category.split(' '),
+        len = Math.max(nameWords.length, categoryWords.length);
+
+    for (let i = 0; i < len; i++) {
+        let nW = nameWords[i],
+            cW = categoryWords[i];
+
+        if (nW && nW.match(search)) return true;
+        if (cW && cW.match(search)) return true;
+    }
+
+    return false;
+}
+
+function matchFilter (item, filter) {
+    const { inStock, lowAt } = item;
+    if (!filter) return true;
+    if (filter === 'low' && lowAt > inStock) return true;
+    if (filter === 'in-stock' && lowAt < inStock) return true;
+    if (filter === 'depleted' && inStock === 0) return true;
+    return false;
 }

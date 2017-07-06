@@ -9,7 +9,15 @@ export default class Sidebar extends Component {
 
     render () {
         const
-            { handleSearch, categories, newItem, editItem, deleteItem } = this.props,
+            {
+                handleSearch,
+                handleFilter,
+                categories,
+                newItem,
+                editItem,
+                deleteItem
+            } = this.props,
+
             _categories = categories.map((cat, key) => {
                 const href = `#${cat.replace(' ', '-').toLowerCase()}`;
                 return <li key={key}><a href={href}>{cat}</a></li>;
@@ -40,6 +48,9 @@ export default class Sidebar extends Component {
                         </span>
                     </div>
                     <div className='sidebar__aside-buttons__bottom'>
+                        <span className='icon icon--text'
+                            onClick={handleFilter}
+                        >!</span>
                         <span className='icon icon--text'>?</span>
                     </div>
                 </aside>

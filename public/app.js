@@ -22266,12 +22266,6 @@
 
 	// import 'smoothscroll';
 
-	var
-	// for axios
-	getData = function getData(data) {
-	    return data.data;
-	};
-
 	var Housekeeping = function (_Component) {
 	    _inherits(Housekeeping, _Component);
 
@@ -22280,9 +22274,9 @@
 
 	        var _this = _possibleConstructorReturn(this, (Housekeeping.__proto__ || Object.getPrototypeOf(Housekeeping)).call(this, props));
 
-	        _this.filter = _this.filter.bind(_this);
 	        _this.groupItems = _this.groupItems.bind(_this);
 	        _this.handleSearch = _this.handleSearch.bind(_this);
+	        _this.handleFilter = _this.handleFilter.bind(_this);
 	        _this.closeModal = _this.closeModal.bind(_this);
 	        _this.saveItem = _this.saveItem.bind(_this);
 	        _this.deleteItem = _this.deleteItem.bind(_this);
@@ -22292,6 +22286,7 @@
 	            activeItem: null,
 	            activeView: 'items',
 	            items: null,
+	            search: null,
 	            filter: null
 	        };
 	        return _this;
@@ -22302,8 +22297,8 @@
 	        value: function componentWillMount() {
 	            var _this2 = this;
 
-	            (0, _axios.get)('housekeeping').then(getData).then(function (data) {
-	                var items = data;
+	            (0, _axios.get)('housekeeping').then(function (data) {
+	                var items = data.data;
 	                _this2.setState({ items: items });
 	            });
 	        }
@@ -22312,72 +22307,23 @@
 	        value: function closeModal() {
 	            this.views.returnToDefaultView();
 	        }
-	    }, {
-	        key: 'groupItems',
-	        value: function groupItems(_items) {
-	            var grouped = [],
-	                items = _items ? _items : this.state.items;
-	            var tmp = {};
-	            items.forEach(function (item, i) {
-	                if (i === 0) {
-	                    Object.assign(tmp, {
-	                        category: item.category,
-	                        items: [item]
-	                    });
-	                } else {
-	                    if (item.category === items[i - 1].category) {
-	                        tmp.items.push(item);
-	                    } else {
-	                        grouped.push(tmp);
-	                        tmp = { category: item.category, items: [item] };
-	                    }
-	                    if (i === items.length - 1) grouped.push(tmp);
-	                }
-	            });
-
-	            return grouped;
-	        }
 
 	        // for Sidebar component
-	        // filter arg should be string (e.target.value); not the raw event.
+	        // search arg should be string (e.target.value); not the raw event.
 
 	    }, {
 	        key: 'handleSearch',
-	        value: function handleSearch(filter) {
-	            this.setState({ filter: filter });
+	        value: function handleSearch(search) {
+	            this.setState({ search: search });
 	        }
-
-	        // filter items then passes them to be grouped
-
 	    }, {
-	        key: 'filter',
-	        value: function filter() {
-	            var _state = this.state,
-	                items = _state.items,
-	                filter = _state.filter,
-	                low = function low(s) {
-	                return s.toLowerCase();
-	            },
-	                filteredItems = items.filter(function (item) {
-	                if (filter === '__low__') {
-	                    return item.inStock < item.lowAt;
-	                }
-	                var _filter = new RegExp('^(' + filter + ')', 'i'),
-	                    nameWords = item.name.split(' '),
-	                    categoryWords = item.category.split(' '),
-	                    len = Math.max(nameWords.length, categoryWords.length);
-
-	                for (var i = 0; i < len; i++) {
-	                    var nameWord = nameWords[i],
-	                        categoryWord = categoryWords[i];
-	                    if (nameWord && nameWord.match(_filter)) return true;
-	                    if (categoryWord && categoryWord.match(_filter)) return true;
-	                }
-
-	                return false;
-	            });
-
-	            return this.groupItems(filteredItems);
+	        key: 'handleFilter',
+	        value: function handleFilter(current) {
+	            var filter = function (f) {
+	                var options = [null, 'inStock', 'low', 'depleted'];
+	                return options[options.indexOf(f) + 1] || null;
+	            }(current);
+	            this.setState({ filter: filter });
 	        }
 	    }, {
 	        key: 'saveItem',
@@ -22431,22 +22377,54 @@
 	            this.views.select('confirm-delete');
 	        }
 	    }, {
+	        key: 'groupItems',
+	        value: function groupItems(_items, filter, search) {
+	            var _search = new RegExp('^(' + search + ')', 'i'),
+	                grouped = [],
+	                items = _items.filter(function (i) {
+	                return matchFilter(i, filter);
+	            }).filter(function (i) {
+	                return matchSearch(i, _search);
+	            });
+
+	            var tmp = {};
+	            items.forEach(function (item, i) {
+	                if (i === 0) {
+	                    Object.assign(tmp, {
+	                        category: item.category,
+	                        items: [item]
+	                    });
+	                } else {
+	                    if (item.category === items[i - 1].category) {
+	                        tmp.items.push(item);
+	                    } else {
+	                        grouped.push(tmp);
+	                        tmp = { category: item.category, items: [item] };
+	                    }
+	                    if (i === items.length - 1) grouped.push(tmp);
+	                }
+	            });
+
+	            return grouped;
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var _this4 = this;
 
-	            var _state2 = this.state,
-	                items = _state2.items,
-	                filter = _state2.filter,
-	                activeView = _state2.activeView,
-	                activeItem = _state2.activeItem,
+	            var _state = this.state,
+	                items = _state.items,
+	                filter = _state.filter,
+	                search = _state.search,
+	                activeView = _state.activeView,
+	                activeItem = _state.activeItem,
 	                deb = function deb(fn) {
 	                return (0, _debounce3.default)(fn, 300, { leading: false });
 	            };
 
 	            if (items === null) return null;
 
-	            var _items = filter ? this.filter() : this.groupItems(),
+	            var _items = this.groupItems(items, filter, search),
 	                categories = _items.map(function (i) {
 	                return i.category;
 	            }),
@@ -22463,6 +22441,7 @@
 	                _react2.default.createElement(_Sidebar2.default, {
 	                    categories: categories,
 	                    handleSearch: deb(this.handleSearch),
+	                    handleFilter: this.handleFilter.bind(this),
 	                    newItem: function newItem() {
 	                        return _this4.views.select('new');
 	                    },
@@ -22558,7 +22537,7 @@
 	}
 
 	function removeItem(item, arr) {
-	    var names = items.map(function (n) {
+	    var names = arr.map(function (n) {
 	        return n.name.toLowerCase();
 	    }),
 	        name = item.toLowerCase();
@@ -22567,6 +22546,35 @@
 	            return _items = [].concat(_toConsumableArray(arr.slice(0, i)), _toConsumableArray(arr.slice(i + 1)));
 	        }
 	    }
+	}
+
+	function matchSearch(item, search) {
+	    if ('null'.match(search)) return true;
+
+	    var nameWords = item.name.split(' '),
+	        categoryWords = item.category.split(' '),
+	        len = Math.max(nameWords.length, categoryWords.length);
+
+	    for (var i = 0; i < len; i++) {
+	        var nW = nameWords[i],
+	            cW = categoryWords[i];
+
+	        if (nW && nW.match(search)) return true;
+	        if (cW && cW.match(search)) return true;
+	    }
+
+	    return false;
+	}
+
+	function matchFilter(item, filter) {
+	    var inStock = item.inStock,
+	        lowAt = item.lowAt;
+
+	    if (!filter) return true;
+	    if (filter === 'low' && lowAt > inStock) return true;
+	    if (filter === 'in-stock' && lowAt < inStock) return true;
+	    if (filter === 'depleted' && inStock === 0) return true;
+	    return false;
 	}
 
 /***/ }),
@@ -24693,6 +24701,7 @@
 	        value: function render() {
 	            var _props = this.props,
 	                handleSearch = _props.handleSearch,
+	                handleFilter = _props.handleFilter,
 	                categories = _props.categories,
 	                newItem = _props.newItem,
 	                editItem = _props.editItem,
@@ -24764,6 +24773,13 @@
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'sidebar__aside-buttons__bottom' },
+	                        _react2.default.createElement(
+	                            'span',
+	                            { className: 'icon icon--text',
+	                                onClick: handleFilter
+	                            },
+	                            '!'
+	                        ),
 	                        _react2.default.createElement(
 	                            'span',
 	                            { className: 'icon icon--text' },
