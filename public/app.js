@@ -25395,16 +25395,12 @@
 
 	            for (var i = 0, len = items.length; i < len; i++) {
 	                if (_name !== defaultName && _name === items[i]) {
-	                    var _error = 'An item with that name already exists';
-	                    this.setState({ error: _error });
+	                    var error = 'An item with that name already exists';
+	                    this.setState({ error: error });
 	                    return;
 	                }
 	            }
-	            var error = this.state.error;
-
-	            if (error === 'An item with that name already exists') {
-	                this.setState({ error: null });
-	            }
+	            this.setState({ error: null });
 	        }
 	    }, {
 	        key: 'save',
@@ -25422,16 +25418,16 @@
 	                this.setState({ error: error });
 	                return;
 	            }
-	            var body = { item: {
-	                    category: category.value || defaults.category,
-	                    name: name.value || defaults.category,
-	                    lowAt: Number(lowAt.value) || defaults.category
-	                } };
+	            var body = {
+	                category: category.value || defaults.category,
+	                name: name.value || defaults.name,
+	                lowAt: Number(lowAt.value) || defaults.lowAt
+	            };
 
-	            (0, _axios.put)('housekeeping', body).then(function (res) {
-	                return _this2.props.onEdit(res.data);
+	            (0, _axios.put)('housekeeping/' + defaults._id, body).then(function (res) {
+	                return _this2.props.onEdit(Object.assign(defaults, body));
 	            }).catch(function (e) {
-	                return console.log(e.toString());
+	                return console.log(e);
 	            });
 	        }
 	    }, {
@@ -25458,7 +25454,22 @@
 	                    { key: i },
 	                    c
 	                );
-	            });
+	            }),
+	                submit = error ? _react2.default.createElement(
+	                'button',
+	                {
+	                    className: 'submit',
+	                    disabled: 'disabled'
+	                },
+	                'SAVE'
+	            ) : _react2.default.createElement(
+	                'button',
+	                {
+	                    className: 'submit',
+	                    onClick: this.save
+	                },
+	                'SAVE'
+	            );
 
 	            return _react2.default.createElement(
 	                _Modal2.default,
@@ -25522,14 +25533,7 @@
 	                        }, 'default', lowAt))
 	                    )
 	                ),
-	                _react2.default.createElement(
-	                    'button',
-	                    {
-	                        className: 'submit',
-	                        onClick: this.save
-	                    },
-	                    'SAVE'
-	                ),
+	                submit,
 	                _react2.default.createElement(
 	                    'datalist',
 	                    { id: 'categories' },

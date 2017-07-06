@@ -39,10 +39,7 @@ export default class EditItem extends Component {
                 return
             }
         }
-        const { error } = this.state;
-        if (error === 'An item with that name already exists') {
-            this.setState({ error: null });
-        }
+        this.setState({ error: null });
     }
 
     save () {
@@ -55,15 +52,15 @@ export default class EditItem extends Component {
             this.setState({error})
             return
         }
-        const body = { item: {
+        const body = {
             category: category.value || defaults.category,
-            name: name.value || defaults.category,
-            lowAt: Number(lowAt.value) || defaults.category
-        }};
+            name: name.value || defaults.name,
+            lowAt: Number(lowAt.value) || defaults.lowAt
+        };
 
-        put('housekeeping', body)
-            .then(res => this.props.onEdit(res.data))
-            .catch(e => console.log(e.toString()));
+        put('housekeeping/' + defaults._id, body)
+            .then(res => this.props.onEdit(Object.assign(defaults, body)))
+            .catch(e => console.log(e));
     }
 
     render() {
@@ -71,7 +68,19 @@ export default class EditItem extends Component {
             { name, category, lowAt } = this.props.defaults,
             error = this.state.error ? <p className='errors'>{this.state.error}</p> : null,
             { open, categories, onClose } = this.props,
-            _categories = categories.map((c, i) => <option key={i}>{c}</option>);
+            _categories = categories.map((c, i) => <option key={i}>{c}</option>),
+
+            submit = error ? (
+                <button
+                    className="submit"
+                    disabled='disabled'
+                >SAVE</button>
+            ) : (
+                <button
+                    className="submit"
+                    onClick={this.save}
+                >SAVE</button>
+            );
 
         return (
             <Modal onClose={onClose}>
@@ -105,10 +114,7 @@ export default class EditItem extends Component {
                         />
                     </div>
                 </form>
-                <button
-                    className="submit"
-                    onClick={this.save}
-                >SAVE</button>
+                { submit }
                 <datalist id='categories'>{_categories}</datalist>
             </Modal>
         )

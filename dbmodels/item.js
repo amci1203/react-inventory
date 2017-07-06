@@ -110,7 +110,7 @@ function push (isById, item, log, callback) {
                     }}
                 },
                 { upsert: true },
-                (err, id) => isOk(err, id, callback)
+                (err, id) => isOK(err, id, callback)
             )
         })
 }
@@ -120,7 +120,7 @@ function editItem (_id, data, callback) {
     this.findOne({name}, (err, doc) => {
         if (doc) return callback('An item with this name already exists');
         return this.findOneAndUpdate({_id}, data, {upsert: false}, (err, numAffected) => {
-            isOk(err, data, callback);
+            isOK(err, data, callback);
         })
     })
 }
@@ -190,7 +190,7 @@ function getRecordsForDate (dateString, callback) {
         }},
         {$sort: {_id: 1}}
     ]
-    return this.aggregate(aggr, (err, result) => isOk(err, result, callback))
+    return this.aggregate(aggr, (err, result) => isOK(err, result, callback))
 }
 
 function checkBalances (id, log, callback) {
@@ -260,7 +260,7 @@ function correctBalances (itemId, logId, balance) {
             }
 
             this.update(id, { $set: { log } }, { upsert: false }, err => {
-                isOk(err, log, callback);
+                isOK(err, log, callback);
             })
         })
 }

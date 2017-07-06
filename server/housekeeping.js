@@ -74,8 +74,9 @@ function saveManyItems (req, res) {
 }
 
 function editItem (req, res) {
-    Item.editItem(req.params.itemId, req.body.update, (err, affected) => {
-        if (err) res.json({error: 'An item already has that name.'})
+    Item.editItem(req.params.itemId, req.body, (err, affected) => {
+        if (err) res.json({error: 'An item already has that name.'});
+        else res.end();
     })
 }
 
