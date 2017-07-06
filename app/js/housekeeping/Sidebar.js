@@ -12,6 +12,7 @@ export default class Sidebar extends Component {
             {
                 handleSearch,
                 handleFilter,
+                filter,
                 categories,
                 newItem,
                 editItem,
@@ -23,9 +24,40 @@ export default class Sidebar extends Component {
                 return <li key={key}><a href={href}>{cat}</a></li>;
             }),
 
-            filterButton = (f => {
+            fBtnProps = (f => {
+                switch (f) {
+                    case 'in-stock':
+                        return {
+                            text: 'LOW',
+                            icon: '!'
+                        }
+                    case 'low':
+                        return {
+                            text: 'DEPLETED',
+                            icon: '&#10060'
+                        }
+                    case 'depleted':
+                        return {
+                            text: 'ALL',
+                            icon: 'O'
+                        }
+                    default:
+                        return {
+                            text: 'IN STOCK',
+                            icon: '&#10003'
+                        }
+                }
+            })(filter),
 
-            })()
+            filterButton = (
+                <span
+                    className='icon icon--text tooltip'
+                    onClick={() => handleFilter(filter)}
+                >
+                    <span className='tooltip-text'>SHOW {fBtnProps.text}</span>
+                    <span dangerouslySetInnerHTML={{__html: fBtnProps.icon}}></span>
+                </span>
+            );
 
         return (
             <section>
@@ -52,9 +84,7 @@ export default class Sidebar extends Component {
                         </span>
                     </div>
                     <div className='sidebar__aside-buttons__bottom'>
-                        <span className='icon icon--text'
-                            onClick={handleFilter}
-                        >!</span>
+                        {filterButton}
                         <span className='icon icon--text'>?</span>
                     </div>
                 </aside>

@@ -22318,12 +22318,13 @@
 	        }
 	    }, {
 	        key: 'handleFilter',
-	        value: function handleFilter(current) {
-	            var filter = function (f) {
-	                var options = [null, 'in-stock', 'low', 'depleted'];
-	                return options[options.indexOf(f) + 1] || null;
-	            }(current);
-	            this.setState({ filter: filter });
+	        value: function handleFilter(filter) {
+	            this.setState({
+	                filter: function (f) {
+	                    var options = [null, 'in-stock', 'low', 'depleted'];
+	                    return options[options.indexOf(f) + 1] || null;
+	                }(filter)
+	            });
 	        }
 	    }, {
 	        key: 'saveItem',
@@ -22448,8 +22449,9 @@
 	                _react2.default.createElement(_Sidebar2.default, {
 	                    view: view,
 	                    categories: categories,
+	                    filter: filter,
 	                    handleSearch: deb(this.handleSearch),
-	                    handleFilter: this.handleFilter.bind(this, filter),
+	                    handleFilter: this.handleFilter.bind(this),
 	                    newItem: function newItem() {
 	                        return _this4.views.select('new');
 	                    },
@@ -24711,6 +24713,7 @@
 	            var _props = this.props,
 	                handleSearch = _props.handleSearch,
 	                handleFilter = _props.handleFilter,
+	                filter = _props.filter,
 	                categories = _props.categories,
 	                newItem = _props.newItem,
 	                editItem = _props.editItem,
@@ -24727,7 +24730,46 @@
 	                    )
 	                );
 	            }),
-	                filterButton = function (f) {}();
+	                fBtnProps = function (f) {
+	                switch (f) {
+	                    case 'in-stock':
+	                        return {
+	                            text: 'LOW',
+	                            icon: '!'
+	                        };
+	                    case 'low':
+	                        return {
+	                            text: 'DEPLETED',
+	                            icon: '&#10060'
+	                        };
+	                    case 'depleted':
+	                        return {
+	                            text: 'ALL',
+	                            icon: 'O'
+	                        };
+	                    default:
+	                        return {
+	                            text: 'IN STOCK',
+	                            icon: '&#10003'
+	                        };
+	                }
+	            }(filter),
+	                filterButton = _react2.default.createElement(
+	                'span',
+	                {
+	                    className: 'icon icon--text tooltip',
+	                    onClick: function onClick() {
+	                        return handleFilter(filter);
+	                    }
+	                },
+	                _react2.default.createElement(
+	                    'span',
+	                    { className: 'tooltip-text' },
+	                    'SHOW ',
+	                    fBtnProps.text
+	                ),
+	                _react2.default.createElement('span', { dangerouslySetInnerHTML: { __html: fBtnProps.icon } })
+	            );
 
 	            return _react2.default.createElement(
 	                'section',
@@ -24783,13 +24825,7 @@
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'sidebar__aside-buttons__bottom' },
-	                        _react2.default.createElement(
-	                            'span',
-	                            { className: 'icon icon--text',
-	                                onClick: handleFilter
-	                            },
-	                            '!'
-	                        ),
+	                        filterButton,
 	                        _react2.default.createElement(
 	                            'span',
 	                            { className: 'icon icon--text' },

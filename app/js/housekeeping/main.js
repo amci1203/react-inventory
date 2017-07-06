@@ -32,7 +32,7 @@ export default class Housekeeping extends Component {
             activeView: 'items',
             items: null,
             search: null,
-            filter: null,
+            filter: null
         }
     }
 
@@ -53,12 +53,14 @@ export default class Housekeeping extends Component {
         this.setState({ search });
     }
 
-    handleFilter (current) {
-        const filter = (f => {
-            const options = [null, 'in-stock', 'low', 'depleted'];
-            return options[options.indexOf(f) + 1] || null;
-        })(current);
-        this.setState({ filter });
+    handleFilter (filter) {
+        this.setState({
+            filter: (f => {
+                const options = [null, 'in-stock', 'low', 'depleted'];
+                return options[options.indexOf(f) + 1] || null;
+
+            })(filter)
+        })
     }
 
     saveItem (item) {
@@ -157,13 +159,14 @@ export default class Housekeeping extends Component {
         return (
             <div>
                 <Sidebar
-                    view={view}
-                    categories={categories}
+                    view={ view }
+                    categories={ categories }
+                    filter={ filter }
                     handleSearch={ deb(this.handleSearch) }
-                    handleFilter={ this.handleFilter.bind(this, filter) }
-                    newItem={() => this.views.select('new')}
-                    editItem={() => this.views.select('edit')}
-                    deleteItem={() => this.views.select('delete')}
+                    handleFilter={ this.handleFilter.bind(this) }
+                    newItem={ () => this.views.select('new') }
+                    editItem={ () => this.views.select('edit') }
+                    deleteItem={ () => this.views.select('delete') }
                 />
                 <Views
                     className='main-view'
