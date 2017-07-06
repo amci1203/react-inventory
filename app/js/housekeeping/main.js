@@ -55,7 +55,7 @@ export default class Housekeeping extends Component {
 
     handleFilter (current) {
         const filter = (f => {
-            const options = [null, 'inStock', 'low', 'depleted'];
+            const options = [null, 'in-stock', 'low', 'depleted'];
             return options[options.indexOf(f) + 1] || null;
         })(current);
         this.setState({ filter });
@@ -142,17 +142,25 @@ export default class Housekeeping extends Component {
         const
             _items = this.groupItems(items, filter, search),
             categories  = _items.map(i => i.category),
+            view = this.views ? this.views.getCurrentViewId() : '__default',
+
             deleteArr = items.map(n => {
                 const { name, _id } = n;
                 return { name, _id };
-            });
+            }),
+
+            filterMsg = filter ?
+                (<h3>Showing: {filter.toUpperCase().replace('-', '\ ')}</h3>)
+                : null
+            ;
 
         return (
             <div>
                 <Sidebar
+                    view={view}
                     categories={categories}
                     handleSearch={ deb(this.handleSearch) }
-                    handleFilter={ this.handleFilter.bind(this, ) }
+                    handleFilter={ this.handleFilter.bind(this, filter) }
                     newItem={() => this.views.select('new')}
                     editItem={() => this.views.select('edit')}
                     deleteItem={() => this.views.select('delete')}
@@ -164,6 +172,7 @@ export default class Housekeeping extends Component {
                 >
                     <Items
                         id='items'
+                        filterMsg={filterMsg}
                         items={_items}
                         onEditClick={this.setActiveAndOpenEdit.bind(this)}
                         onDeleteClick={this.setActiveAndOpenConfirmDelete.bind(this)}
@@ -238,9 +247,9 @@ function removeItem (item, arr) {
     const
         names  = arr.map(n => n.name.toLowerCase()),
         name   = item.toLowerCase();
-    for (let i = 0, len = items.length; i < len; i++) {
+    for (let i = 0, len = arr.length; i < len; i++) {
         if (name === names[i]) {
-            return _items = [ ...arr.slice(0, i), ...arr.slice(i + 1)];
+            return [ ...arr.slice(0, i), ...arr.slice(i + 1)];
         }
     }
 }

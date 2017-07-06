@@ -3,13 +3,18 @@ import React, { Component } from 'react';
 export default function Items (props) {
 
     const
-        { items, onEditClick, onDeleteClick } = props,
+        { items, filterMsg, onEditClick, onDeleteClick } = props,
         all = items.map((props, key) => {
             Object.assign(props, { key, onEditClick, onDeleteClick });
             return <CategoryGroup {...props} ></CategoryGroup>
         });
 
-    return <section className='items'>{all}</section>
+    return (
+        <section className='items'>
+            {filterMsg}
+            {all}
+        </section>
+    )
 }
 
 function CategoryGroup (props) {

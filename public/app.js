@@ -22320,7 +22320,7 @@
 	        key: 'handleFilter',
 	        value: function handleFilter(current) {
 	            var filter = function (f) {
-	                var options = [null, 'inStock', 'low', 'depleted'];
+	                var options = [null, 'in-stock', 'low', 'depleted'];
 	                return options[options.indexOf(f) + 1] || null;
 	            }(current);
 	            this.setState({ filter: filter });
@@ -22428,20 +22428,28 @@
 	                categories = _items.map(function (i) {
 	                return i.category;
 	            }),
+	                view = this.views ? this.views.getCurrentViewId() : '__default',
 	                deleteArr = items.map(function (n) {
 	                var name = n.name,
 	                    _id = n._id;
 
 	                return { name: name, _id: _id };
-	            });
+	            }),
+	                filterMsg = filter ? _react2.default.createElement(
+	                'h3',
+	                null,
+	                'Showing: ',
+	                filter.toUpperCase().replace('-', '\ ')
+	            ) : null;
 
 	            return _react2.default.createElement(
 	                'div',
 	                null,
 	                _react2.default.createElement(_Sidebar2.default, {
+	                    view: view,
 	                    categories: categories,
 	                    handleSearch: deb(this.handleSearch),
-	                    handleFilter: this.handleFilter.bind(this),
+	                    handleFilter: this.handleFilter.bind(this, filter),
 	                    newItem: function newItem() {
 	                        return _this4.views.select('new');
 	                    },
@@ -22463,6 +22471,7 @@
 	                    },
 	                    _react2.default.createElement(_Items2.default, {
 	                        id: 'items',
+	                        filterMsg: filterMsg,
 	                        items: _items,
 	                        onEditClick: this.setActiveAndOpenEdit.bind(this),
 	                        onDeleteClick: this.setActiveAndOpenConfirmDelete.bind(this)
@@ -22541,9 +22550,9 @@
 	        return n.name.toLowerCase();
 	    }),
 	        name = item.toLowerCase();
-	    for (var i = 0, len = items.length; i < len; i++) {
+	    for (var i = 0, len = arr.length; i < len; i++) {
 	        if (name === names[i]) {
-	            return _items = [].concat(_toConsumableArray(arr.slice(0, i)), _toConsumableArray(arr.slice(i + 1)));
+	            return [].concat(_toConsumableArray(arr.slice(0, i)), _toConsumableArray(arr.slice(i + 1)));
 	        }
 	    }
 	}
@@ -24717,7 +24726,8 @@
 	                        cat
 	                    )
 	                );
-	            });
+	            }),
+	                filterButton = function (f) {}();
 
 	            return _react2.default.createElement(
 	                'section',
@@ -24815,6 +24825,7 @@
 
 	function Items(props) {
 	    var items = props.items,
+	        filterMsg = props.filterMsg,
 	        onEditClick = props.onEditClick,
 	        onDeleteClick = props.onDeleteClick,
 	        all = items.map(function (props, key) {
@@ -24826,6 +24837,7 @@
 	    return _react2.default.createElement(
 	        'section',
 	        { className: 'items' },
+	        filterMsg,
 	        all
 	    );
 	}
@@ -25610,7 +25622,7 @@
 	            _axios2.default.delete('housekeeping/' + this.state.id).then(function (res) {
 	                return _this2.props.onDelete(_this2.name.value);
 	            }).catch(function (e) {
-	                return console.log(e.toString());
+	                return console.error(e);
 	            });
 	        }
 	    }, {

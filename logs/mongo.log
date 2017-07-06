@@ -89,3 +89,4 @@
 2017-07-05T19:34:49.835-0400 W NETWORK  [HostnameCanonicalizationWorker] Failed to obtain name info for: [ (192.168.22.24, "nodename nor servname provided, or not known"), (192.168.22.24, "nodename nor servname provided, or not known") ]
 2017-07-05T19:51:05.730-0400 W NETWORK  [HostnameCanonicalizationWorker] Failed to obtain name info for: [ (192.168.22.24, "nodename nor servname provided, or not known"), (192.168.22.24, "nodename nor servname provided, or not known") ]
 2017-07-05T20:07:23.470-0400 W NETWORK  [HostnameCanonicalizationWorker] Failed to obtain name info for: [ (192.168.22.24, "nodename nor servname provided, or not known"), (192.168.22.24, "nodename nor servname provided, or not known") ]
+2017-07-05T20:23:41.245-0400 W NETWORK  [HostnameCanonicalizationWorker] Failed to obtain name info for: [ (192.168.22.24, "nodename nor servname provided, or not known"), (192.168.22.24, "nodename nor servname provided, or not known") ]

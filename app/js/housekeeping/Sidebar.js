@@ -21,7 +21,11 @@ export default class Sidebar extends Component {
             _categories = categories.map((cat, key) => {
                 const href = `#${cat.replace(' ', '-').toLowerCase()}`;
                 return <li key={key}><a href={href}>{cat}</a></li>;
-            });
+            }),
+
+            filterButton = (f => {
+
+            })()
 
         return (
             <section>

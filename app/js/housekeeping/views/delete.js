@@ -36,7 +36,7 @@ export default class DeleteItem extends Component {
     delete () {
         axios.delete('housekeeping/' + this.state.id)
             .then(res => this.props.onDelete(this.name.value))
-            .catch(e => console.log(e.toString()))
+            .catch(e => console.error(e))
     }
 
     render () {
