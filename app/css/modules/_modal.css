@@ -72,13 +72,8 @@
         border: 1px solid #CCC;
         border-radius: 2.4rem;
         box-shadow: 0 4px 3px 2px #333;
-        padding: 35px;
         font-size: 1.3rem;
         position: absolute;
-        width: 40rem;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
 
         &--scrollable {
             max-height: calc(100vh - 4rem);
@@ -87,10 +82,20 @@
             overflow-y: auto;
         }
 
-        @mixin isSmall {
+        @mixin smThanMedium {
             width: 100%;
             height: 100%;
             border-radius: 0;
+            padding: 25px;
+            padding-top: 40px;
+        }
+
+        @mixin atMedium {
+            width: 40rem;
+            padding: 35px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
     }
 }

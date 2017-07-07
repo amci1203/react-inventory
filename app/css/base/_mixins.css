@@ -99,8 +99,8 @@
         background-color: color($color b(+ 5%))
     }
 }
-@define-mixin btn-size $multiplier {
-    font-size: calc($btn-font-size * $multiplier);
+@define-mixin btn-size $multiplier, $font-multiplier: 1 {
+    font-size: calc($btn-font-size * $multiplier * $font-multiplier);
 
     padding-top    : calc($btn-vPadding * $multiplier);
     padding-bottom : calc($btn-vPadding * $multiplier);
@@ -123,8 +123,11 @@
     }
 }
 
-@define-mixin clickable {
-    &:hover { cursor: pointer }
+@define-mixin clickable $text-decor: none {
+    &:hover {
+      cursor: pointer;
+      text-decoration: $text-decor;
+    }
 }
 
 @define-mixin noDecoration {

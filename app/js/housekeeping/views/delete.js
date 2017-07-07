@@ -66,7 +66,7 @@ export default class DeleteItem extends Component {
                         <div className='form-group'>
                             <p className='wide'>Select the item you wish to remove</p>
                             <input
-                                className='wide'
+                                className='wide no-border'
                                 list='items'
                                 onChange={debounce(this.checkIfExists, 200, { leading: false })}
                                 ref={n => this.name = n}

@@ -35,7 +35,7 @@ body {
     padding: 0;
     margin: 0;
     color: #111;
-    background: #EEE;
+    background: rgb(255, 255, 255);
 }
 body.sticky-top {}
 @media (min-width: 768px) {
@@ -47,16 +47,16 @@ img {
     max-width: 100%;
     height: auto;
 }
-.main-view {
-    margin-left: calc(304px + 1.5rem);
-    margin-right: 1.15rem;
+.main-view {}
+@media (min-width: 768px) {
+    .main-view {
+        margin-left: calc(304px + 1.5rem);
+        margin-right: 1.15rem;
+    }
 }
 @media (max-width: 480px) {
     .main-view {
-        max-width: 1236px;
         padding: 25px;
-        margin-left: auto;
-        margin-right: auto;
     }
 }
 .invisible {
@@ -73,6 +73,9 @@ img {
 }
 .scroll-lock {
     overflow: hidden;
+}
+.clickable:hover {
+    cursor: pointer;
 }
 
 .btn {
@@ -95,7 +98,27 @@ img {
 }
 
 .btn:hover {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn:hover {
     background-color: rgb(219, 219, 219);
+}
+
+.btn--clear {
+    color: inherit;
+    border: 1px solid rgba(0, 0, 0, 0);
+    border-radius: 7px;
+    background-color: transparent;
+}
+
+.btn--clear:hover {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.btn--clear:hover {
+    text-decoration: underline;
 }
 
 .btn--primary {
@@ -226,6 +249,7 @@ header .section-title {
 }
 .icon:hover {
     cursor: pointer;
+    text-decoration: none;
 }
 .icon--text {
     line-height: 40px;
@@ -275,6 +299,7 @@ header .section-title {
 }
 #item-pane .back:hover {
     cursor: pointer;
+    text-decoration: none;
 }
 #item-nav-buttons {
     float: right;
@@ -297,6 +322,7 @@ header .section-title {
 }
 #item-nav-buttons button:hover {
     cursor: pointer;
+    text-decoration: none;
 }
 #item-nav-buttons p {
     display: inline-block;
@@ -423,6 +449,10 @@ form .form-group .wide.wide.wide {
     margin-left: auto;
     margin-right: auto;
 }
+form .form-group .wide.wide.wide.no-border {
+    border: none;
+    border-bottom: 1px solid #CCC;
+}
 form .form-group textarea {
     padding: 15px;
     width: 100%;
@@ -483,20 +513,28 @@ form .form-group--inline input {
 .headings .right {
     float: right;
 }
-.modal__body form label, .modal__body form p:not(.errors) {
+.modal__body form .form-group.inline label, .modal__body form .form-group.inline p:not(.errors) {
     height: 35px;
-    text-align: right;
     padding-right: 25px;
     font-weight: 600;
-    float: left;
     width: 40%;
 }
-.modal__body form input {
-    float: left;
+.modal__body form .form-group.inline input {
     border: 0;
     border-bottom: 2px solid #CCC;
     height: 35px;
     font-size: inherit;
+}
+@media (min-width: 480px) {
+    .modal__body form .form-group.inline label, .modal__body form .form-group.inline p:not(.errors) {
+        float: left;
+        text-align: right;
+    }
+}
+@media (min-width: 480px) {
+    .modal__body form .form-group.inline input {
+        float: left;
+    }
 }
 table {
     width: 90%;
@@ -530,6 +568,7 @@ table .row .stock {
 }
 table .row:hover {
     cursor: pointer;
+    text-decoration: none;
 }
 table .row--striped {
     background-color: #CCC;
@@ -538,11 +577,11 @@ table .row--striped:hover {
     background-color: rgb(217, 204, 204);
 }
 table .row--low {
-    background-color: rgba(238, 17, 17, 0.5) !important;
-    color: rgb(240, 32, 32);
+    background-color: rgba(237, 18, 18, 0.5) !important;
+    color: rgb(241, 75, 75);
 }
 table .row--low:hover {
-    background-color: rgba(191, 13, 13, 0.5) !important;
+    background-color: rgba(190, 14, 14, 0.5) !important;
 }
 table .row.active {
     background-color: rgb(35, 70, 220) !important;
@@ -656,14 +695,8 @@ table td:first-child, table th:first-child {
     border: 1px solid #CCC;
     border-radius: 2.4rem;
     box-shadow: 0 4px 3px 2px #333;
-    padding: 35px;
     font-size: 1.3rem;
     position: absolute;
-    width: 40rem;
-    top: 50%;
-    left: 50%;
-    -webkit-transform: translate(-50%, -50%);
-            transform: translate(-50%, -50%);
 }
 .modal__body--scrollable {
     max-height: calc(100vh - 4rem);
@@ -671,11 +704,23 @@ table td:first-child, table th:first-child {
     margin-bottom: 2rem;
     overflow-y: auto;
 }
-@media (max-width: 480px) {
+@media (max-width: 768px) {
     .modal__body {
         width: 100%;
         height: 100%;
         border-radius: 0;
+        padding: 25px;
+        padding-top: 40px;
+    }
+}
+@media (min-width: 768px) {
+    .modal__body {
+        width: 40rem;
+        padding: 35px;
+        top: 50%;
+        left: 50%;
+        -webkit-transform: translate(-50%, -50%);
+                transform: translate(-50%, -50%);
     }
 }
 #log {
@@ -1181,6 +1226,13 @@ table td:first-child, table th:first-child {
 .sidebar__aside-buttons .icon.icon.icon:hover {
     background: rgb(36, 55, 143);
 }
+@media (max-width: 768px) {
+    .sidebar__aside-buttons .icon.icon.icon {
+        margin: 2px 0;
+        -webkit-transform: scale(0.8);
+                transform: scale(0.8);
+    }
+}
 .sidebar__aside-buttons__bottom {
     position: absolute;
     bottom: 0;
@@ -1190,7 +1242,7 @@ table td:first-child, table th:first-child {
         display: none;
     }
 }
-@media (max-width: 480px) {
+@media (max-width: 768px) {
     .sidebar {
         display: none;
     }
@@ -1353,13 +1405,34 @@ table td:first-child, table th:first-child {
     font-weight: 100;
     margin: 1.85rem 0;
     padding: 0.5rem 1.35rem;
+    border: 2px solid rgb(255, 255, 255);
     border-radius: 15px;
-    transition: all 0.3s ease;
+}
+
+.item-group .item-card .option {
+    margin: 0 5px;
+    margin-top: 7px;
+    padding: 3px 7px;
+    font-weight: 800;
+}
+
+.item-group .item-card .option:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.item-group .item-card .option--danger {
+    color: #C00;
 }
 
 .item-group .item-card.low {
-    background: rgb(240, 32, 32);
+    /*border-color: red;*/
+    background: rgb(241, 75, 75);
     color: rgb(255, 255, 255);
+}
+
+.item-group .item-card.low .option--danger {
+    color: inherit !important;
 }
 
 .item-group .item-card__item-name {
@@ -1380,12 +1453,26 @@ table td:first-child, table th:first-child {
     font-weight: 600;
 }
 
-.item-group .item-card__options {
-    opacity: 0;
+.item-group .item-card__item-last-modified {
+    display: block;
+    width: 80%;
+    text-align: right;
+}
+
+.item-group .item-card__options {}
+
+.item-group .item-card:hover {
+    border-color: rgba(35, 70, 220, 0.8);
 }
 
 .item-group .item-card:hover .item-card__options {
+    position: relative;
     opacity: 1;
+    z-index: inherit;
+}
+
+.item-group .item-card:hover.low {
+    border-color: red;
 }
 
 .item-group__category {
@@ -1399,6 +1486,14 @@ table td:first-child, table th:first-child {
         display: inline-block;
         width: 46%;
         margin: 5px 2%;
+    }
+}
+
+@media (min-width: 768px) {
+    .item-group .item-card__options {
+        position: relative;
+        opacity: 0;
+        z-index: -100;
     }
 }
 #date-change-buttons {

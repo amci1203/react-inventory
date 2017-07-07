@@ -48,10 +48,10 @@ function getAll (callback) {
     ;
 }
 
-// returns a single item; can only be retrieved by id
+// returns a single item's log; can only be retrieved by id
 function get (_id, callback) {
     return this.findOne({ _id })
-        .select('_id category name inStock log')
+        .select('log')
         .sort('log.date')
         .exec((err, doc) => isOK(err, doc, callback))
     ;
@@ -78,13 +78,14 @@ function add (item, callback) {
     this.create(item, (err, _item) => isOK(err, _item, callback))
 }
 
-function push (isById, item, log, callback) {
+function push (isById, queryVal, log, callback) {
     const
-        query    = isById ? {_id: item}  :  {name: new RegExp(`${item}`)},
+        query    = isById ? {_id: queryVal}  :  {name: new RegExp(`${queryVal}`)},
         balance  = log.added - log.removed,
-        { date } = item;
+        date     = log.date || currentDate(),
+        self     = this;
 
-    this
+    self
         .findOne(query)
         .select('_id inStock log')
         .exec((err, doc) => {
@@ -100,7 +101,7 @@ function push (isById, item, log, callback) {
 
             log.balance = inStock + balance;
 
-            return this.findOneAndUpdate(
+            return self.findOneAndUpdate(
                 {_id: doc._id},
                 {
                     $inc:  { inStock  : balance },
@@ -228,7 +229,12 @@ function checkBalances (id, log, callback) {
 module.exports = mongoose.model('Item', schema)
 
 
-//
+
+function currentDate () {
+    const d = new Date();
+    return d.toUTCString().substring(0, 10);
+}
+
 function isOK (err, data, cb) {
     if (err) {
         console.error(err.toString());

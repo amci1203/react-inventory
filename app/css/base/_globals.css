@@ -7,7 +7,7 @@ body {
     padding     : 0;
     margin      : 0;
     color       : #111;
-    background  : #EEE;
+    background  : $body-bg;
     &.sticky-top {
         @mixin atMedium { padding-top: $primary-navH };
     }
@@ -19,15 +19,12 @@ img {
 }
 
 .main-view {
-    margin-left: $main-margin;
-    margin-right: 1.15rem;
-
-    @mixin isSmall {
-        max-width: 1236px;
-        padding: 25px;
-        margin-left: auto;
-        margin-right: auto;
+    @mixin atMedium {
+        margin-left: $main-margin;
+        margin-right: 1.15rem;
     }
+
+    @mixin isSmall { padding: 25px }
 }
 
 .invisible { visibility : hidden }
@@ -37,3 +34,5 @@ img {
 .pull-right { float: right }
 
 .scroll-lock { overflow: hidden }
+
+.clickable:hover { cursor: pointer }

@@ -39,6 +39,7 @@ export default class EditItem extends Component {
                 return
             }
         }
+
         this.setState({ error: null });
     }
 
@@ -52,42 +53,36 @@ export default class EditItem extends Component {
             this.setState({error})
             return
         }
-        const body = {
-            category: category.value || defaults.category,
-            name: name.value || defaults.name,
-            lowAt: Number(lowAt.value) || defaults.lowAt
-        };
+        const
+            body = {
+                category: category.value || defaults.category,
+                name: name.value || defaults.name,
+                lowAt: Number(lowAt.value) || defaults.lowAt
+            },
+
+            edited = Object.assign({}, defaults, body);
 
         put('housekeeping/' + defaults._id, body)
-            .then(res => this.props.onEdit(Object.assign(defaults, body)))
+            .then(res => this.props.onEdit(edited, defaults))
             .catch(e => console.log(e));
     }
 
     render() {
         const
-            { name, category, lowAt } = this.props.defaults,
-            error = this.state.error ? <p className='errors'>{this.state.error}</p> : null,
-            { open, categories, onClose } = this.props,
+            { props, modal, save } = this,
+            { open, categories, onClose, defaults } = this.props,
+            { name, category, lowAt } = defaults,
             _categories = categories.map((c, i) => <option key={i}>{c}</option>),
 
-            submit = error ? (
-                <button
-                    className="submit"
-                    disabled='disabled'
-                >SAVE</button>
-            ) : (
-                <button
-                    className="submit"
-                    onClick={this.save}
-                >SAVE</button>
-            );
+            error = modal ? modal.makeErrorDiv(this.state.error) : null,
+            submit = modal ? modal.makeSubmitButton('SAVE', this.state.error, save) : null;
 
         return (
-            <Modal onClose={onClose}>
+            <Modal onClose={onClose} ref={m => this.modal = m}>
                 <h1 className='section-title'>EDIT ITEM</h1>
                 <form>
                     {error}
-                    <div className="form-group">
+                    <div className="form-group inline">
                         <p>Category</p>
                         <input
                             list='categories'
@@ -95,7 +90,7 @@ export default class EditItem extends Component {
                             default={category}
                         />
                     </div>
-                    <div className="form-group">
+                    <div className="form-group inline">
                         <p>Name</p>
                         <input
                             onChange={debounce(this.checkUniqueness, 200, { leading: false })}
@@ -103,7 +98,7 @@ export default class EditItem extends Component {
                             default={name}
                         />
                     </div>
-                    <div className="form-group">
+                    <div className="form-group inline">
                         <p>Low At</p>
                         <input
                             type='number'

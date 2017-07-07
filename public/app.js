@@ -22230,13 +22230,13 @@
 
 	var _Sidebar2 = _interopRequireDefault(_Sidebar);
 
-	var _Items = __webpack_require__(224);
-
-	var _Items2 = _interopRequireDefault(_Items);
-
-	var _Views = __webpack_require__(225);
+	var _Views = __webpack_require__(224);
 
 	var _Views2 = _interopRequireDefault(_Views);
+
+	var _items2 = __webpack_require__(225);
+
+	var _items3 = _interopRequireDefault(_items2);
 
 	var _new = __webpack_require__(226);
 
@@ -22253,6 +22253,10 @@
 	var _confirmDelete = __webpack_require__(230);
 
 	var _confirmDelete2 = _interopRequireDefault(_confirmDelete);
+
+	var _log = __webpack_require__(231);
+
+	var _log2 = _interopRequireDefault(_log);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -22280,7 +22284,7 @@
 	        _this.closeModal = _this.closeModal.bind(_this);
 	        _this.saveItem = _this.saveItem.bind(_this);
 	        _this.deleteItem = _this.deleteItem.bind(_this);
-	        _this.setActive = _this.setActive.bind(_this);
+	        _this.editItem = _this.editItem.bind(_this);
 
 	        _this.state = {
 	            activeItem: null,
@@ -22361,21 +22365,34 @@
 	            this.closeModal();
 	        }
 	    }, {
-	        key: 'setActive',
-	        value: function setActive(activeItem) {
-	            this.setState({ activeItem: activeItem });
+	        key: 'setStockBalance',
+	        value: function setStockBalance(inStock) {
+	            var item = Object.assign({}, this.state.activeItem, { inStock: inStock });
+	            this.editItem(item, this.state.activeItem);
 	        }
 	    }, {
 	        key: 'setActiveAndOpenEdit',
-	        value: function setActiveAndOpenEdit(item) {
-	            this.setActive(item);
+	        value: function setActiveAndOpenEdit(activeItem) {
+	            this.setState({ activeItem: activeItem });
 	            this.views.select('edit');
 	        }
 	    }, {
+	        key: 'setActiveAndOpenLog',
+	        value: function setActiveAndOpenLog(activeItem) {
+	            this.setState({ activeItem: activeItem });
+	            this.views.select('log');
+	        }
+	    }, {
 	        key: 'setActiveAndOpenConfirmDelete',
-	        value: function setActiveAndOpenConfirmDelete(item) {
-	            this.setActive(item);
+	        value: function setActiveAndOpenConfirmDelete(activeItem) {
+	            this.setState({ activeItem: activeItem });
 	            this.views.select('confirm-delete');
+	        }
+	    }, {
+	        key: 'setActiveAndOpenDetails',
+	        value: function setActiveAndOpenDetails(activeItem) {
+	            this.setState({ activeItem: activeItem });
+	            this.views.select('details');
 	        }
 	    }, {
 	        key: 'groupItems',
@@ -22425,8 +22442,8 @@
 
 	            if (items === null) return null;
 
-	            var _items = this.groupItems(items, filter, search),
-	                categories = _items.map(function (i) {
+	            var shownItems = this.groupItems(items, filter, search),
+	                categories = shownItems.map(function (i) {
 	                return i.category;
 	            }),
 	                view = this.views ? this.views.getCurrentViewId() : '__default',
@@ -22455,8 +22472,8 @@
 	                    newItem: function newItem() {
 	                        return _this4.views.select('new');
 	                    },
-	                    editItem: function editItem() {
-	                        return _this4.views.select('edit');
+	                    logItems: function logItems() {
+	                        return _this4.views.select('log');
 	                    },
 	                    deleteItem: function deleteItem() {
 	                        return _this4.views.select('delete');
@@ -22471,12 +22488,14 @@
 	                        },
 	                        'default': 'items'
 	                    },
-	                    _react2.default.createElement(_Items2.default, {
+	                    _react2.default.createElement(_items3.default, {
 	                        id: 'items',
 	                        filterMsg: filterMsg,
-	                        items: _items,
-	                        onEditClick: this.setActiveAndOpenEdit.bind(this),
-	                        onDeleteClick: this.setActiveAndOpenConfirmDelete.bind(this)
+	                        items: shownItems,
+	                        Details: this.setActiveAndOpenDetails.bind(this),
+	                        Log: this.setActiveAndOpenLog.bind(this),
+	                        Edit: this.setActiveAndOpenEdit.bind(this),
+	                        Delete: this.setActiveAndOpenConfirmDelete.bind(this)
 	                    }),
 	                    _react2.default.createElement(_new2.default, {
 	                        id: 'new',
@@ -22494,7 +22513,7 @@
 	                            return n.name.toLowerCase();
 	                        }),
 	                        categories: categories,
-	                        onEdit: this.saveItem,
+	                        onEdit: this.editItem,
 	                        onClose: this.closeModal
 	                    }),
 	                    _react2.default.createElement(_delete2.default, {
@@ -22505,8 +22524,21 @@
 	                    }),
 	                    _react2.default.createElement(_confirmDelete2.default, {
 	                        id: 'confirm-delete',
-	                        active: this.state.activeItem,
-	                        onConfirm: this.deleteActiveItem.bind(this)
+	                        item: this.state.activeItem,
+	                        onConfirm: this.deleteActiveItem.bind(this),
+	                        onClose: this.closeModal
+	                    }),
+	                    _react2.default.createElement(_log2.default, {
+	                        id: 'log',
+	                        item: this.state.activeItem,
+	                        onLog: this.setStockBalance.bind(this),
+	                        onClose: this.closeModal
+	                    }),
+	                    _react2.default.createElement(_log2.default, {
+	                        id: 'details',
+	                        item: this.state.activeItem,
+	                        onLog: this.setStockBalance.bind(this),
+	                        onClose: this.closeModal
 	                    })
 	                )
 	            );
@@ -22551,7 +22583,7 @@
 	    var names = arr.map(function (n) {
 	        return n.name.toLowerCase();
 	    }),
-	        name = item.toLowerCase();
+	        name = typeof item == 'string' ? item.toLowerCase() : item.name.toLowerCase();
 	    for (var i = 0, len = arr.length; i < len; i++) {
 	        if (name === names[i]) {
 	            return [].concat(_toConsumableArray(arr.slice(0, i)), _toConsumableArray(arr.slice(i + 1)));
@@ -24716,7 +24748,7 @@
 	                filter = _props.filter,
 	                categories = _props.categories,
 	                newItem = _props.newItem,
-	                editItem = _props.editItem,
+	                logItems = _props.logItems,
 	                deleteItem = _props.deleteItem,
 	                _categories = categories.map(function (cat, key) {
 	                var href = '#' + cat.replace(' ', '-').toLowerCase();
@@ -24800,31 +24832,59 @@
 	                        _react2.default.createElement(
 	                            'span',
 	                            {
-	                                className: 'icon icon--text',
+	                                className: 'icon icon--text tooltip',
 	                                onClick: newItem
 	                            },
+	                            _react2.default.createElement(
+	                                'span',
+	                                { className: 'tooltip-text' },
+	                                'New item'
+	                            ),
 	                            '+'
 	                        ),
 	                        _react2.default.createElement(
 	                            'span',
 	                            {
-	                                className: 'icon',
-	                                onClick: editItem
+	                                className: 'icon tooltip',
+	                                onClick: logItems
 	                            },
+	                            _react2.default.createElement(
+	                                'span',
+	                                { className: 'tooltip-text' },
+	                                'Submit Logs'
+	                            ),
 	                            _react2.default.createElement('img', { src: 'icons/log.png' })
 	                        ),
 	                        _react2.default.createElement(
 	                            'span',
 	                            {
-	                                className: 'icon',
+	                                className: 'icon tooltip',
 	                                onClick: deleteItem
 	                            },
+	                            _react2.default.createElement(
+	                                'span',
+	                                { className: 'tooltip-text' },
+	                                'Delete Item'
+	                            ),
 	                            _react2.default.createElement('img', { src: 'icons/delete.png' })
 	                        )
 	                    ),
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'sidebar__aside-buttons__bottom' },
+	                        _react2.default.createElement(
+	                            'span',
+	                            {
+	                                className: 'icon tooltip',
+	                                onClick: deleteItem
+	                            },
+	                            _react2.default.createElement(
+	                                'span',
+	                                { className: 'tooltip-text' },
+	                                'Print Day Report'
+	                            ),
+	                            _react2.default.createElement('img', { src: 'icons/print.png' })
+	                        ),
 	                        filterButton,
 	                        _react2.default.createElement(
 	                            'span',
@@ -24844,119 +24904,6 @@
 
 /***/ }),
 /* 224 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.default = Items;
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function Items(props) {
-	    var items = props.items,
-	        filterMsg = props.filterMsg,
-	        onEditClick = props.onEditClick,
-	        onDeleteClick = props.onDeleteClick,
-	        all = items.map(function (props, key) {
-	        Object.assign(props, { key: key, onEditClick: onEditClick, onDeleteClick: onDeleteClick });
-	        return _react2.default.createElement(CategoryGroup, props);
-	    });
-
-
-	    return _react2.default.createElement(
-	        'section',
-	        { className: 'items' },
-	        filterMsg,
-	        all
-	    );
-	}
-
-	function CategoryGroup(props) {
-	    var category = props.category,
-	        items = props.items,
-	        onEditClick = props.onEditClick,
-	        onDeleteClick = props.onDeleteClick,
-	        href = category ? category.replace(' ', '-').toLowerCase() : 'uncategorized',
-	        _items = items.map(function (item, key) {
-	        var props = { item: item, key: key, onEditClick: onEditClick, onDeleteClick: onDeleteClick };
-	        return _react2.default.createElement(Item, props);
-	    });
-
-	    return _react2.default.createElement(
-	        'section',
-	        { className: 'item-group' },
-	        _react2.default.createElement(
-	            'h1',
-	            { className: 'item-group__category', id: href },
-	            category
-	        ),
-	        _items
-	    );
-	}
-
-	function Item(props) {
-	    var _props$item = props.item,
-	        name = _props$item.name,
-	        inStock = _props$item.inStock,
-	        lowAt = _props$item.lowAt,
-	        lastModified = _props$item.lastModified,
-	        isLow = lowAt > inStock,
-	        _lastModified = lastModified ? lastModified.substring(0, 10) : '';
-
-	    return _react2.default.createElement(
-	        'article',
-	        { className: 'item-card ' + (isLow ? 'low' : '') },
-	        _react2.default.createElement(
-	            'h1',
-	            { className: 'item-card__item-name' },
-	            name
-	        ),
-	        _react2.default.createElement(
-	            'span',
-	            { className: 'item-card__item-stock' },
-	            inStock
-	        ),
-	        _react2.default.createElement(
-	            'span',
-	            { className: 'item-card__item-last-modified' },
-	            _lastModified
-	        ),
-	        _react2.default.createElement(
-	            'div',
-	            { className: 'item-card__options' },
-	            _react2.default.createElement(
-	                'span',
-	                {
-	                    className: 'btn btn--primary btn--small',
-	                    onClick: function onClick() {
-	                        return props.onEditClick(props.item);
-	                    }
-	                },
-	                'EDIT'
-	            ),
-	            _react2.default.createElement(
-	                'span',
-	                {
-	                    className: 'btn btn--danger btn--small',
-	                    onClick: function onClick() {
-	                        return props.onDeleteClick(props.item);
-	                    }
-	                },
-	                'DELETE'
-	            )
-	        )
-	    );
-	}
-
-/***/ }),
-/* 225 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25046,6 +24993,134 @@
 	exports.default = Views;
 
 /***/ }),
+/* 225 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = Items;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function Items(passed) {
+	    var items = passed.items,
+	        filterMsg = passed.filterMsg,
+	        all = items.map(function (_props, key) {
+	        var props = Object.assign({}, passed, _props, { key: key });
+	        return _react2.default.createElement(CategoryGroup, props);
+	    });
+
+
+	    return _react2.default.createElement(
+	        'section',
+	        { className: 'items' },
+	        filterMsg,
+	        all
+	    );
+	}
+
+	function CategoryGroup(parent) {
+	    var category = parent.category,
+	        href = category ? category.replace(' ', '-').toLowerCase() : 'uncategorized',
+	        items = parent.items.map(function (item, key) {
+	        var props = Object.assign({}, parent, { item: item }, { key: key });
+	        return _react2.default.createElement(Item, props);
+	    });
+
+
+	    return _react2.default.createElement(
+	        'section',
+	        { className: 'item-group' },
+	        _react2.default.createElement(
+	            'h1',
+	            { className: 'item-group__category', id: href },
+	            category
+	        ),
+	        items
+	    );
+	}
+
+	function Item(props) {
+	    var Edit = props.Edit,
+	        Log = props.Log,
+	        Delete = props.Delete,
+	        Details = props.Details,
+	        item = props.item,
+	        name = item.name,
+	        inStock = item.inStock,
+	        lowAt = item.lowAt,
+	        lastModified = item.lastModified,
+	        isLow = lowAt > inStock,
+	        _lastModified = lastModified ? 'Last Updated: ' + lastModified.substring(0, 10) : '';
+
+	    return _react2.default.createElement(
+	        'article',
+	        { className: 'item-card ' + (isLow ? 'low' : '') },
+	        _react2.default.createElement(
+	            'h1',
+	            {
+	                className: 'item-card__item-name',
+	                onClick: function onClick() {
+	                    return Details(item);
+	                }
+	            },
+	            name
+	        ),
+	        _react2.default.createElement(
+	            'span',
+	            { className: 'item-card__item-stock' },
+	            inStock
+	        ),
+	        _react2.default.createElement(
+	            'span',
+	            { className: 'item-card__item-last-modified' },
+	            _lastModified
+	        ),
+	        _react2.default.createElement(
+	            'div',
+	            { className: 'item-card__options' },
+	            _react2.default.createElement(
+	                'span',
+	                {
+	                    className: 'option clickable',
+	                    onClick: function onClick() {
+	                        return Edit(item);
+	                    }
+	                },
+	                'EDIT'
+	            ),
+	            _react2.default.createElement(
+	                'span',
+	                {
+	                    className: 'option clickable',
+	                    onClick: function onClick() {
+	                        return Log(item);
+	                    }
+	                },
+	                'LOG'
+	            ),
+	            _react2.default.createElement(
+	                'span',
+	                {
+	                    className: 'option option--danger clickable text-danger',
+	                    onClick: function onClick() {
+	                        return Delete(item);
+	                    }
+	                },
+	                'DELETE'
+	            )
+	        )
+	    );
+	}
+
+/***/ }),
 /* 226 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -25107,16 +25182,13 @@
 
 	            for (var i = 0, len = items.length; i < len; i++) {
 	                if (_name === items[i]) {
-	                    var _error = 'An item with that name already exists';
-	                    this.setState({ error: _error });
+	                    var error = 'An item with that name already exists';
+	                    this.setState({ error: error });
 	                    return;
 	                }
 	            }
-	            var error = this.state.error;
 
-	            if (error === 'An item with that name already exists') {
-	                this.setState({ error: null });
-	            }
+	            this.setState({ error: null });
 	        }
 	    }, {
 	        key: 'save',
@@ -25152,15 +25224,12 @@
 	        value: function render() {
 	            var _this3 = this;
 
-	            var error = this.state.error ? _react2.default.createElement(
-	                'p',
-	                { className: 'errors' },
-	                this.state.error
-	            ) : null,
-	                _props = this.props,
-	                open = _props.open,
-	                categories = _props.categories,
-	                onClose = _props.onClose,
+	            var props = this.props,
+	                modal = this.modal,
+	                save = this.save,
+	                open = props.open,
+	                categories = props.categories,
+	                onClose = props.onClose,
 	                _categories = categories.map(function (c, i) {
 	                return _react2.default.createElement(
 	                    'option',
@@ -25168,27 +25237,14 @@
 	                    c
 	                );
 	            }),
-	                submit = error ? _react2.default.createElement(
-	                'button',
-	                {
-	                    className: 'submit',
-	                    onClick: this.save,
-	                    disabled: true
-	                },
-	                'SAVE'
-	            ) : _react2.default.createElement(
-	                'button',
-	                {
-	                    className: 'submit',
-	                    onClick: this.save
-	                },
-	                'SAVE'
-	            );
-
+	                error = modal ? modal.makeErrorDiv(this.state.error) : null,
+	                submit = modal ? modal.makeSubmitButton('SAVE', this.state.error, save) : null;
 
 	            return _react2.default.createElement(
 	                _Modal2.default,
-	                { onClose: onClose },
+	                { ref: function ref(m) {
+	                        return _this3.modal = m;
+	                    }, onClose: onClose },
 	                _react2.default.createElement(
 	                    'h1',
 	                    { className: 'section-title' },
@@ -25200,7 +25256,7 @@
 	                    error,
 	                    _react2.default.createElement(
 	                        'div',
-	                        { className: 'form-group' },
+	                        { className: 'form-group inline' },
 	                        _react2.default.createElement(
 	                            'p',
 	                            null,
@@ -25215,7 +25271,7 @@
 	                    ),
 	                    _react2.default.createElement(
 	                        'div',
-	                        { className: 'form-group' },
+	                        { className: 'form-group inline' },
 	                        _react2.default.createElement(
 	                            'p',
 	                            null,
@@ -25230,7 +25286,7 @@
 	                    ),
 	                    _react2.default.createElement(
 	                        'div',
-	                        { className: 'form-group' },
+	                        { className: 'form-group inline' },
 	                        _react2.default.createElement(
 	                            'p',
 	                            null,
@@ -25247,7 +25303,7 @@
 	                    ),
 	                    _react2.default.createElement(
 	                        'div',
-	                        { className: 'form-group' },
+	                        { className: 'form-group inline' },
 	                        _react2.default.createElement(
 	                            'p',
 	                            null,
@@ -25328,6 +25384,29 @@
 	        key: 'componentWillUnmount',
 	        value: function componentWillUnmount() {
 	            window.removeEventListener('keydown', this.close);
+	        }
+	    }, {
+	        key: 'makeErrorDiv',
+	        value: function makeErrorDiv(error) {
+	            return error ? _react2.default.createElement(
+	                'p',
+	                { className: 'errors' },
+	                error
+	            ) : null;
+	        }
+	    }, {
+	        key: 'makeSubmitButton',
+	        value: function makeSubmitButton(btnText, error, action) {
+	            return error ? null : _react2.default.createElement(
+	                'button',
+	                {
+	                    className: 'submit',
+	                    onClick: function onClick() {
+	                        return action();
+	                    }
+	                },
+	                'SAVE'
+	            );
 	        }
 	    }, {
 	        key: 'render',
@@ -25436,6 +25515,7 @@
 	                    return;
 	                }
 	            }
+
 	            this.setState({ error: null });
 	        }
 	    }, {
@@ -25458,10 +25538,11 @@
 	                category: category.value || defaults.category,
 	                name: name.value || defaults.name,
 	                lowAt: Number(lowAt.value) || defaults.lowAt
-	            };
+	            },
+	                edited = Object.assign({}, defaults, body);
 
 	            (0, _axios.put)('housekeeping/' + defaults._id, body).then(function (res) {
-	                return _this2.props.onEdit(Object.assign(defaults, body));
+	                return _this2.props.onEdit(edited, defaults);
 	            }).catch(function (e) {
 	                return console.log(e);
 	            });
@@ -25471,19 +25552,17 @@
 	        value: function render() {
 	            var _this3 = this;
 
-	            var _props$defaults2 = this.props.defaults,
-	                name = _props$defaults2.name,
-	                category = _props$defaults2.category,
-	                lowAt = _props$defaults2.lowAt,
-	                error = this.state.error ? _react2.default.createElement(
-	                'p',
-	                { className: 'errors' },
-	                this.state.error
-	            ) : null,
+	            var props = this.props,
+	                modal = this.modal,
+	                save = this.save,
 	                _props = this.props,
 	                open = _props.open,
 	                categories = _props.categories,
 	                onClose = _props.onClose,
+	                defaults = _props.defaults,
+	                name = defaults.name,
+	                category = defaults.category,
+	                lowAt = defaults.lowAt,
 	                _categories = categories.map(function (c, i) {
 	                return _react2.default.createElement(
 	                    'option',
@@ -25491,25 +25570,14 @@
 	                    c
 	                );
 	            }),
-	                submit = error ? _react2.default.createElement(
-	                'button',
-	                {
-	                    className: 'submit',
-	                    disabled: 'disabled'
-	                },
-	                'SAVE'
-	            ) : _react2.default.createElement(
-	                'button',
-	                {
-	                    className: 'submit',
-	                    onClick: this.save
-	                },
-	                'SAVE'
-	            );
+	                error = modal ? modal.makeErrorDiv(this.state.error) : null,
+	                submit = modal ? modal.makeSubmitButton('SAVE', this.state.error, save) : null;
 
 	            return _react2.default.createElement(
 	                _Modal2.default,
-	                { onClose: onClose },
+	                { onClose: onClose, ref: function ref(m) {
+	                        return _this3.modal = m;
+	                    } },
 	                _react2.default.createElement(
 	                    'h1',
 	                    { className: 'section-title' },
@@ -25521,7 +25589,7 @@
 	                    error,
 	                    _react2.default.createElement(
 	                        'div',
-	                        { className: 'form-group' },
+	                        { className: 'form-group inline' },
 	                        _react2.default.createElement(
 	                            'p',
 	                            null,
@@ -25537,7 +25605,7 @@
 	                    ),
 	                    _react2.default.createElement(
 	                        'div',
-	                        { className: 'form-group' },
+	                        { className: 'form-group inline' },
 	                        _react2.default.createElement(
 	                            'p',
 	                            null,
@@ -25553,7 +25621,7 @@
 	                    ),
 	                    _react2.default.createElement(
 	                        'div',
-	                        { className: 'form-group' },
+	                        { className: 'form-group inline' },
 	                        _react2.default.createElement(
 	                            'p',
 	                            null,
@@ -25723,7 +25791,7 @@
 	                            'Select the item you wish to remove'
 	                        ),
 	                        _react2.default.createElement('input', {
-	                            className: 'wide',
+	                            className: 'wide no-border',
 	                            list: 'items',
 	                            onChange: (0, _debounce3.default)(this.checkIfExists, 200, { leading: false }),
 	                            ref: function ref(n) {
@@ -25769,17 +25837,18 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function ConfirmDelete(_ref) {
-	    var active = _ref.active,
-	        onConfirm = _ref.onConfirm;
+	    var item = _ref.item,
+	        onConfirm = _ref.onConfirm,
+	        onClose = _ref.onClose;
 
 
 	    return _react2.default.createElement(
 	        _Modal2.default,
-	        null,
+	        { onClose: onClose },
 	        _react2.default.createElement(
 	            'p',
 	            { className: 'text-center' },
-	            'Are you sure you want to delete ' + active.name + '?'
+	            'Are you sure you want to delete ' + item.name + '?'
 	        ),
 	        _react2.default.createElement(
 	            'button',
@@ -25788,6 +25857,194 @@
 	        )
 	    );
 	}
+
+/***/ }),
+/* 231 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _debounce2 = __webpack_require__(185);
+
+	var _debounce3 = _interopRequireDefault(_debounce2);
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _axios = __webpack_require__(197);
+
+	var _axios2 = _interopRequireDefault(_axios);
+
+	var _Modal = __webpack_require__(227);
+
+	var _Modal2 = _interopRequireDefault(_Modal);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Log = function (_Component) {
+	    _inherits(Log, _Component);
+
+	    function Log(props) {
+	        _classCallCheck(this, Log);
+
+	        var _this = _possibleConstructorReturn(this, (Log.__proto__ || Object.getPrototypeOf(Log)).call(this, props));
+
+	        _this.save = _this.save.bind(_this);
+	        _this.checkBalance = _this.checkBalance.bind(_this);
+
+	        _this.state = { error: null };
+	        return _this;
+	    }
+
+	    _createClass(Log, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            var _props$item = this.props.item,
+	                added = _props$item.added,
+	                removed = _props$item.removed;
+
+	            this.added.value = added;
+	            this.removed.value = removed;
+	        }
+	    }, {
+	        key: 'checkBalance',
+	        value: function checkBalance() {
+	            var inStock = this.props.item.inStock,
+	                added = Number(this.added.value),
+	                removed = Number(this.removed.value);
+
+
+	            if (inStock + added - removed < 0) {
+	                var error = 'That is impossible, as it would result in a negative stock level';
+	                this.setState({ error: error });
+	                return;
+	            }
+
+	            this.setState({ error: null });
+	        }
+	    }, {
+	        key: 'save',
+	        value: function save() {
+	            var _this2 = this;
+
+	            var _props$item2 = this.props.item,
+	                inStock = _props$item2.inStock,
+	                _id = _props$item2._id,
+	                added = Number(this.added.value),
+	                removed = Number(this.removed.value),
+	                balance = inStock + added - removed;
+
+
+	            (0, _axios.post)('housekeeping/' + _id, { added: added, removed: removed }).then(function (res) {
+	                return _this2.props.onLog(balance);
+	            }).catch(function (e) {
+	                return console.log(e);
+	            });
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this3 = this;
+
+	            var modal = this.modal,
+	                save = this.save,
+	                checkBalance = this.checkBalance,
+	                _props = this.props,
+	                onClose = _props.onClose,
+	                item = _props.item,
+	                error = modal ? modal.makeErrorDiv(this.state.error) : null,
+	                submit = modal ? modal.makeSubmitButton('SAVE', this.state.error, save) : null,
+	                check = (0, _debounce3.default)(checkBalance, 200, { leading: false });
+
+
+	            return _react2.default.createElement(
+	                _Modal2.default,
+	                { ref: function ref(m) {
+	                        return _this3.modal = m;
+	                    }, onClose: onClose },
+	                _react2.default.createElement(
+	                    'h1',
+	                    { className: 'section-title' },
+	                    'LOG ITEM'
+	                ),
+	                _react2.default.createElement(
+	                    'p',
+	                    { className: 'text-center' },
+	                    item.name
+	                ),
+	                _react2.default.createElement(
+	                    'form',
+	                    null,
+	                    error,
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'form-group inline' },
+	                        _react2.default.createElement(
+	                            'p',
+	                            null,
+	                            'Date:'
+	                        ),
+	                        _react2.default.createElement('input', null)
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'form-group inline' },
+	                        _react2.default.createElement(
+	                            'p',
+	                            null,
+	                            'Added:'
+	                        ),
+	                        _react2.default.createElement('input', {
+	                            type: 'number',
+	                            min: '0',
+	                            onChange: check,
+	                            ref: function ref(a) {
+	                                return _this3.added = a;
+	                            },
+	                            'default': '0'
+	                        })
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'form-group inline' },
+	                        _react2.default.createElement(
+	                            'p',
+	                            null,
+	                            'Removed:'
+	                        ),
+	                        _react2.default.createElement('input', {
+	                            type: 'number',
+	                            min: '0',
+	                            onChange: check,
+	                            ref: function ref(r) {
+	                                return _this3.removed = r;
+	                            },
+	                            'default': '0'
+	                        })
+	                    )
+	                ),
+	                submit
+	            );
+	        }
+	    }]);
+
+	    return Log;
+	}(_react.Component);
+
+	exports.default = Log;
 
 /***/ })
 /******/ ]);

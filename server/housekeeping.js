@@ -99,14 +99,17 @@ function deleteItem (req, res) {
 
 function saveLog (req, res) {
     const
-        { log }    = req.body,
-        { itemId } = req.params
+        { body }   = req,
+        { itemId } = req.params,
         tStamp     = new Date(),
-        today      = tStamp.toISOString().substring(0,10);
+        date       = tStamp.toISOString().substring(0,10);
+        log        = Object.assign({}, { date }, body);
+
+    console.log(log);
 
     Item.push(true, itemId, log, (err, affected) => {
         if (err) res.json(error(err));
-        else res.json(reload);
+        else res.end();
     })
 }
 

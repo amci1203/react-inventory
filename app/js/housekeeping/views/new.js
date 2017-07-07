@@ -31,10 +31,8 @@ export default class NewItem extends Component {
                 return
             }
         }
-        const { error } = this.state;
-        if (error === 'An item with that name already exists') {
-            this.setState({ error: null });
-        }
+        
+        this.setState({ error: null });
     }
 
     save () {
@@ -59,42 +57,33 @@ export default class NewItem extends Component {
 
     render() {
         const
-            error = this.state.error ? <p className='errors'>{this.state.error}</p> : null,
-            { open, categories, onClose } = this.props,
+            { props, modal, save } = this,
+            { open, categories, onClose } = props,
             _categories = categories.map((c, i) => <option key={i}>{c}</option>),
-            submit = error ? (
-                <button
-                    className="submit"
-                    onClick={this.save}
-                    disabled
-                >SAVE</button>
-            ) : (
-                <button
-                    className="submit"
-                    onClick={this.save}
-                >SAVE</button>
-        );
+
+            error = modal ? modal.makeErrorDiv(this.state.error) : null,
+            submit = modal ? modal.makeSubmitButton('SAVE', this.state.error, save) : null;
 
         return (
-            <Modal onClose={onClose}>
+            <Modal ref={m => this.modal = m}onClose={onClose}>
                 <h1 className='section-title'>NEW ITEM</h1>
                 <form>
                     {error}
-                    <div className="form-group">
+                    <div className="form-group inline">
                         <p>Category</p>
                         <input
                             list='categories'
                             ref={c => this.category = c}
                         />
                     </div>
-                    <div className="form-group">
+                    <div className="form-group inline">
                         <p>Name</p>
                         <input
                             onChange={debounce(this.checkUniqueness, 200, { leading: false })}
                             ref={n => this.name = n}
                         />
                     </div>
-                    <div className="form-group">
+                    <div className="form-group inline">
                         <p>In Stock</p>
                         <input
                             type='number'
@@ -103,7 +92,7 @@ export default class NewItem extends Component {
                             ref={s => this.inStock = s}
                         />
                     </div>
-                    <div className="form-group">
+                    <div className="form-group inline">
                         <p>Low At</p>
                         <input
                             type='number'

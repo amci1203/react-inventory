@@ -11,13 +11,15 @@
         font-weight: 100;
         margin: 1.85rem 0;
         padding: 0.5rem 1.35rem;
+        border: 2px solid $body-bg;
         border-radius: 15px;
 
-        transition: all 0.3s ease;
-
         &.low {
+            /*border-color: red;*/
             background: $lowRed;
             color: $white;
+
+            .option--danger { color: inherit !important }
         }
 
         @mixin atLarge {
@@ -41,7 +43,40 @@
             font-weight: 600;
         }
 
-        &__options { opacity: 0 }
-        &:hover &__options { opacity: 1 }
+        &__item-last-modified {
+            display: block;
+            width: 80%;
+            text-align: right;
+        }
+
+
+        &__options {
+            @mixin atMedium {
+                position: relative;
+                opacity: 0;
+                z-index: -100;
+            }
+        }
+
+        &:hover {
+            border-color: color($mainBlue a(0.8));
+            &.low { border-color: red }
+            .item-card__options {
+                position: relative;
+                opacity: 1;
+                z-index: inherit;
+            }
+        }
+
+        .option {
+            @mixin clickable underline;
+
+            margin: 0 5px;
+            margin-top: 7px;
+            padding: 3px 7px;
+            font-weight: 800;
+
+            &--danger { color: #C00 }
+        }
     }
 }

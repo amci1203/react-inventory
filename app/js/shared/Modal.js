@@ -16,6 +16,19 @@ export default class Modal extends Component {
         window.removeEventListener('keydown', this.close);
     }
 
+    makeErrorDiv (error) {
+        return error ? <p className='errors'>{error}</p> : null;
+    }
+
+    makeSubmitButton (btnText, error, action) {
+        return error ? null : (
+            <button
+                className="submit"
+                onClick={() => action()}
+            >SAVE</button>
+        );
+    }
+
     render () {
         const { onClose, children } = this.props;
         return (

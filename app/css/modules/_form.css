@@ -43,6 +43,11 @@ form {
             width: 90%;
             margin-left: auto;
             margin-right: auto;
+
+            &.no-border {
+                border: none;
+                border-bottom: 1px solid #CCC;
+            }
         }
 
         textarea {
@@ -89,20 +94,26 @@ form {
     .right { float: right }
 }
 
-.modal__body form {
+.modal__body form .form-group.inline {
     label, p:not(.errors) {
         height: 35px;
-        text-align: right;
         padding-right: 25px;
         font-weight: 600;
-        float: left;
         width: 40%;
+
+        @mixin atSmall {
+            float: left;
+            text-align: right;
+        }
     }
     input {
-        float: left;
         border: 0;
         border-bottom: 2px solid #CCC;
         height: 35px;
         font-size: inherit;
+
+        @mixin atSmall {
+            float: left;
+        }
     }
 }

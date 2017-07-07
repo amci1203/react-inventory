@@ -5,14 +5,15 @@ import { debounce } from 'lodash';
 // import 'smoothscroll';
 
 import Sidebar from './Sidebar';
-import Items from './Items';
 
 import Views from '../shared/Views';
 
-import NewItem from './views/new';
-import EditItem from './views/edit';
-import DeleteItem from './views/delete';
+import Items         from './views/items';
+import NewItem       from './views/new';
+import EditItem      from './views/edit';
+import DeleteItem    from './views/delete';
 import ConfirmDelete from './views/confirm-delete';
+import Log           from './views/log';
 
 export default class Housekeeping extends Component {
 
@@ -25,7 +26,7 @@ export default class Housekeeping extends Component {
         this.closeModal   = this.closeModal.bind(this);
         this.saveItem     = this.saveItem.bind(this);
         this.deleteItem   = this.deleteItem.bind(this);
-        this.setActive    = this.setActive.bind(this);
+        this.editItem     = this.editItem.bind(this);
 
         this.state = {
             activeItem: null,
@@ -87,18 +88,29 @@ export default class Housekeeping extends Component {
         this.closeModal();
     }
 
-    setActive (activeItem) {
-        this.setState({ activeItem });
+    setStockBalance (inStock) {
+        const item = Object.assign({}, this.state.activeItem, { inStock });
+        this.editItem(item, this.state.activeItem);
     }
 
-    setActiveAndOpenEdit (item) {
-        this.setActive(item);
+    setActiveAndOpenEdit (activeItem) {
+        this.setState({ activeItem });
         this.views.select('edit');
     }
 
-    setActiveAndOpenConfirmDelete (item) {
-        this.setActive(item);
+    setActiveAndOpenLog (activeItem) {
+        this.setState({ activeItem });
+        this.views.select('log');
+    }
+
+    setActiveAndOpenConfirmDelete (activeItem) {
+        this.setState({ activeItem });
         this.views.select('confirm-delete');
+    }
+
+    setActiveAndOpenDetails (activeItem) {
+        this.setState({ activeItem });
+        this.views.select('details');
     }
 
 
@@ -142,8 +154,8 @@ export default class Housekeeping extends Component {
         if (items === null) return null;
 
         const
-            _items = this.groupItems(items, filter, search),
-            categories  = _items.map(i => i.category),
+            shownItems = this.groupItems(items, filter, search),
+            categories  = shownItems.map(i => i.category),
             view = this.views ? this.views.getCurrentViewId() : '__default',
 
             deleteArr = items.map(n => {
@@ -165,7 +177,7 @@ export default class Housekeeping extends Component {
                     handleSearch={ deb(this.handleSearch) }
                     handleFilter={ this.handleFilter.bind(this) }
                     newItem={ () => this.views.select('new') }
-                    editItem={ () => this.views.select('edit') }
+                    logItems={ () => this.views.select('log') }
                     deleteItem={ () => this.views.select('delete') }
                 />
                 <Views
@@ -176,9 +188,11 @@ export default class Housekeeping extends Component {
                     <Items
                         id='items'
                         filterMsg={filterMsg}
-                        items={_items}
-                        onEditClick={this.setActiveAndOpenEdit.bind(this)}
-                        onDeleteClick={this.setActiveAndOpenConfirmDelete.bind(this)}
+                        items={shownItems}
+                        Details={this.setActiveAndOpenDetails.bind(this)}
+                        Log={this.setActiveAndOpenLog.bind(this)}
+                        Edit={this.setActiveAndOpenEdit.bind(this)}
+                        Delete={this.setActiveAndOpenConfirmDelete.bind(this)}
                     />
                     <NewItem
                         id='new'
@@ -192,7 +206,7 @@ export default class Housekeeping extends Component {
                         defaults={this.state.activeItem}
                         items={items.map(n => n.name.toLowerCase())}
                         categories={categories}
-                        onEdit={this.saveItem}
+                        onEdit={this.editItem}
                         onClose={this.closeModal}
                     />
                     <DeleteItem
@@ -203,8 +217,21 @@ export default class Housekeeping extends Component {
                     />
                     <ConfirmDelete
                         id='confirm-delete'
-                        active={this.state.activeItem}
+                        item={this.state.activeItem}
                         onConfirm={this.deleteActiveItem.bind(this)}
+                        onClose={this.closeModal}
+                    />
+                    <Log
+                        id='log'
+                        item={this.state.activeItem}
+                        onLog={this.setStockBalance.bind(this)}
+                        onClose={this.closeModal}
+                    />
+                    <Log
+                        id='details'
+                        item={this.state.activeItem}
+                        onLog={this.setStockBalance.bind(this)}
+                        onClose={this.closeModal}
                     />
                 </Views>
             </div>
@@ -249,7 +276,7 @@ function insertItem (item, arr) {
 function removeItem (item, arr) {
     const
         names  = arr.map(n => n.name.toLowerCase()),
-        name   = item.toLowerCase();
+        name   = typeof item == 'string' ? item.toLowerCase() : item.name.toLowerCase();
     for (let i = 0, len = arr.length; i < len; i++) {
         if (name === names[i]) {
             return [ ...arr.slice(0, i), ...arr.slice(i + 1)];

@@ -1,8 +1,14 @@
 .btn {
     text-decoration : none;
     display         : inline-block;
+    @mixin clickable;
     @mixin btn-color $brand-default, $darker-gray;
     @mixin btn-size 1;
+
+    &--clear   {
+        @mixin btn-color transparent, inherit;
+        &:hover { text-decoration: underline }
+    }
 
     &--primary { @mixin btn-color $brand-primary }
     &--success { @mixin btn-color $brand-success }

@@ -15,7 +15,7 @@ export default class Sidebar extends Component {
                 filter,
                 categories,
                 newItem,
-                editItem,
+                logItems,
                 deleteItem
             } = this.props,
 
@@ -69,21 +69,35 @@ export default class Sidebar extends Component {
                 <aside className='sidebar__aside-buttons'>
                     <div className='sidebar__aside-buttons__top'>
                         <span
-                            className='icon icon--text'
+                            className='icon icon--text tooltip'
                             onClick={newItem}
-                        >+</span>
-                        <span
-                            className='icon'
-                            onClick={editItem}
-                        ><img src='icons/log.png' />
+                        >
+                            <span className='tooltip-text'>New item</span>
+                            +
                         </span>
                         <span
-                            className='icon'
+                            className='icon tooltip'
+                            onClick={logItems}
+                        >
+                            <span className='tooltip-text'>Submit Logs</span>
+                            <img src='icons/log.png' />
+                        </span>
+                        <span
+                            className='icon tooltip'
                             onClick={deleteItem}
-                        ><img src='icons/delete.png' />
+                        >
+                            <span className='tooltip-text'>Delete Item</span>
+                            <img src='icons/delete.png' />
                         </span>
                     </div>
                     <div className='sidebar__aside-buttons__bottom'>
+                        <span
+                            className='icon tooltip'
+                            onClick={deleteItem}
+                        >
+                            <span className='tooltip-text'>Print Day Report</span>
+                            <img src='icons/print.png' />
+                        </span>
                         {filterButton}
                         <span className='icon icon--text'>?</span>
                     </div>
