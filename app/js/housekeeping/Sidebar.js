@@ -93,7 +93,7 @@ export default class Sidebar extends Component {
                     <div className='sidebar__aside-buttons__bottom'>
                         <span
                             className='icon tooltip'
-                            onClick={deleteItem}
+                            onClick={() => {}}
                         >
                             <span className='tooltip-text'>Print Day Report</span>
                             <img src='icons/print.png' />

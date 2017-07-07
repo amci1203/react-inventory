@@ -22226,49 +22226,51 @@
 
 	var _axios2 = _interopRequireDefault(_axios);
 
-	var _Sidebar = __webpack_require__(223);
+	var _helpers = __webpack_require__(223);
+
+	var _Sidebar = __webpack_require__(224);
 
 	var _Sidebar2 = _interopRequireDefault(_Sidebar);
 
-	var _Views = __webpack_require__(224);
+	var _Views = __webpack_require__(225);
 
 	var _Views2 = _interopRequireDefault(_Views);
 
-	var _items2 = __webpack_require__(225);
+	var _items2 = __webpack_require__(226);
 
 	var _items3 = _interopRequireDefault(_items2);
 
-	var _new = __webpack_require__(226);
+	var _details = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./views/details\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+
+	var _details2 = _interopRequireDefault(_details);
+
+	var _new = __webpack_require__(227);
 
 	var _new2 = _interopRequireDefault(_new);
 
-	var _edit = __webpack_require__(228);
+	var _edit = __webpack_require__(229);
 
 	var _edit2 = _interopRequireDefault(_edit);
 
-	var _delete = __webpack_require__(229);
+	var _delete = __webpack_require__(230);
 
 	var _delete2 = _interopRequireDefault(_delete);
 
-	var _confirmDelete = __webpack_require__(230);
+	var _confirmDelete = __webpack_require__(231);
 
 	var _confirmDelete2 = _interopRequireDefault(_confirmDelete);
 
-	var _log = __webpack_require__(231);
+	var _log = __webpack_require__(232);
 
 	var _log2 = _interopRequireDefault(_log);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	// import 'smoothscroll';
 
 	var Housekeeping = function (_Component) {
 	    _inherits(Housekeeping, _Component);
@@ -22288,7 +22290,6 @@
 
 	        _this.state = {
 	            activeItem: null,
-	            activeView: 'items',
 	            items: null,
 	            search: null,
 	            filter: null
@@ -22333,14 +22334,14 @@
 	    }, {
 	        key: 'saveItem',
 	        value: function saveItem(item) {
-	            var items = insertItem(item, this.state.items);
+	            var items = (0, _helpers.insertItem)(item, this.state.items);
 	            this.setState({ items: items });
 	            this.closeModal();
 	        }
 	    }, {
 	        key: 'deleteItem',
 	        value: function deleteItem(item) {
-	            var items = removeItem(item, this.state.items);
+	            var items = (0, _helpers.removeItem)(item, this.state.items);
 	            this.setState({ items: items });
 	            this.closeModal();
 	        }
@@ -22360,7 +22361,7 @@
 	    }, {
 	        key: 'editItem',
 	        value: function editItem(item, prev) {
-	            var items = insertItem(item, removeItem(prev, this.state.items));
+	            var items = (0, _helpers.insertItem)(item, (0, _helpers.removeItem)(prev, this.state.items));
 	            this.setState({ items: items });
 	            this.closeModal();
 	        }
@@ -22400,9 +22401,9 @@
 	            var _search = new RegExp('^(' + search + ')', 'i'),
 	                grouped = [],
 	                items = _items.filter(function (i) {
-	                return matchFilter(i, filter);
+	                return (0, _helpers.matchFilter)(i, filter);
 	            }).filter(function (i) {
-	                return matchSearch(i, _search);
+	                return (0, _helpers.matchSearch)(i, _search);
 	            });
 
 	            var tmp = {};
@@ -22428,120 +22429,15 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this4 = this;
-
-	            var _state = this.state,
-	                items = _state.items,
-	                filter = _state.filter,
-	                search = _state.search,
-	                activeView = _state.activeView,
-	                activeItem = _state.activeItem,
+	            var views = this.views,
+	                items = this.state.items,
 	                deb = function deb(fn) {
 	                return (0, _debounce3.default)(fn, 300, { leading: false });
 	            };
 
+
 	            if (items === null) return null;
-
-	            var shownItems = this.groupItems(items, filter, search),
-	                categories = shownItems.map(function (i) {
-	                return i.category;
-	            }),
-	                view = this.views ? this.views.getCurrentViewId() : '__default',
-	                deleteArr = items.map(function (n) {
-	                var name = n.name,
-	                    _id = n._id;
-
-	                return { name: name, _id: _id };
-	            }),
-	                filterMsg = filter ? _react2.default.createElement(
-	                'h3',
-	                null,
-	                'Showing: ',
-	                filter.toUpperCase().replace('-', '\ ')
-	            ) : null;
-
-	            return _react2.default.createElement(
-	                'div',
-	                null,
-	                _react2.default.createElement(_Sidebar2.default, {
-	                    view: view,
-	                    categories: categories,
-	                    filter: filter,
-	                    handleSearch: deb(this.handleSearch),
-	                    handleFilter: this.handleFilter.bind(this),
-	                    newItem: function newItem() {
-	                        return _this4.views.select('new');
-	                    },
-	                    logItems: function logItems() {
-	                        return _this4.views.select('log');
-	                    },
-	                    deleteItem: function deleteItem() {
-	                        return _this4.views.select('delete');
-	                    }
-	                }),
-	                _react2.default.createElement(
-	                    _Views2.default,
-	                    {
-	                        className: 'main-view',
-	                        ref: function ref(v) {
-	                            return _this4.views = v;
-	                        },
-	                        'default': 'items'
-	                    },
-	                    _react2.default.createElement(_items3.default, {
-	                        id: 'items',
-	                        filterMsg: filterMsg,
-	                        items: shownItems,
-	                        Details: this.setActiveAndOpenDetails.bind(this),
-	                        Log: this.setActiveAndOpenLog.bind(this),
-	                        Edit: this.setActiveAndOpenEdit.bind(this),
-	                        Delete: this.setActiveAndOpenConfirmDelete.bind(this)
-	                    }),
-	                    _react2.default.createElement(_new2.default, {
-	                        id: 'new',
-	                        items: items.map(function (n) {
-	                            return n.name.toLowerCase();
-	                        }),
-	                        categories: categories,
-	                        onSave: this.saveItem,
-	                        onClose: this.closeModal
-	                    }),
-	                    _react2.default.createElement(_edit2.default, {
-	                        id: 'edit',
-	                        defaults: this.state.activeItem,
-	                        items: items.map(function (n) {
-	                            return n.name.toLowerCase();
-	                        }),
-	                        categories: categories,
-	                        onEdit: this.editItem,
-	                        onClose: this.closeModal
-	                    }),
-	                    _react2.default.createElement(_delete2.default, {
-	                        id: 'delete',
-	                        items: deleteArr,
-	                        onDelete: this.deleteItem,
-	                        onClose: this.closeModal
-	                    }),
-	                    _react2.default.createElement(_confirmDelete2.default, {
-	                        id: 'confirm-delete',
-	                        item: this.state.activeItem,
-	                        onConfirm: this.deleteActiveItem.bind(this),
-	                        onClose: this.closeModal
-	                    }),
-	                    _react2.default.createElement(_log2.default, {
-	                        id: 'log',
-	                        item: this.state.activeItem,
-	                        onLog: this.setStockBalance.bind(this),
-	                        onClose: this.closeModal
-	                    }),
-	                    _react2.default.createElement(_log2.default, {
-	                        id: 'details',
-	                        item: this.state.activeItem,
-	                        onLog: this.setStockBalance.bind(this),
-	                        onClose: this.closeModal
-	                    })
-	                )
-	            );
+	            if (views && views.getCurrentViewId == 'details') return detailsView.call(this);else return mainView.call(this);
 	        }
 	    }]);
 
@@ -22551,73 +22447,113 @@
 	exports.default = Housekeeping;
 
 
-	function insertItem(item, arr) {
-	    var name = item.name.toLowerCase(),
-	        category = item.category.toLowerCase(),
-	        categories = arr.map(function (c) {
-	        return c.category.toLowerCase();
+	function mainView() {
+	    var _this4 = this;
+
+	    var _state = this.state,
+	        items = _state.items,
+	        filter = _state.filter,
+	        search = _state.search,
+	        activeItem = _state.activeItem,
+	        deb = function deb(fn) {
+	        return (0, _debounce3.default)(fn, 300, { leading: false });
+	    },
+	        shownItems = this.groupItems(items, filter, search),
+	        categories = shownItems.map(function (i) {
+	        return i.category;
 	    }),
-	        items = arr.map(function (n) {
-	        return n.name.toLowerCase();
+	        deleteArr = items.map(function (n) {
+	        var name = n.name,
+	            _id = n._id;
+
+	        return { name: name, _id: _id };
 	    }),
-	        categoryArr = [].concat(_toConsumableArray(categories), [category]).sort(),
+	        filterMsg = filter ? _react2.default.createElement(
+	        'h3',
+	        null,
+	        'Showing: ',
+	        filter.toUpperCase().replace('-', '\ ')
+	    ) : null;
 
-
-	    // first & last occurence of the new item's category
-	    fc = categoryArr.indexOf(category),
-	        lc = categoryArr.lastIndexOf(category);
-
-	    if (fc === lc) {
-	        // new category; secondary sort not required
-	        var pos = newArr.indexOf(category);
-	        return [].concat(_toConsumableArray(arr.slice(0, pos + 1)), [item], _toConsumableArray(arr.slice(pos + 1)));
-	    }
-
-	    var categoryItemsArr = [].concat(_toConsumableArray(items.slice(fc, lc + 1)), [name]).sort(),
-	        itemPos = categoryItemsArr.indexOf(name);
-
-	    return [].concat(_toConsumableArray(arr.slice(0, fc + itemPos)), [item], _toConsumableArray(arr.slice(fc + itemPos)));
-	}
-
-	function removeItem(item, arr) {
-	    var names = arr.map(function (n) {
-	        return n.name.toLowerCase();
-	    }),
-	        name = typeof item == 'string' ? item.toLowerCase() : item.name.toLowerCase();
-	    for (var i = 0, len = arr.length; i < len; i++) {
-	        if (name === names[i]) {
-	            return [].concat(_toConsumableArray(arr.slice(0, i)), _toConsumableArray(arr.slice(i + 1)));
-	        }
-	    }
-	}
-
-	function matchSearch(item, search) {
-	    if ('null'.match(search)) return true;
-
-	    var nameWords = item.name.split(' '),
-	        categoryWords = item.category.split(' '),
-	        len = Math.max(nameWords.length, categoryWords.length);
-
-	    for (var i = 0; i < len; i++) {
-	        var nW = nameWords[i],
-	            cW = categoryWords[i];
-
-	        if (nW && nW.match(search)) return true;
-	        if (cW && cW.match(search)) return true;
-	    }
-
-	    return false;
-	}
-
-	function matchFilter(item, filter) {
-	    var inStock = item.inStock,
-	        lowAt = item.lowAt;
-
-	    if (!filter) return true;
-	    if (filter === 'low' && lowAt > inStock) return true;
-	    if (filter === 'in-stock' && lowAt < inStock) return true;
-	    if (filter === 'depleted' && inStock === 0) return true;
-	    return false;
+	    return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(_Sidebar2.default, {
+	            categories: categories,
+	            filter: filter,
+	            handleSearch: deb(this.handleSearch),
+	            handleFilter: this.handleFilter.bind(this),
+	            newItem: function newItem() {
+	                return _this4.views.select('new');
+	            },
+	            logItems: function logItems() {
+	                return _this4.views.select('log');
+	            },
+	            deleteItem: function deleteItem() {
+	                return _this4.views.select('delete');
+	            }
+	        }),
+	        _react2.default.createElement(
+	            _Views2.default,
+	            {
+	                className: 'main-view',
+	                ref: function ref(v) {
+	                    return _this4.views = v;
+	                },
+	                'default': 'items'
+	            },
+	            _react2.default.createElement(_items3.default, {
+	                id: 'items',
+	                filterMsg: filterMsg,
+	                items: shownItems,
+	                Details: this.setActiveAndOpenDetails.bind(this),
+	                Log: this.setActiveAndOpenLog.bind(this),
+	                Edit: this.setActiveAndOpenEdit.bind(this),
+	                Delete: this.setActiveAndOpenConfirmDelete.bind(this)
+	            }),
+	            _react2.default.createElement(_new2.default, {
+	                id: 'new',
+	                items: items.map(function (n) {
+	                    return n.name.toLowerCase();
+	                }),
+	                categories: categories,
+	                onSave: this.saveItem,
+	                onClose: this.closeModal
+	            }),
+	            _react2.default.createElement(_edit2.default, {
+	                id: 'edit',
+	                defaults: this.state.activeItem,
+	                items: items.map(function (n) {
+	                    return n.name.toLowerCase();
+	                }),
+	                categories: categories,
+	                onEdit: this.editItem,
+	                onClose: this.closeModal
+	            }),
+	            _react2.default.createElement(_delete2.default, {
+	                id: 'delete',
+	                items: deleteArr,
+	                onDelete: this.deleteItem,
+	                onClose: this.closeModal
+	            }),
+	            _react2.default.createElement(_confirmDelete2.default, {
+	                id: 'confirm-delete',
+	                item: this.state.activeItem,
+	                onConfirm: this.deleteActiveItem.bind(this),
+	                onClose: this.closeModal
+	            }),
+	            _react2.default.createElement(_log2.default, {
+	                id: 'log',
+	                item: this.state.activeItem,
+	                onLog: this.setStockBalance.bind(this),
+	                onClose: this.closeModal
+	            }),
+	            _react2.default.createElement(_details2.default, {
+	                id: 'details',
+	                item: this.state.activeItem
+	            })
+	        )
+	    );
 	}
 
 /***/ }),
@@ -24705,6 +24641,91 @@
 
 /***/ }),
 /* 223 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.insertItem = insertItem;
+	exports.removeItem = removeItem;
+	exports.matchSearch = matchSearch;
+	exports.matchFilter = matchFilter;
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	function insertItem(item, arr) {
+	    var name = item.name.toLowerCase(),
+	        category = item.category.toLowerCase(),
+	        categories = arr.map(function (c) {
+	        return c.category.toLowerCase();
+	    }),
+	        items = arr.map(function (n) {
+	        return n.name.toLowerCase();
+	    }),
+	        categoryArr = [].concat(_toConsumableArray(categories), [category]).sort(),
+
+
+	    // first & last occurence of the new item's category
+	    fc = categoryArr.indexOf(category),
+	        lc = categoryArr.lastIndexOf(category);
+
+	    if (fc === lc) {
+	        // new category; secondary sort not required
+	        var pos = newArr.indexOf(category);
+	        return [].concat(_toConsumableArray(arr.slice(0, pos + 1)), [item], _toConsumableArray(arr.slice(pos + 1)));
+	    }
+
+	    var categoryItemsArr = [].concat(_toConsumableArray(items.slice(fc, lc + 1)), [name]).sort(),
+	        itemPos = categoryItemsArr.indexOf(name);
+
+	    return [].concat(_toConsumableArray(arr.slice(0, fc + itemPos)), [item], _toConsumableArray(arr.slice(fc + itemPos)));
+	}
+
+	function removeItem(item, arr) {
+	    var names = arr.map(function (n) {
+	        return n.name.toLowerCase();
+	    }),
+	        name = typeof item == 'string' ? item.toLowerCase() : item.name.toLowerCase();
+	    for (var i = 0, len = arr.length; i < len; i++) {
+	        if (name === names[i]) {
+	            return [].concat(_toConsumableArray(arr.slice(0, i)), _toConsumableArray(arr.slice(i + 1)));
+	        }
+	    }
+	}
+
+	function matchSearch(item, search) {
+	    if ('null'.match(search)) return true;
+
+	    var nameWords = item.name.split(' '),
+	        categoryWords = item.category.split(' '),
+	        len = Math.max(nameWords.length, categoryWords.length);
+
+	    for (var i = 0; i < len; i++) {
+	        var nW = nameWords[i],
+	            cW = categoryWords[i];
+
+	        if (nW && nW.match(search)) return true;
+	        if (cW && cW.match(search)) return true;
+	    }
+
+	    return false;
+	}
+
+	function matchFilter(item, filter) {
+	    var inStock = item.inStock,
+	        lowAt = item.lowAt;
+
+	    if (!filter) return true;
+	    if (filter === 'low' && lowAt > inStock) return true;
+	    if (filter === 'in-stock' && lowAt < inStock) return true;
+	    if (filter === 'depleted' && inStock === 0) return true;
+	    return false;
+	}
+
+/***/ }),
+/* 224 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24876,7 +24897,7 @@
 	                            'span',
 	                            {
 	                                className: 'icon tooltip',
-	                                onClick: deleteItem
+	                                onClick: function onClick() {}
 	                            },
 	                            _react2.default.createElement(
 	                                'span',
@@ -24903,7 +24924,7 @@
 	exports.default = Sidebar;
 
 /***/ }),
-/* 224 */
+/* 225 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24993,7 +25014,7 @@
 	exports.default = Views;
 
 /***/ }),
-/* 225 */
+/* 226 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25121,7 +25142,7 @@
 	}
 
 /***/ }),
-/* 226 */
+/* 227 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25144,7 +25165,7 @@
 
 	var _axios2 = _interopRequireDefault(_axios);
 
-	var _Modal = __webpack_require__(227);
+	var _Modal = __webpack_require__(228);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 
@@ -25335,7 +25356,7 @@
 	exports.default = NewItem;
 
 /***/ }),
-/* 227 */
+/* 228 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25434,7 +25455,7 @@
 	exports.default = Modal;
 
 /***/ }),
-/* 228 */
+/* 229 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25457,7 +25478,7 @@
 
 	var _axios2 = _interopRequireDefault(_axios);
 
-	var _Modal = __webpack_require__(227);
+	var _Modal = __webpack_require__(228);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 
@@ -25653,7 +25674,7 @@
 	exports.default = EditItem;
 
 /***/ }),
-/* 229 */
+/* 230 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25676,7 +25697,7 @@
 
 	var _axios2 = _interopRequireDefault(_axios);
 
-	var _Modal = __webpack_require__(227);
+	var _Modal = __webpack_require__(228);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 
@@ -25816,7 +25837,7 @@
 	exports.default = DeleteItem;
 
 /***/ }),
-/* 230 */
+/* 231 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25830,7 +25851,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Modal = __webpack_require__(227);
+	var _Modal = __webpack_require__(228);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 
@@ -25859,7 +25880,7 @@
 	}
 
 /***/ }),
-/* 231 */
+/* 232 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25882,7 +25903,7 @@
 
 	var _axios2 = _interopRequireDefault(_axios);
 
-	var _Modal = __webpack_require__(227);
+	var _Modal = __webpack_require__(228);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 

@@ -70,7 +70,7 @@ function getCategoryItems (category, callback) {
 function add (item, callback) {
     item.category = item.category || 'Uncategorized';
     item.log  = [{
-        date     : item.date,
+        date     : item.date || currentDate(),
         added    : item.inStock,
         balance  : item.inStock,
         comments : `Added ${item.name} to inventory`
@@ -232,7 +232,7 @@ module.exports = mongoose.model('Item', schema)
 
 function currentDate () {
     const d = new Date();
-    return d.toUTCString().substring(0, 10);
+    return d.toISOString().substring(0, 10);
 }
 
 function isOK (err, data, cb) {
