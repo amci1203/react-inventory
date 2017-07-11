@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { debounce } from 'lodash';
 import axios from 'axios';
 
-import Modal from '../../shared/Modal';
+import Modal from '../Modal';
 
 export default class DeleteItem extends Component {
 

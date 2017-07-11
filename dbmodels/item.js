@@ -27,7 +27,7 @@ const schema = new mongoose.Schema(
 
 const
     statics = {
-        getAll, get, getCategoryItems, add, push, editItem, editItemLog, remove,
+        getAll, getItemLog, getCategoryItems, add, push, editItem, editItemLog, remove,
         getRecordsForDate, checkBalances
     }
     // In case I ever decide to put some.
@@ -49,11 +49,11 @@ function getAll (callback) {
 }
 
 // returns a single item's log; can only be retrieved by id
-function get (_id, callback) {
+function getItemLog (_id, callback) {
     return this.findOne({ _id })
         .select('log')
         .sort('log.date')
-        .exec((err, doc) => isOK(err, doc, callback))
+        .exec((err, doc) => isOK(err, doc.log, callback))
     ;
 }
 

@@ -1,20 +1,17 @@
-import React, { createElement } from 'react';
+import React, { Component } from 'react';
 import ReactDOM, { render } from 'react-dom';
+import { createStore, applyMiddleware, bindActionCreators } from 'redux';
+import { Provider, connect } from 'react-redux'
 
-import Housekeeping from './housekeeping/main';
+import App from './components';
+import reducers from './reducers';
 
-const
-    current = 'Housekeeping',
-    departments = { Housekeeping };
+const store = applyMiddleware()(createStore)(reducers);
 
+render((
 
+    <Provider store={store}>
+        <App />
+    </Provider>
 
-
-showActiveDepartment(current);
-
-
-
-
-function showActiveDepartment (dept) {
-    render(createElement(departments[dept]), document.getElementById('app'));
-}
+), document.getElementById('app'))

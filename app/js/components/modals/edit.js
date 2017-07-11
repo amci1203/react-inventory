@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import axios, { post } from 'axios';
+import axios, { put } from 'axios';
 import { debounce } from 'lodash';
 
-import Modal from '../../shared/Modal';
+import Modal from '../Modal';
 
 
-export default class NewItem extends Component {
+export default class EditItem extends Component {
 
     constructor (props) {
         super(props);
@@ -19,54 +19,67 @@ export default class NewItem extends Component {
         };
     }
 
+    componentDidMount () {
+        const { name, category, lowAt } = this.props.defaults;
+        this.name.value = name;
+        this.category.value = category;
+        this.lowAt.value = lowAt;
+    }
+
     checkUniqueness () {
         const
+            defaultName = this.props.defaults.name.toLowerCase(),
             { items } = this.props,
             { name } = this,
             _name = name.value.toLowerCase();
         for (let i = 0, len = items.length; i < len; i++) {
-            if (_name === items[i]) {
+            if (_name !== defaultName && _name === items[i]) {
                 const error = 'An item with that name already exists';
                 this.setState({ error });
                 return
             }
         }
-        
+
         this.setState({ error: null });
     }
 
     save () {
-        const { category, name, inStock, lowAt } = this;
+        const
+            { category, name, lowAt } = this,
+            { defaults } = this.props;
 
         if (name.value.trim() === '') {
             const error = 'A name must be specified';
             this.setState({error})
             return
         }
-        const body = { item: {
-            category: category.value,
-            name: name.value,
-            inStock: Number(inStock.value),
-            lowAt: Number(lowAt.value)
-        }};
+        const
+            body = {
+                category: category.value || defaults.category,
+                name: name.value || defaults.name,
+                lowAt: Number(lowAt.value) || defaults.lowAt
+            },
 
-        post('housekeeping', body)
-            .then(res => this.props.onSave(res.data))
-            .catch(e => console.log(e.toString()));
+            edited = Object.assign({}, defaults, body);
+
+        put('housekeeping/' + defaults._id, body)
+            .then(res => this.props.onEdit(edited, defaults))
+            .catch(e => console.log(e));
     }
 
     render() {
         const
             { props, modal, save } = this,
-            { open, categories, onClose } = props,
+            { open, categories, onClose, defaults } = this.props,
+            { name, category, lowAt } = defaults,
             _categories = categories.map((c, i) => <option key={i}>{c}</option>),
 
             error = modal ? modal.makeErrorDiv(this.state.error) : null,
             submit = modal ? modal.makeSubmitButton('SAVE', this.state.error, save) : null;
 
         return (
-            <Modal ref={m => this.modal = m}onClose={onClose}>
-                <h1 className='section-title'>NEW ITEM</h1>
+            <Modal onClose={onClose} ref={m => this.modal = m}>
+                <h1 className='section-title'>EDIT ITEM</h1>
                 <form>
                     {error}
                     <div className="form-group inline">
@@ -74,6 +87,7 @@ export default class NewItem extends Component {
                         <input
                             list='categories'
                             ref={c => this.category = c}
+                            default={category}
                         />
                     </div>
                     <div className="form-group inline">
@@ -81,15 +95,7 @@ export default class NewItem extends Component {
                         <input
                             onChange={debounce(this.checkUniqueness, 200, { leading: false })}
                             ref={n => this.name = n}
-                        />
-                    </div>
-                    <div className="form-group inline">
-                        <p>In Stock</p>
-                        <input
-                            type='number'
-                            default='0'
-                            min='0'
-                            ref={s => this.inStock = s}
+                            default={name}
                         />
                     </div>
                     <div className="form-group inline">
@@ -99,6 +105,7 @@ export default class NewItem extends Component {
                             default='0'
                             min='0'
                             ref={l => this.lowAt = l}
+                            default={lowAt}
                         />
                     </div>
                 </form>

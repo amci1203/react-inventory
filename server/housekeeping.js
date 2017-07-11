@@ -82,10 +82,10 @@ function editItem (req, res) {
 
 function getItem (req, res) {
     const { itemId } = req.params;
-    Item.get(itemId, (err, item) => {
+    Item.getItemLog(itemId, (err, log) => {
         if (err) res.status(500).json(error(err));
-        if (item == undefined) res.status(404).json(error(`No item with the id [${itemId}] exists.`));
-        res.json({item})
+        if (log == undefined) res.status(404).json(error(`No item with the id [${itemId}] exists.`));
+        res.json(log)
     })
 }
 

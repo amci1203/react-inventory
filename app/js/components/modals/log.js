@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import axios, { post } from 'axios';
 import { debounce } from 'lodash';
 
-import Modal from '../../shared/Modal';
+import Modal from '../Modal';
 
 
 export default class Log extends Component {
