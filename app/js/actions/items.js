@@ -42,6 +42,10 @@ export function fetchItems () {
     });
 }
 
+export function setCategories (payload) {
+    return { type: 'ITEM_CATEGORIES_SET', payload }
+}
+
 export function addItem (arr, item, noDispatch) {
     const
         name        = item.name.toLowerCase(),

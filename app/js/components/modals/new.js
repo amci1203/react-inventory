@@ -13,9 +13,7 @@ export default class NewItem extends Component {
         this.save = this.save.bind(this);
         this.checkUniqueness = this.checkUniqueness.bind(this);
 
-        this.state = {
-            error: null
-        };
+        this.state = { error: null };
     }
 
     checkUniqueness () {
@@ -23,6 +21,7 @@ export default class NewItem extends Component {
             { items } = this.props,
             { name } = this,
             _name = name.value.toLowerCase();
+
         for (let i = 0, len = items.length; i < len; i++) {
             if (_name === items[i]) {
                 const error = 'An item with that name already exists';
@@ -55,7 +54,7 @@ export default class NewItem extends Component {
     }
 
     render() {
-        if (!items) return null;
+        if (!this.props.items) return null;
 
         const
             { props, modal, save } = this,
@@ -70,7 +69,7 @@ export default class NewItem extends Component {
                     <div className="form-group inline">
                         <p>Category</p>
                         <input
-                            list='categories'
+                            list='categories-list'
                             ref={c => this.category = c}
                         />
                     </div>

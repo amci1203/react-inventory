@@ -6,7 +6,7 @@ import { Provider, connect } from 'react-redux';
 // MIDDLEWARES
 import thunkMiddleware from 'redux-thunk';
 import { createLogger } from 'redux-logger';
-import createDebounce from 'redux-debounced';
+// import createDebounce from 'redux-debounced';
 
 import App from './components';
 import reducers from './reducers';
@@ -14,8 +14,8 @@ import reducers from './reducers';
 const
     logger = createLogger(),
     thunk = thunkMiddleware,
-    debounce = createDebounce(),
-    middlewares = [ thunk, logger, debounce ],
+    // debounce = createDebounce(),
+    middlewares = [ thunk, logger ],
     store = applyMiddleware(...middlewares)(createStore)(reducers);
 
 render((

@@ -10,16 +10,17 @@ import ConfirmDelete from './confirm-delete';
 
 function Modals ({ items: { all, active, categories }, actions }) {
     const
-        categoriesList = categories ?
-            categories.map((item, i) => (<option key={i}>{category}</option>)) : null,
-        itemList = all ?
-            all.map((item, i) => (<option key={i}>{item.name}</option>)) : null;
+        itemList = all ? all.map(i => i.name) : null,
+        itemDataList = all ?
+            all.map((item, i) => (<option key={i}>{item.name}</option>)) : null,
+        categoriesDataList = categories ?
+            categories.map((item, i) => (<option key={i}>{category}</option>)) : null;
     return (
         <div>
-            <NewItem items={all} />
+            <NewItem items={itemList} />
             <DeleteItem items={all} />
-            <datalist id='items-list'>{itemList}</datalist>
-            <datalist id='categories-list'>{categoriesList}</datalist>
+            <datalist id='items-list'>{itemDataList}</datalist>
+            <datalist id='categories-list'>{categoriesDataList}</datalist>
         </div>
     )
 }
