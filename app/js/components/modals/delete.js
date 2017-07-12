@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { debounce } from 'lodash';
 import axios from 'axios';
 
-import Modal from '../../shared/Modal';
+import Modal from '../Modal';
 
 export default class DeleteItem extends Component {
 
@@ -44,7 +44,6 @@ export default class DeleteItem extends Component {
             { id } = this.state,
             { onClose } = this.props,
             error = this.state.error ? <p className='errors'>{this.state.error}</p> : null,
-            items = this.props.items.map((item, i) => (<option key={i}>{item.name}</option>)),
             submit = id ? (
                 <button
                     className="submit"
@@ -59,7 +58,7 @@ export default class DeleteItem extends Component {
             )
 
             return (
-                <Modal onClose={onClose}>
+                <Modal id='delete'>
                     <h1 className="section-title">DELETE ITEM</h1>
                     <form>
                         { error }
@@ -67,14 +66,13 @@ export default class DeleteItem extends Component {
                             <p className='wide'>Select the item you wish to remove</p>
                             <input
                                 className='wide no-border'
-                                list='items'
+                                list='items-list'
                                 onChange={debounce(this.checkIfExists, 200, { leading: false })}
                                 ref={n => this.name = n}
                             />
                         </div>
                     </form>
                     { submit }
-                    <datalist id='items'>{items}</datalist>
                 </Modal>
             )
     }

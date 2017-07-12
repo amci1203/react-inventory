@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import axios, { post } from 'axios';
+import { post } from 'axios';
 import { debounce } from 'lodash';
 
-import Modal from '../../shared/Modal';
+import Modal from '../Modal';
 
 
 export default class NewItem extends Component {
@@ -12,7 +12,6 @@ export default class NewItem extends Component {
 
         this.save = this.save.bind(this);
         this.checkUniqueness = this.checkUniqueness.bind(this);
-
 
         this.state = {
             error: null
@@ -31,7 +30,7 @@ export default class NewItem extends Component {
                 return
             }
         }
-        
+
         this.setState({ error: null });
     }
 
@@ -56,16 +55,15 @@ export default class NewItem extends Component {
     }
 
     render() {
+        if (!items) return null;
+
         const
             { props, modal, save } = this,
-            { open, categories, onClose } = props,
-            _categories = categories.map((c, i) => <option key={i}>{c}</option>),
-
             error = modal ? modal.makeErrorDiv(this.state.error) : null,
             submit = modal ? modal.makeSubmitButton('SAVE', this.state.error, save) : null;
 
         return (
-            <Modal ref={m => this.modal = m}onClose={onClose}>
+            <Modal id='new' ref={m => this.modal = m}>
                 <h1 className='section-title'>NEW ITEM</h1>
                 <form>
                     {error}
@@ -79,7 +77,7 @@ export default class NewItem extends Component {
                     <div className="form-group inline">
                         <p>Name</p>
                         <input
-                            onChange={debounce(this.checkUniqueness, 200, { leading: false })}
+                            onChange={debounce(this.checkUniqueness, 300, { leading: false })}
                             ref={n => this.name = n}
                         />
                     </div>
@@ -103,7 +101,6 @@ export default class NewItem extends Component {
                     </div>
                 </form>
                 { submit }
-                <datalist id='categories'>{_categories}</datalist>
             </Modal>
         )
     }

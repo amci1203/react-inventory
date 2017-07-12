@@ -29,6 +29,9 @@
     "react-redux": "^5.0.5",
     "react-router": "^4.1.1",
     "redux": "^3.7.0",
+    "redux-debounced": "^0.4.0",
+    "redux-logger": "^3.0.6",
+    "redux-thunk": "^2.2.0",
     "smoothscroll": "^0.3.0",
     "winston": "^2.3.1"
   },

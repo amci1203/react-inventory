@@ -2,8 +2,6 @@ import React, { Component, Children } from 'react';
 import axios, { get, post } from 'axios';
 import { debounce } from 'lodash';
 
-import { insertItem, removeItem, editItem, matchSearch, matchFilter } from './helpers'
-
 import Sidebar       from './Sidebar';
 import Views         from '../shared/Views';
 import Items         from './components/items';

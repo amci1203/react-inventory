@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import Modal from '../../shared/Modal';
+import Modal from '../Modal';
 
 export default function ConfirmDelete ({ item, onConfirm, onClose }) {
 
