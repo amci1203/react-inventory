@@ -6,7 +6,7 @@ export default (state = {}, action) => {
         case 'ITEMS_ADDED':
         case 'ITEMS_REMOVED':
         case 'ITEMS_EDITED':
-            return Object.assign({}, state, { all: payload });
+            return Object.assign({}, state, payload);
 
         case 'ACTIVE_ITEM_SET':
             return Object.assign({}, state, { active: payload })

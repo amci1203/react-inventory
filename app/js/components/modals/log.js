@@ -1,23 +1,24 @@
 import React, { Component } from 'react';
 import axios, { post } from 'axios';
 import { debounce } from 'lodash';
+import { makeErrorDiv, makeSubmitButton } from '../../helpers';
 
 import Modal from '../Modal';
 
 
-export default class Log extends Component {
+export default class LogItem extends Component {
 
     constructor (props) {
         super(props);
 
         this.save = this.save.bind(this);
-        this.checkBalance = this.checkBalance.bind(this);
+        this.checkBalance = debounce(this.checkBalance.bind(this), 200, { leading: false });
 
         this.state = { error: null };
     }
 
     componentDidMount () {
-        const { added, removed} = this.props.item;
+        const { added, removed } = this.props.item;
         this.added.value =added;
         this.removed.value = removed;
     }
@@ -50,17 +51,17 @@ export default class Log extends Component {
     }
 
     render() {
+        if (!this.props.active) return null;
+
         const
             { modal, save, checkBalance } = this,
-            { onClose, item } = this.props,
+            { active } = this.props,
 
-            error  = modal ? modal.makeErrorDiv(this.state.error) : null,
-            submit = modal ? modal.makeSubmitButton('SAVE', this.state.error, save) : null,
-
-            check = debounce(checkBalance, 200, { leading: false });
+            error  = makeErrorDiv(this.state.error),
+            submit = makeSubmitButton('SAVE', this.state.error, save);
 
         return (
-            <Modal ref={m => this.modal = m} onClose={onClose}>
+            <Modal id='log'>
                 <h1 className='section-title'>LOG ITEM</h1>
                 <p className='text-center'>{item.name}</p>
                 <form>

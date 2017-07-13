@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { post } from 'axios';
 import { debounce } from 'lodash';
+import { makeErrorDiv, makeSubmitButton } from '../../helpers';
 
 import Modal from '../Modal';
-
 
 export default class NewItem extends Component {
 
@@ -18,23 +18,22 @@ export default class NewItem extends Component {
 
     checkUniqueness () {
         const
-            { items } = this.props,
-            { name } = this,
-            _name = name.value.toLowerCase();
+            { names } = this.props,
+            name = this.name.value.toLowerCase();
 
-        for (let i = 0, len = items.length; i < len; i++) {
-            if (_name === items[i]) {
-                const error = 'An item with that name already exists';
-                this.setState({ error });
-                return
-            }
+        if (names.indexOf(name) > -1) {
+            const error = 'An item with that name already exists';
+            this.setState({ error });
+            return;
         }
 
         this.setState({ error: null });
     }
 
     save () {
-        const { category, name, inStock, lowAt } = this;
+        const
+            { category, name, inStock, lowAt } = this,
+            { save, items } = this.props;
 
         if (name.value.trim() === '') {
             const error = 'A name must be specified';
@@ -48,21 +47,19 @@ export default class NewItem extends Component {
             lowAt: Number(lowAt.value)
         }};
 
-        post('housekeeping', body)
-            .then(res => this.props.onSave(res.data))
-            .catch(e => console.log(e.toString()));
+        save(items, body)
     }
 
     render() {
         if (!this.props.items) return null;
 
         const
-            { props, modal, save } = this,
-            error = modal ? modal.makeErrorDiv(this.state.error) : null,
-            submit = modal ? modal.makeSubmitButton('SAVE', this.state.error, save) : null;
+            { props, save } = this,
+            error = makeErrorDiv(this.state.error),
+            submit = makeSubmitButton('SAVE', this.state.error, save);
 
         return (
-            <Modal id='new' ref={m => this.modal = m}>
+            <Modal id='new'>
                 <h1 className='section-title'>NEW ITEM</h1>
                 <form>
                     {error}

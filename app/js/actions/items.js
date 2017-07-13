@@ -11,6 +11,7 @@
 */
 
 import axios, { get, post, put } from 'axios';
+import { uniq } from 'lodash';
 
 export function setActiveItem (payload) {
     return { type: 'ACTIVE_ITEM_SET', payload  }
@@ -18,8 +19,8 @@ export function setActiveItem (payload) {
 
 export function openItemDetails (payload) {
     if (!payload.log) {
-        return dispatch => get(`housekeeping/${payload._id}`, log => {
-            Object.assign(payload, { log });
+        return dispatch => get(`housekeeping/${payload._id}`, res => {
+            Object.assign(payload, { log: res.log });
             return { type: 'ITEM_DETAILS_OPENED', payload, addLog: true }
         })
     }
@@ -35,15 +36,13 @@ export function setStockBalance (i, payload) {
 }
 
 export function fetchItems () {
-    console.log('Fetching items...')
-    return dispatch => get('housekeeping').then(data => {
-        const payload = data.data.map((n, i) => Object.assign(n, { index: i }));
+    return dispatch => get('housekeeping').then(res => {
+        const payload = {
+            all: res.data.map((n, i) => Object.assign(n, { index: i })),
+            categories: uniq(res.data.map(c => c.category))
+        };
         dispatch({ type: 'ITEMS_FETCHED', payload });
     });
-}
-
-export function setCategories (payload) {
-    return { type: 'ITEM_CATEGORIES_SET', payload }
 }
 
 export function addItem (arr, item, noDispatch) {
@@ -69,7 +68,8 @@ export function addItem (arr, item, noDispatch) {
 
     if (noDispatch) return payload;
     return noDispatch ? payload : dispatch => {
-        post('housekeeping', item).then((err, data) => {
+        post('housekeeping', item).then(res => {
+            const { err } = res.data;
             console.log(err || 'ADD OK');
             if (!err) dispatch({ type: 'ITEM_ADDED', payload });
         })
@@ -86,12 +86,15 @@ export function editItem (arr, i, item) {
     })
 }
 
-export function removeItem (arr, i, noDispatch) {
-    const payload =  [ ...arr.slice(0, i), ...arr.slice(i + 1)];
+export function removeItem (arr, { index, _id }, noDispatch) {
+    const payload =  [ ...arr.slice(0, index), ...arr.slice(index + 1)];
     return noDispatch ? payload : dispatch => {
-        axios.delete().then(data => {
+        axios.delete(`housekeeping/${_id}`).then(res => {
+            const { err } = res.data;
             console.log(err || 'DELETE OK');
-            if (!err)dispatch({ type: 'ITEM_REMOVED', payload });
+            if (!err) dispatch({ type: 'ITEM_REMOVED', payload });
         })
     }
 }
+
+export function postLog () {}

@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import { connectToStore } from '../helpers';
 import { openModal } from '../actions/modals';
-import { fetchItems } from '../actions/items';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import { fetchItems, setCategories, openItemDetails } from '../actions/items';
 
 
 function Items ({
@@ -11,7 +9,7 @@ function Items ({
     filter,
     openModal,
     openItemDetails,
-    fetchItems
+    fetchItems,
 }) {
     if (!all) {
         fetchItems();
@@ -62,7 +60,7 @@ function Items ({
 
     return (
         <section className='items'>
-            {filterNotification}
+            { filterNotification }
             { viewableItems }
         </section>
     )
@@ -89,17 +87,18 @@ function CategoryGroup ({ group: {category, items}, actions }) {
 
 
 function Item ({
-    item: { name, inStock, lowAt, lastModified },
+    item,
     actions: { openModal, openItemDetails }
 }) {
     const
+        { name, inStock, lowAt, lastModified } = item,
         isLow = lowAt > inStock,
         _lastModified = lastModified ? `Last Updated: ${lastModified.substring(0, 10)}` : '';
 
     return (
         <article className={`item-card ${isLow ? 'low' : ''}`}>
             <h1
-                className='item-card__item-name'
+                className='item-card__item-name clickable'
                 onClick={() => openItemDetails(item)}
             >{name}</h1>
             <span className='item-card__item-stock'>{inStock}</span>
@@ -152,8 +151,10 @@ function matchFilter (item, filter) {
 
 
 
-const state = ({items, filter}) => {
-    return { items, filter }
-};
+const
+    state = ({items, filter}) => {
+        return { items, filter }
+    },
+    actions = { openModal, fetchItems, setCategories, openItemDetails };
 
-export default connectToStore(state, { openModal, fetchItems }, Items);
+export default connectToStore(state, actions, Items);

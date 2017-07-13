@@ -1,12 +1,17 @@
 import React, { Component } from 'react'
 import Modal from '../Modal';
 
-export default function ConfirmDelete ({ item, onConfirm, onClose }) {
+export default function ConfirmDelete ({ items, item, del }) {
+
+    if (!item) return null;
 
     return (
-        <Modal onClose={onClose}>
+        <Modal id='confirm-delete'>
             <p className='text-center'>{'Are you sure you want to delete ' + item.name + '?'}</p>
-            <button className='btn btn--wide btn--danger' onClick={onConfirm}>CONFIRM</button>
+            <button
+                className='btn btn--wide btn--danger'
+                onClick={e => del(items, item)}
+            >CONFIRM</button>
         </Modal>
     )
 

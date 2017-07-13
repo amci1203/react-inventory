@@ -13,30 +13,30 @@ export default class DeleteItem extends Component {
         this.checkIfExists = this.checkIfExists.bind(this);
 
         this.state = {
-            id: null,
-            error: null,
+            index: null,
+            error: null
         }
     }
 
     checkIfExists () {
         const
-            { items } = this.props,
+            { names } = this.props,
             len = items.length,
             name = this.name.value;
-        for (let i = 0; i < len; i++) {
-            if (name === items[i].name) {
-                this.setState({ id: items[i]._id, error: null });
-                return;
-            };
-        }
+        if (names.indexOf(name) > -1) {
+            this.setState({ index: names.indexOf(name), error: null });
+            return;
+        };
         const error = `The item '${name}' does not exist`;
         this.setState({ id: null, error })
     }
 
     delete () {
-        axios.delete('housekeeping/' + this.state.id)
-            .then(res => this.props.onDelete(this.name.value))
-            .catch(e => console.error(e))
+        const {
+            state: { index },
+            props: { items, removeItem }
+        } = this;
+        del(items, items[index])
     }
 
     render () {

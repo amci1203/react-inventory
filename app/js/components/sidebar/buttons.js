@@ -12,18 +12,21 @@ function SidebarButtons ({ filter, openModal, setFilter }) {
             case 'IN_STOCK':
                 props = {
                     text: 'LOW',
-                    icon: '!'
+                    icon: '!',
                 }
+                break;
             case 'LOW':
                 props = {
                     text: 'DEPLETED',
                     icon: '&#10060'
                 }
+                break;
             case 'DEPLETED':
                 props = {
                     text: 'ALL',
                     icon: 'O'
                 }
+                break;
             default:
                 props = {
                     text: 'IN_STOCK',
@@ -55,7 +58,7 @@ function SidebarButtons ({ filter, openModal, setFilter }) {
                 </span>
                 <span
                     className='icon tooltip'
-                    onClick={e => openModal('log')}
+                    onClick={e => openModal('log-multi')}
                 >
                     <span className='tooltip-text'>Submit Logs</span>
                     <img src='icons/log.png' />
@@ -83,5 +86,5 @@ function SidebarButtons ({ filter, openModal, setFilter }) {
     )
 }
 
-const state = filter => Object.assign({}, { filter });
+const state = filter => Object.assign({}, filter);
 export default connectToStore(state, { openModal, setFilter }, SidebarButtons);

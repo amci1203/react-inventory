@@ -68,7 +68,7 @@
 
 	var _components2 = _interopRequireDefault(_components);
 
-	var _reducers = __webpack_require__(273);
+	var _reducers = __webpack_require__(319);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
@@ -24653,9 +24653,13 @@
 
 	var _modals2 = _interopRequireDefault(_modals);
 
-	var _items = __webpack_require__(272);
+	var _items = __webpack_require__(318);
 
 	var _items2 = _interopRequireDefault(_items);
+
+	var _ = __webpack_require__(226);
+
+	var _2 = _interopRequireDefault(_);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -24754,16 +24758,45 @@
 	    value: true
 	});
 	exports.connectToStore = connectToStore;
+	exports.makeErrorDiv = makeErrorDiv;
+	exports.makeSubmitButton = makeSubmitButton;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
 
 	var _redux = __webpack_require__(184);
 
 	var _reactRedux = __webpack_require__(205);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function connectToStore(mapStateToProps, actions, component) {
 	    var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 	        return (0, _redux.bindActionCreators)(actions, dispatch);
 	    };
 	    return (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(component);
+	}
+
+	function makeErrorDiv(error) {
+	    return error ? _react2.default.createElement(
+	        'p',
+	        { className: 'errors' },
+	        error
+	    ) : null;
+	}
+
+	function makeSubmitButton(btnText, error, action) {
+	    return error ? null : _react2.default.createElement(
+	        'button',
+	        {
+	            className: 'submit',
+	            onClick: function onClick() {
+	                return action();
+	            }
+	        },
+	        'SAVE'
+	    );
 	}
 
 /***/ }),
@@ -24829,16 +24862,19 @@
 	                    text: 'LOW',
 	                    icon: '!'
 	                };
+	                break;
 	            case 'LOW':
 	                props = {
 	                    text: 'DEPLETED',
 	                    icon: '&#10060'
 	                };
+	                break;
 	            case 'DEPLETED':
 	                props = {
 	                    text: 'ALL',
 	                    icon: 'O'
 	                };
+	                break;
 	            default:
 	                props = {
 	                    text: 'IN_STOCK',
@@ -24890,7 +24926,7 @@
 	                {
 	                    className: 'icon tooltip',
 	                    onClick: function onClick(e) {
-	                        return openModal('log');
+	                        return openModal('log-multi');
 	                    }
 	                },
 	                _react2.default.createElement(
@@ -24943,7 +24979,7 @@
 	}
 
 	var state = function state(filter) {
-	    return Object.assign({}, { filter: filter });
+	    return Object.assign({}, filter);
 	};
 	exports.default = (0, _helpers.connectToStore)(state, { openModal: _modals.openModal, setFilter: _filters.setFilter }, SidebarButtons);
 
@@ -24990,23 +25026,19 @@
 
 	var actions = _interopRequireWildcard(_items);
 
-	var _log = __webpack_require__(261);
-
-	var _log2 = _interopRequireDefault(_log);
-
-	var _new = __webpack_require__(268);
+	var _new = __webpack_require__(309);
 
 	var _new2 = _interopRequireDefault(_new);
 
-	var _edit = __webpack_require__(269);
+	var _edit = __webpack_require__(315);
 
 	var _edit2 = _interopRequireDefault(_edit);
 
-	var _delete = __webpack_require__(270);
+	var _delete = __webpack_require__(316);
 
 	var _delete2 = _interopRequireDefault(_delete);
 
-	var _confirmDelete = __webpack_require__(271);
+	var _confirmDelete = __webpack_require__(317);
 
 	var _confirmDelete2 = _interopRequireDefault(_confirmDelete);
 
@@ -25014,35 +25046,57 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function Modals(_ref) {
-	    var _ref$items = _ref.items,
-	        all = _ref$items.all,
-	        active = _ref$items.active,
-	        categories = _ref$items.categories,
-	        actions = _ref.actions;
+	// import ConfirmDelete from './confirm-delete';
 
-	    var itemList = all ? all.map(function (i) {
-	        return i.name;
+	// import Log           from './log'
+	function Modals(props) {
+	    var _props$items = props.items,
+	        all = _props$items.all,
+	        active = _props$items.active,
+	        categories = _props$items.categories,
+	        itemList = all ? all.map(function (i) {
+	        return i.name.toLowerCase();
 	    }) : null,
-	        itemDataList = all ? all.map(function (item, i) {
+	        itemDataList = all ? all.map(function (_ref, i) {
+	        var name = _ref.name;
 	        return _react2.default.createElement(
 	            'option',
 	            { key: i },
-	            item.name
+	            name
 	        );
 	    }) : null,
-	        categoriesDataList = categories ? categories.map(function (item, i) {
+	        categoriesDataList = categories ? categories.map(function (cat, i) {
 	        return _react2.default.createElement(
 	            'option',
 	            { key: i },
-	            category
+	            cat
 	        );
 	    }) : null;
+
+
 	    return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement(_new2.default, { items: itemList }),
-	        _react2.default.createElement(_delete2.default, { items: all }),
+	        _react2.default.createElement(_new2.default, {
+	            items: all,
+	            names: itemList,
+	            save: props.addItem
+	        }),
+	        _react2.default.createElement(_delete2.default, {
+	            items: all,
+	            names: itemList,
+	            del: props.removeItem
+	        }),
+	        _react2.default.createElement(_edit2.default, {
+	            items: all,
+	            names: itemList,
+	            active: active
+	        }),
+	        _react2.default.createElement(_confirmDelete2.default, {
+	            items: all,
+	            item: active,
+	            del: props.removeItem
+	        }),
 	        _react2.default.createElement(
 	            'datalist',
 	            { id: 'items-list' },
@@ -25056,9 +25110,8 @@
 	    );
 	}
 
-	var state = function state(_ref2) {
-	    var items = _ref2.items;
-	    return Object.assign({}, { items: items });
+	var state = function state(items) {
+	    return Object.assign({}, items);
 	};
 	exports.default = (0, _helpers.connectToStore)(state, actions, Modals);
 
@@ -25071,17 +25124,22 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
+
+	var _uniq2 = __webpack_require__(235);
+
+	var _uniq3 = _interopRequireDefault(_uniq2);
+
 	exports.setActiveItem = setActiveItem;
 	exports.openItemDetails = openItemDetails;
 	exports.closeItemDetails = closeItemDetails;
 	exports.setStockBalance = setStockBalance;
 	exports.fetchItems = fetchItems;
-	exports.setCategories = setCategories;
 	exports.addItem = addItem;
 	exports.editItem = editItem;
 	exports.removeItem = removeItem;
+	exports.postLog = postLog;
 
-	var _axios = __webpack_require__(235);
+	var _axios = __webpack_require__(283);
 
 	var _axios2 = _interopRequireDefault(_axios);
 
@@ -25106,8 +25164,8 @@
 	function openItemDetails(payload) {
 	    if (!payload.log) {
 	        return function (dispatch) {
-	            return (0, _axios.get)('housekeeping/' + payload._id, function (log) {
-	                Object.assign(payload, { log: log });
+	            return (0, _axios.get)('housekeeping/' + payload._id, function (res) {
+	                Object.assign(payload, { log: res.log });
 	                return { type: 'ITEM_DETAILS_OPENED', payload: payload, addLog: true };
 	            });
 	        };
@@ -25123,19 +25181,19 @@
 	}
 
 	function fetchItems() {
-	    console.log('Fetching items...');
 	    return function (dispatch) {
-	        return (0, _axios.get)('housekeeping').then(function (data) {
-	            var payload = data.data.map(function (n, i) {
-	                return Object.assign(n, { index: i });
-	            });
+	        return (0, _axios.get)('housekeeping').then(function (res) {
+	            var payload = {
+	                all: res.data.map(function (n, i) {
+	                    return Object.assign(n, { index: i });
+	                }),
+	                categories: (0, _uniq3.default)(res.data.map(function (c) {
+	                    return c.category;
+	                }))
+	            };
 	            dispatch({ type: 'ITEMS_FETCHED', payload: payload });
 	        });
 	    };
-	}
-
-	function setCategories(payload) {
-	    return { type: 'ITEM_CATEGORIES_SET', payload: payload };
 	}
 
 	function addItem(arr, item, noDispatch) {
@@ -25160,7 +25218,9 @@
 
 	    if (noDispatch) return payload;
 	    return noDispatch ? payload : function (dispatch) {
-	        (0, _axios.post)('housekeeping', item).then(function (err, data) {
+	        (0, _axios.post)('housekeeping', item).then(function (res) {
+	            var err = res.data.err;
+
 	            console.log(err || 'ADD OK');
 	            if (!err) dispatch({ type: 'ITEM_ADDED', payload: payload });
 	        });
@@ -25178,32 +25238,1383 @@
 	    };
 	}
 
-	function removeItem(arr, i, noDispatch) {
-	    var payload = [].concat(_toConsumableArray(arr.slice(0, i)), _toConsumableArray(arr.slice(i + 1)));
+	function removeItem(arr, _ref, noDispatch) {
+	    var index = _ref.index,
+	        _id = _ref._id;
+
+	    var payload = [].concat(_toConsumableArray(arr.slice(0, index)), _toConsumableArray(arr.slice(index + 1)));
 	    return noDispatch ? payload : function (dispatch) {
-	        _axios2.default.delete().then(function (data) {
+	        _axios2.default.delete('housekeeping/' + _id).then(function (res) {
+	            var err = res.data.err;
+
 	            console.log(err || 'DELETE OK');
 	            if (!err) dispatch({ type: 'ITEM_REMOVED', payload: payload });
 	        });
 	    };
 	}
 
+	function postLog() {}
+
 /***/ }),
 /* 235 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(236);
+	var baseUniq = __webpack_require__(236);
+
+	/**
+	 * Creates a duplicate-free version of an array, using
+	 * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+	 * for equality comparisons, in which only the first occurrence of each element
+	 * is kept. The order of result values is determined by the order they occur
+	 * in the array.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Array
+	 * @param {Array} array The array to inspect.
+	 * @returns {Array} Returns the new duplicate free array.
+	 * @example
+	 *
+	 * _.uniq([2, 1, 2]);
+	 * // => [2, 1]
+	 */
+	function uniq(array) {
+	  return (array && array.length) ? baseUniq(array) : [];
+	}
+
+	module.exports = uniq;
+
 
 /***/ }),
 /* 236 */
 /***/ (function(module, exports, __webpack_require__) {
 
+	var SetCache = __webpack_require__(237),
+	    arrayIncludes = __webpack_require__(272),
+	    arrayIncludesWith = __webpack_require__(277),
+	    cacheHas = __webpack_require__(278),
+	    createSet = __webpack_require__(279),
+	    setToArray = __webpack_require__(282);
+
+	/** Used as the size to enable large array optimizations. */
+	var LARGE_ARRAY_SIZE = 200;
+
+	/**
+	 * The base implementation of `_.uniqBy` without support for iteratee shorthands.
+	 *
+	 * @private
+	 * @param {Array} array The array to inspect.
+	 * @param {Function} [iteratee] The iteratee invoked per element.
+	 * @param {Function} [comparator] The comparator invoked per element.
+	 * @returns {Array} Returns the new duplicate free array.
+	 */
+	function baseUniq(array, iteratee, comparator) {
+	  var index = -1,
+	      includes = arrayIncludes,
+	      length = array.length,
+	      isCommon = true,
+	      result = [],
+	      seen = result;
+
+	  if (comparator) {
+	    isCommon = false;
+	    includes = arrayIncludesWith;
+	  }
+	  else if (length >= LARGE_ARRAY_SIZE) {
+	    var set = iteratee ? null : createSet(array);
+	    if (set) {
+	      return setToArray(set);
+	    }
+	    isCommon = false;
+	    includes = cacheHas;
+	    seen = new SetCache;
+	  }
+	  else {
+	    seen = iteratee ? [] : result;
+	  }
+	  outer:
+	  while (++index < length) {
+	    var value = array[index],
+	        computed = iteratee ? iteratee(value) : value;
+
+	    value = (comparator || value !== 0) ? value : 0;
+	    if (isCommon && computed === computed) {
+	      var seenIndex = seen.length;
+	      while (seenIndex--) {
+	        if (seen[seenIndex] === computed) {
+	          continue outer;
+	        }
+	      }
+	      if (iteratee) {
+	        seen.push(computed);
+	      }
+	      result.push(value);
+	    }
+	    else if (!includes(seen, computed, comparator)) {
+	      if (seen !== result) {
+	        seen.push(computed);
+	      }
+	      result.push(value);
+	    }
+	  }
+	  return result;
+	}
+
+	module.exports = baseUniq;
+
+
+/***/ }),
+/* 237 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var MapCache = __webpack_require__(238),
+	    setCacheAdd = __webpack_require__(270),
+	    setCacheHas = __webpack_require__(271);
+
+	/**
+	 *
+	 * Creates an array cache object to store unique values.
+	 *
+	 * @private
+	 * @constructor
+	 * @param {Array} [values] The values to cache.
+	 */
+	function SetCache(values) {
+	  var index = -1,
+	      length = values == null ? 0 : values.length;
+
+	  this.__data__ = new MapCache;
+	  while (++index < length) {
+	    this.add(values[index]);
+	  }
+	}
+
+	// Add methods to `SetCache`.
+	SetCache.prototype.add = SetCache.prototype.push = setCacheAdd;
+	SetCache.prototype.has = setCacheHas;
+
+	module.exports = SetCache;
+
+
+/***/ }),
+/* 238 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var mapCacheClear = __webpack_require__(239),
+	    mapCacheDelete = __webpack_require__(264),
+	    mapCacheGet = __webpack_require__(267),
+	    mapCacheHas = __webpack_require__(268),
+	    mapCacheSet = __webpack_require__(269);
+
+	/**
+	 * Creates a map cache object to store key-value pairs.
+	 *
+	 * @private
+	 * @constructor
+	 * @param {Array} [entries] The key-value pairs to cache.
+	 */
+	function MapCache(entries) {
+	  var index = -1,
+	      length = entries == null ? 0 : entries.length;
+
+	  this.clear();
+	  while (++index < length) {
+	    var entry = entries[index];
+	    this.set(entry[0], entry[1]);
+	  }
+	}
+
+	// Add methods to `MapCache`.
+	MapCache.prototype.clear = mapCacheClear;
+	MapCache.prototype['delete'] = mapCacheDelete;
+	MapCache.prototype.get = mapCacheGet;
+	MapCache.prototype.has = mapCacheHas;
+	MapCache.prototype.set = mapCacheSet;
+
+	module.exports = MapCache;
+
+
+/***/ }),
+/* 239 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var Hash = __webpack_require__(240),
+	    ListCache = __webpack_require__(255),
+	    Map = __webpack_require__(263);
+
+	/**
+	 * Removes all key-value entries from the map.
+	 *
+	 * @private
+	 * @name clear
+	 * @memberOf MapCache
+	 */
+	function mapCacheClear() {
+	  this.size = 0;
+	  this.__data__ = {
+	    'hash': new Hash,
+	    'map': new (Map || ListCache),
+	    'string': new Hash
+	  };
+	}
+
+	module.exports = mapCacheClear;
+
+
+/***/ }),
+/* 240 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var hashClear = __webpack_require__(241),
+	    hashDelete = __webpack_require__(251),
+	    hashGet = __webpack_require__(252),
+	    hashHas = __webpack_require__(253),
+	    hashSet = __webpack_require__(254);
+
+	/**
+	 * Creates a hash object.
+	 *
+	 * @private
+	 * @constructor
+	 * @param {Array} [entries] The key-value pairs to cache.
+	 */
+	function Hash(entries) {
+	  var index = -1,
+	      length = entries == null ? 0 : entries.length;
+
+	  this.clear();
+	  while (++index < length) {
+	    var entry = entries[index];
+	    this.set(entry[0], entry[1]);
+	  }
+	}
+
+	// Add methods to `Hash`.
+	Hash.prototype.clear = hashClear;
+	Hash.prototype['delete'] = hashDelete;
+	Hash.prototype.get = hashGet;
+	Hash.prototype.has = hashHas;
+	Hash.prototype.set = hashSet;
+
+	module.exports = Hash;
+
+
+/***/ }),
+/* 241 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var nativeCreate = __webpack_require__(242);
+
+	/**
+	 * Removes all key-value entries from the hash.
+	 *
+	 * @private
+	 * @name clear
+	 * @memberOf Hash
+	 */
+	function hashClear() {
+	  this.__data__ = nativeCreate ? nativeCreate(null) : {};
+	  this.size = 0;
+	}
+
+	module.exports = hashClear;
+
+
+/***/ }),
+/* 242 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var getNative = __webpack_require__(243);
+
+	/* Built-in method references that are verified to be native. */
+	var nativeCreate = getNative(Object, 'create');
+
+	module.exports = nativeCreate;
+
+
+/***/ }),
+/* 243 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var baseIsNative = __webpack_require__(244),
+	    getValue = __webpack_require__(250);
+
+	/**
+	 * Gets the native function at `key` of `object`.
+	 *
+	 * @private
+	 * @param {Object} object The object to query.
+	 * @param {string} key The key of the method to get.
+	 * @returns {*} Returns the function if it's native, else `undefined`.
+	 */
+	function getNative(object, key) {
+	  var value = getValue(object, key);
+	  return baseIsNative(value) ? value : undefined;
+	}
+
+	module.exports = getNative;
+
+
+/***/ }),
+/* 244 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var isFunction = __webpack_require__(245),
+	    isMasked = __webpack_require__(247),
+	    isObject = __webpack_require__(246),
+	    toSource = __webpack_require__(249);
+
+	/**
+	 * Used to match `RegExp`
+	 * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
+	 */
+	var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
+
+	/** Used to detect host constructors (Safari). */
+	var reIsHostCtor = /^\[object .+?Constructor\]$/;
+
+	/** Used for built-in method references. */
+	var funcProto = Function.prototype,
+	    objectProto = Object.prototype;
+
+	/** Used to resolve the decompiled source of functions. */
+	var funcToString = funcProto.toString;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/** Used to detect if a method is native. */
+	var reIsNative = RegExp('^' +
+	  funcToString.call(hasOwnProperty).replace(reRegExpChar, '\\$&')
+	  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
+	);
+
+	/**
+	 * The base implementation of `_.isNative` without bad shim checks.
+	 *
+	 * @private
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a native function,
+	 *  else `false`.
+	 */
+	function baseIsNative(value) {
+	  if (!isObject(value) || isMasked(value)) {
+	    return false;
+	  }
+	  var pattern = isFunction(value) ? reIsNative : reIsHostCtor;
+	  return pattern.test(toSource(value));
+	}
+
+	module.exports = baseIsNative;
+
+
+/***/ }),
+/* 245 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var baseGetTag = __webpack_require__(187),
+	    isObject = __webpack_require__(246);
+
+	/** `Object#toString` result references. */
+	var asyncTag = '[object AsyncFunction]',
+	    funcTag = '[object Function]',
+	    genTag = '[object GeneratorFunction]',
+	    proxyTag = '[object Proxy]';
+
+	/**
+	 * Checks if `value` is classified as a `Function` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a function, else `false`.
+	 * @example
+	 *
+	 * _.isFunction(_);
+	 * // => true
+	 *
+	 * _.isFunction(/abc/);
+	 * // => false
+	 */
+	function isFunction(value) {
+	  if (!isObject(value)) {
+	    return false;
+	  }
+	  // The use of `Object#toString` avoids issues with the `typeof` operator
+	  // in Safari 9 which returns 'object' for typed arrays and other constructors.
+	  var tag = baseGetTag(value);
+	  return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
+	}
+
+	module.exports = isFunction;
+
+
+/***/ }),
+/* 246 */
+/***/ (function(module, exports) {
+
+	/**
+	 * Checks if `value` is the
+	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+	 * @example
+	 *
+	 * _.isObject({});
+	 * // => true
+	 *
+	 * _.isObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObject(_.noop);
+	 * // => true
+	 *
+	 * _.isObject(null);
+	 * // => false
+	 */
+	function isObject(value) {
+	  var type = typeof value;
+	  return value != null && (type == 'object' || type == 'function');
+	}
+
+	module.exports = isObject;
+
+
+/***/ }),
+/* 247 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var coreJsData = __webpack_require__(248);
+
+	/** Used to detect methods masquerading as native. */
+	var maskSrcKey = (function() {
+	  var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || '');
+	  return uid ? ('Symbol(src)_1.' + uid) : '';
+	}());
+
+	/**
+	 * Checks if `func` has its source masked.
+	 *
+	 * @private
+	 * @param {Function} func The function to check.
+	 * @returns {boolean} Returns `true` if `func` is masked, else `false`.
+	 */
+	function isMasked(func) {
+	  return !!maskSrcKey && (maskSrcKey in func);
+	}
+
+	module.exports = isMasked;
+
+
+/***/ }),
+/* 248 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var root = __webpack_require__(189);
+
+	/** Used to detect overreaching core-js shims. */
+	var coreJsData = root['__core-js_shared__'];
+
+	module.exports = coreJsData;
+
+
+/***/ }),
+/* 249 */
+/***/ (function(module, exports) {
+
+	/** Used for built-in method references. */
+	var funcProto = Function.prototype;
+
+	/** Used to resolve the decompiled source of functions. */
+	var funcToString = funcProto.toString;
+
+	/**
+	 * Converts `func` to its source code.
+	 *
+	 * @private
+	 * @param {Function} func The function to convert.
+	 * @returns {string} Returns the source code.
+	 */
+	function toSource(func) {
+	  if (func != null) {
+	    try {
+	      return funcToString.call(func);
+	    } catch (e) {}
+	    try {
+	      return (func + '');
+	    } catch (e) {}
+	  }
+	  return '';
+	}
+
+	module.exports = toSource;
+
+
+/***/ }),
+/* 250 */
+/***/ (function(module, exports) {
+
+	/**
+	 * Gets the value at `key` of `object`.
+	 *
+	 * @private
+	 * @param {Object} [object] The object to query.
+	 * @param {string} key The key of the property to get.
+	 * @returns {*} Returns the property value.
+	 */
+	function getValue(object, key) {
+	  return object == null ? undefined : object[key];
+	}
+
+	module.exports = getValue;
+
+
+/***/ }),
+/* 251 */
+/***/ (function(module, exports) {
+
+	/**
+	 * Removes `key` and its value from the hash.
+	 *
+	 * @private
+	 * @name delete
+	 * @memberOf Hash
+	 * @param {Object} hash The hash to modify.
+	 * @param {string} key The key of the value to remove.
+	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+	 */
+	function hashDelete(key) {
+	  var result = this.has(key) && delete this.__data__[key];
+	  this.size -= result ? 1 : 0;
+	  return result;
+	}
+
+	module.exports = hashDelete;
+
+
+/***/ }),
+/* 252 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var nativeCreate = __webpack_require__(242);
+
+	/** Used to stand-in for `undefined` hash values. */
+	var HASH_UNDEFINED = '__lodash_hash_undefined__';
+
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/**
+	 * Gets the hash value for `key`.
+	 *
+	 * @private
+	 * @name get
+	 * @memberOf Hash
+	 * @param {string} key The key of the value to get.
+	 * @returns {*} Returns the entry value.
+	 */
+	function hashGet(key) {
+	  var data = this.__data__;
+	  if (nativeCreate) {
+	    var result = data[key];
+	    return result === HASH_UNDEFINED ? undefined : result;
+	  }
+	  return hasOwnProperty.call(data, key) ? data[key] : undefined;
+	}
+
+	module.exports = hashGet;
+
+
+/***/ }),
+/* 253 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var nativeCreate = __webpack_require__(242);
+
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty = objectProto.hasOwnProperty;
+
+	/**
+	 * Checks if a hash value for `key` exists.
+	 *
+	 * @private
+	 * @name has
+	 * @memberOf Hash
+	 * @param {string} key The key of the entry to check.
+	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+	 */
+	function hashHas(key) {
+	  var data = this.__data__;
+	  return nativeCreate ? (data[key] !== undefined) : hasOwnProperty.call(data, key);
+	}
+
+	module.exports = hashHas;
+
+
+/***/ }),
+/* 254 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var nativeCreate = __webpack_require__(242);
+
+	/** Used to stand-in for `undefined` hash values. */
+	var HASH_UNDEFINED = '__lodash_hash_undefined__';
+
+	/**
+	 * Sets the hash `key` to `value`.
+	 *
+	 * @private
+	 * @name set
+	 * @memberOf Hash
+	 * @param {string} key The key of the value to set.
+	 * @param {*} value The value to set.
+	 * @returns {Object} Returns the hash instance.
+	 */
+	function hashSet(key, value) {
+	  var data = this.__data__;
+	  this.size += this.has(key) ? 0 : 1;
+	  data[key] = (nativeCreate && value === undefined) ? HASH_UNDEFINED : value;
+	  return this;
+	}
+
+	module.exports = hashSet;
+
+
+/***/ }),
+/* 255 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var listCacheClear = __webpack_require__(256),
+	    listCacheDelete = __webpack_require__(257),
+	    listCacheGet = __webpack_require__(260),
+	    listCacheHas = __webpack_require__(261),
+	    listCacheSet = __webpack_require__(262);
+
+	/**
+	 * Creates an list cache object.
+	 *
+	 * @private
+	 * @constructor
+	 * @param {Array} [entries] The key-value pairs to cache.
+	 */
+	function ListCache(entries) {
+	  var index = -1,
+	      length = entries == null ? 0 : entries.length;
+
+	  this.clear();
+	  while (++index < length) {
+	    var entry = entries[index];
+	    this.set(entry[0], entry[1]);
+	  }
+	}
+
+	// Add methods to `ListCache`.
+	ListCache.prototype.clear = listCacheClear;
+	ListCache.prototype['delete'] = listCacheDelete;
+	ListCache.prototype.get = listCacheGet;
+	ListCache.prototype.has = listCacheHas;
+	ListCache.prototype.set = listCacheSet;
+
+	module.exports = ListCache;
+
+
+/***/ }),
+/* 256 */
+/***/ (function(module, exports) {
+
+	/**
+	 * Removes all key-value entries from the list cache.
+	 *
+	 * @private
+	 * @name clear
+	 * @memberOf ListCache
+	 */
+	function listCacheClear() {
+	  this.__data__ = [];
+	  this.size = 0;
+	}
+
+	module.exports = listCacheClear;
+
+
+/***/ }),
+/* 257 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var assocIndexOf = __webpack_require__(258);
+
+	/** Used for built-in method references. */
+	var arrayProto = Array.prototype;
+
+	/** Built-in value references. */
+	var splice = arrayProto.splice;
+
+	/**
+	 * Removes `key` and its value from the list cache.
+	 *
+	 * @private
+	 * @name delete
+	 * @memberOf ListCache
+	 * @param {string} key The key of the value to remove.
+	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+	 */
+	function listCacheDelete(key) {
+	  var data = this.__data__,
+	      index = assocIndexOf(data, key);
+
+	  if (index < 0) {
+	    return false;
+	  }
+	  var lastIndex = data.length - 1;
+	  if (index == lastIndex) {
+	    data.pop();
+	  } else {
+	    splice.call(data, index, 1);
+	  }
+	  --this.size;
+	  return true;
+	}
+
+	module.exports = listCacheDelete;
+
+
+/***/ }),
+/* 258 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var eq = __webpack_require__(259);
+
+	/**
+	 * Gets the index at which the `key` is found in `array` of key-value pairs.
+	 *
+	 * @private
+	 * @param {Array} array The array to inspect.
+	 * @param {*} key The key to search for.
+	 * @returns {number} Returns the index of the matched value, else `-1`.
+	 */
+	function assocIndexOf(array, key) {
+	  var length = array.length;
+	  while (length--) {
+	    if (eq(array[length][0], key)) {
+	      return length;
+	    }
+	  }
+	  return -1;
+	}
+
+	module.exports = assocIndexOf;
+
+
+/***/ }),
+/* 259 */
+/***/ (function(module, exports) {
+
+	/**
+	 * Performs a
+	 * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+	 * comparison between two values to determine if they are equivalent.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to compare.
+	 * @param {*} other The other value to compare.
+	 * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+	 * @example
+	 *
+	 * var object = { 'a': 1 };
+	 * var other = { 'a': 1 };
+	 *
+	 * _.eq(object, object);
+	 * // => true
+	 *
+	 * _.eq(object, other);
+	 * // => false
+	 *
+	 * _.eq('a', 'a');
+	 * // => true
+	 *
+	 * _.eq('a', Object('a'));
+	 * // => false
+	 *
+	 * _.eq(NaN, NaN);
+	 * // => true
+	 */
+	function eq(value, other) {
+	  return value === other || (value !== value && other !== other);
+	}
+
+	module.exports = eq;
+
+
+/***/ }),
+/* 260 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var assocIndexOf = __webpack_require__(258);
+
+	/**
+	 * Gets the list cache value for `key`.
+	 *
+	 * @private
+	 * @name get
+	 * @memberOf ListCache
+	 * @param {string} key The key of the value to get.
+	 * @returns {*} Returns the entry value.
+	 */
+	function listCacheGet(key) {
+	  var data = this.__data__,
+	      index = assocIndexOf(data, key);
+
+	  return index < 0 ? undefined : data[index][1];
+	}
+
+	module.exports = listCacheGet;
+
+
+/***/ }),
+/* 261 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var assocIndexOf = __webpack_require__(258);
+
+	/**
+	 * Checks if a list cache value for `key` exists.
+	 *
+	 * @private
+	 * @name has
+	 * @memberOf ListCache
+	 * @param {string} key The key of the entry to check.
+	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+	 */
+	function listCacheHas(key) {
+	  return assocIndexOf(this.__data__, key) > -1;
+	}
+
+	module.exports = listCacheHas;
+
+
+/***/ }),
+/* 262 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var assocIndexOf = __webpack_require__(258);
+
+	/**
+	 * Sets the list cache `key` to `value`.
+	 *
+	 * @private
+	 * @name set
+	 * @memberOf ListCache
+	 * @param {string} key The key of the value to set.
+	 * @param {*} value The value to set.
+	 * @returns {Object} Returns the list cache instance.
+	 */
+	function listCacheSet(key, value) {
+	  var data = this.__data__,
+	      index = assocIndexOf(data, key);
+
+	  if (index < 0) {
+	    ++this.size;
+	    data.push([key, value]);
+	  } else {
+	    data[index][1] = value;
+	  }
+	  return this;
+	}
+
+	module.exports = listCacheSet;
+
+
+/***/ }),
+/* 263 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var getNative = __webpack_require__(243),
+	    root = __webpack_require__(189);
+
+	/* Built-in method references that are verified to be native. */
+	var Map = getNative(root, 'Map');
+
+	module.exports = Map;
+
+
+/***/ }),
+/* 264 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var getMapData = __webpack_require__(265);
+
+	/**
+	 * Removes `key` and its value from the map.
+	 *
+	 * @private
+	 * @name delete
+	 * @memberOf MapCache
+	 * @param {string} key The key of the value to remove.
+	 * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+	 */
+	function mapCacheDelete(key) {
+	  var result = getMapData(this, key)['delete'](key);
+	  this.size -= result ? 1 : 0;
+	  return result;
+	}
+
+	module.exports = mapCacheDelete;
+
+
+/***/ }),
+/* 265 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var isKeyable = __webpack_require__(266);
+
+	/**
+	 * Gets the data for `map`.
+	 *
+	 * @private
+	 * @param {Object} map The map to query.
+	 * @param {string} key The reference key.
+	 * @returns {*} Returns the map data.
+	 */
+	function getMapData(map, key) {
+	  var data = map.__data__;
+	  return isKeyable(key)
+	    ? data[typeof key == 'string' ? 'string' : 'hash']
+	    : data.map;
+	}
+
+	module.exports = getMapData;
+
+
+/***/ }),
+/* 266 */
+/***/ (function(module, exports) {
+
+	/**
+	 * Checks if `value` is suitable for use as unique object key.
+	 *
+	 * @private
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is suitable, else `false`.
+	 */
+	function isKeyable(value) {
+	  var type = typeof value;
+	  return (type == 'string' || type == 'number' || type == 'symbol' || type == 'boolean')
+	    ? (value !== '__proto__')
+	    : (value === null);
+	}
+
+	module.exports = isKeyable;
+
+
+/***/ }),
+/* 267 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var getMapData = __webpack_require__(265);
+
+	/**
+	 * Gets the map value for `key`.
+	 *
+	 * @private
+	 * @name get
+	 * @memberOf MapCache
+	 * @param {string} key The key of the value to get.
+	 * @returns {*} Returns the entry value.
+	 */
+	function mapCacheGet(key) {
+	  return getMapData(this, key).get(key);
+	}
+
+	module.exports = mapCacheGet;
+
+
+/***/ }),
+/* 268 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var getMapData = __webpack_require__(265);
+
+	/**
+	 * Checks if a map value for `key` exists.
+	 *
+	 * @private
+	 * @name has
+	 * @memberOf MapCache
+	 * @param {string} key The key of the entry to check.
+	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+	 */
+	function mapCacheHas(key) {
+	  return getMapData(this, key).has(key);
+	}
+
+	module.exports = mapCacheHas;
+
+
+/***/ }),
+/* 269 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var getMapData = __webpack_require__(265);
+
+	/**
+	 * Sets the map `key` to `value`.
+	 *
+	 * @private
+	 * @name set
+	 * @memberOf MapCache
+	 * @param {string} key The key of the value to set.
+	 * @param {*} value The value to set.
+	 * @returns {Object} Returns the map cache instance.
+	 */
+	function mapCacheSet(key, value) {
+	  var data = getMapData(this, key),
+	      size = data.size;
+
+	  data.set(key, value);
+	  this.size += data.size == size ? 0 : 1;
+	  return this;
+	}
+
+	module.exports = mapCacheSet;
+
+
+/***/ }),
+/* 270 */
+/***/ (function(module, exports) {
+
+	/** Used to stand-in for `undefined` hash values. */
+	var HASH_UNDEFINED = '__lodash_hash_undefined__';
+
+	/**
+	 * Adds `value` to the array cache.
+	 *
+	 * @private
+	 * @name add
+	 * @memberOf SetCache
+	 * @alias push
+	 * @param {*} value The value to cache.
+	 * @returns {Object} Returns the cache instance.
+	 */
+	function setCacheAdd(value) {
+	  this.__data__.set(value, HASH_UNDEFINED);
+	  return this;
+	}
+
+	module.exports = setCacheAdd;
+
+
+/***/ }),
+/* 271 */
+/***/ (function(module, exports) {
+
+	/**
+	 * Checks if `value` is in the array cache.
+	 *
+	 * @private
+	 * @name has
+	 * @memberOf SetCache
+	 * @param {*} value The value to search for.
+	 * @returns {number} Returns `true` if `value` is found, else `false`.
+	 */
+	function setCacheHas(value) {
+	  return this.__data__.has(value);
+	}
+
+	module.exports = setCacheHas;
+
+
+/***/ }),
+/* 272 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var baseIndexOf = __webpack_require__(273);
+
+	/**
+	 * A specialized version of `_.includes` for arrays without support for
+	 * specifying an index to search from.
+	 *
+	 * @private
+	 * @param {Array} [array] The array to inspect.
+	 * @param {*} target The value to search for.
+	 * @returns {boolean} Returns `true` if `target` is found, else `false`.
+	 */
+	function arrayIncludes(array, value) {
+	  var length = array == null ? 0 : array.length;
+	  return !!length && baseIndexOf(array, value, 0) > -1;
+	}
+
+	module.exports = arrayIncludes;
+
+
+/***/ }),
+/* 273 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var baseFindIndex = __webpack_require__(274),
+	    baseIsNaN = __webpack_require__(275),
+	    strictIndexOf = __webpack_require__(276);
+
+	/**
+	 * The base implementation of `_.indexOf` without `fromIndex` bounds checks.
+	 *
+	 * @private
+	 * @param {Array} array The array to inspect.
+	 * @param {*} value The value to search for.
+	 * @param {number} fromIndex The index to search from.
+	 * @returns {number} Returns the index of the matched value, else `-1`.
+	 */
+	function baseIndexOf(array, value, fromIndex) {
+	  return value === value
+	    ? strictIndexOf(array, value, fromIndex)
+	    : baseFindIndex(array, baseIsNaN, fromIndex);
+	}
+
+	module.exports = baseIndexOf;
+
+
+/***/ }),
+/* 274 */
+/***/ (function(module, exports) {
+
+	/**
+	 * The base implementation of `_.findIndex` and `_.findLastIndex` without
+	 * support for iteratee shorthands.
+	 *
+	 * @private
+	 * @param {Array} array The array to inspect.
+	 * @param {Function} predicate The function invoked per iteration.
+	 * @param {number} fromIndex The index to search from.
+	 * @param {boolean} [fromRight] Specify iterating from right to left.
+	 * @returns {number} Returns the index of the matched value, else `-1`.
+	 */
+	function baseFindIndex(array, predicate, fromIndex, fromRight) {
+	  var length = array.length,
+	      index = fromIndex + (fromRight ? 1 : -1);
+
+	  while ((fromRight ? index-- : ++index < length)) {
+	    if (predicate(array[index], index, array)) {
+	      return index;
+	    }
+	  }
+	  return -1;
+	}
+
+	module.exports = baseFindIndex;
+
+
+/***/ }),
+/* 275 */
+/***/ (function(module, exports) {
+
+	/**
+	 * The base implementation of `_.isNaN` without support for number objects.
+	 *
+	 * @private
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is `NaN`, else `false`.
+	 */
+	function baseIsNaN(value) {
+	  return value !== value;
+	}
+
+	module.exports = baseIsNaN;
+
+
+/***/ }),
+/* 276 */
+/***/ (function(module, exports) {
+
+	/**
+	 * A specialized version of `_.indexOf` which performs strict equality
+	 * comparisons of values, i.e. `===`.
+	 *
+	 * @private
+	 * @param {Array} array The array to inspect.
+	 * @param {*} value The value to search for.
+	 * @param {number} fromIndex The index to search from.
+	 * @returns {number} Returns the index of the matched value, else `-1`.
+	 */
+	function strictIndexOf(array, value, fromIndex) {
+	  var index = fromIndex - 1,
+	      length = array.length;
+
+	  while (++index < length) {
+	    if (array[index] === value) {
+	      return index;
+	    }
+	  }
+	  return -1;
+	}
+
+	module.exports = strictIndexOf;
+
+
+/***/ }),
+/* 277 */
+/***/ (function(module, exports) {
+
+	/**
+	 * This function is like `arrayIncludes` except that it accepts a comparator.
+	 *
+	 * @private
+	 * @param {Array} [array] The array to inspect.
+	 * @param {*} target The value to search for.
+	 * @param {Function} comparator The comparator invoked per element.
+	 * @returns {boolean} Returns `true` if `target` is found, else `false`.
+	 */
+	function arrayIncludesWith(array, value, comparator) {
+	  var index = -1,
+	      length = array == null ? 0 : array.length;
+
+	  while (++index < length) {
+	    if (comparator(value, array[index])) {
+	      return true;
+	    }
+	  }
+	  return false;
+	}
+
+	module.exports = arrayIncludesWith;
+
+
+/***/ }),
+/* 278 */
+/***/ (function(module, exports) {
+
+	/**
+	 * Checks if a `cache` value for `key` exists.
+	 *
+	 * @private
+	 * @param {Object} cache The cache to query.
+	 * @param {string} key The key of the entry to check.
+	 * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+	 */
+	function cacheHas(cache, key) {
+	  return cache.has(key);
+	}
+
+	module.exports = cacheHas;
+
+
+/***/ }),
+/* 279 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var Set = __webpack_require__(280),
+	    noop = __webpack_require__(281),
+	    setToArray = __webpack_require__(282);
+
+	/** Used as references for various `Number` constants. */
+	var INFINITY = 1 / 0;
+
+	/**
+	 * Creates a set object of `values`.
+	 *
+	 * @private
+	 * @param {Array} values The values to add to the set.
+	 * @returns {Object} Returns the new set.
+	 */
+	var createSet = !(Set && (1 / setToArray(new Set([,-0]))[1]) == INFINITY) ? noop : function(values) {
+	  return new Set(values);
+	};
+
+	module.exports = createSet;
+
+
+/***/ }),
+/* 280 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var getNative = __webpack_require__(243),
+	    root = __webpack_require__(189);
+
+	/* Built-in method references that are verified to be native. */
+	var Set = getNative(root, 'Set');
+
+	module.exports = Set;
+
+
+/***/ }),
+/* 281 */
+/***/ (function(module, exports) {
+
+	/**
+	 * This method returns `undefined`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 2.3.0
+	 * @category Util
+	 * @example
+	 *
+	 * _.times(2, _.noop);
+	 * // => [undefined, undefined]
+	 */
+	function noop() {
+	  // No operation performed.
+	}
+
+	module.exports = noop;
+
+
+/***/ }),
+/* 282 */
+/***/ (function(module, exports) {
+
+	/**
+	 * Converts `set` to an array of its values.
+	 *
+	 * @private
+	 * @param {Object} set The set to convert.
+	 * @returns {Array} Returns the values.
+	 */
+	function setToArray(set) {
+	  var index = -1,
+	      result = Array(set.size);
+
+	  set.forEach(function(value) {
+	    result[++index] = value;
+	  });
+	  return result;
+	}
+
+	module.exports = setToArray;
+
+
+/***/ }),
+/* 283 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(284);
+
+/***/ }),
+/* 284 */
+/***/ (function(module, exports, __webpack_require__) {
+
 	'use strict';
 
-	var utils = __webpack_require__(237);
-	var bind = __webpack_require__(238);
-	var Axios = __webpack_require__(240);
-	var defaults = __webpack_require__(241);
+	var utils = __webpack_require__(285);
+	var bind = __webpack_require__(286);
+	var Axios = __webpack_require__(288);
+	var defaults = __webpack_require__(289);
 
 	/**
 	 * Create an instance of Axios
@@ -25236,15 +26647,15 @@
 	};
 
 	// Expose Cancel & CancelToken
-	axios.Cancel = __webpack_require__(258);
-	axios.CancelToken = __webpack_require__(259);
-	axios.isCancel = __webpack_require__(255);
+	axios.Cancel = __webpack_require__(306);
+	axios.CancelToken = __webpack_require__(307);
+	axios.isCancel = __webpack_require__(303);
 
 	// Expose all/spread
 	axios.all = function all(promises) {
 	  return Promise.all(promises);
 	};
-	axios.spread = __webpack_require__(260);
+	axios.spread = __webpack_require__(308);
 
 	module.exports = axios;
 
@@ -25253,13 +26664,13 @@
 
 
 /***/ }),
-/* 237 */
+/* 285 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var bind = __webpack_require__(238);
-	var isBuffer = __webpack_require__(239);
+	var bind = __webpack_require__(286);
+	var isBuffer = __webpack_require__(287);
 
 	/*global toString:true*/
 
@@ -25562,7 +26973,7 @@
 
 
 /***/ }),
-/* 238 */
+/* 286 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -25579,7 +26990,7 @@
 
 
 /***/ }),
-/* 239 */
+/* 287 */
 /***/ (function(module, exports) {
 
 	/*!
@@ -25606,17 +27017,17 @@
 
 
 /***/ }),
-/* 240 */
+/* 288 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var defaults = __webpack_require__(241);
-	var utils = __webpack_require__(237);
-	var InterceptorManager = __webpack_require__(252);
-	var dispatchRequest = __webpack_require__(253);
-	var isAbsoluteURL = __webpack_require__(256);
-	var combineURLs = __webpack_require__(257);
+	var defaults = __webpack_require__(289);
+	var utils = __webpack_require__(285);
+	var InterceptorManager = __webpack_require__(300);
+	var dispatchRequest = __webpack_require__(301);
+	var isAbsoluteURL = __webpack_require__(304);
+	var combineURLs = __webpack_require__(305);
 
 	/**
 	 * Create a new instance of Axios
@@ -25698,13 +27109,13 @@
 
 
 /***/ }),
-/* 241 */
+/* 289 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var utils = __webpack_require__(237);
-	var normalizeHeaderName = __webpack_require__(242);
+	var utils = __webpack_require__(285);
+	var normalizeHeaderName = __webpack_require__(290);
 
 	var DEFAULT_CONTENT_TYPE = {
 	  'Content-Type': 'application/x-www-form-urlencoded'
@@ -25720,10 +27131,10 @@
 	  var adapter;
 	  if (typeof XMLHttpRequest !== 'undefined') {
 	    // For browsers use XHR adapter
-	    adapter = __webpack_require__(243);
+	    adapter = __webpack_require__(291);
 	  } else if (typeof process !== 'undefined') {
 	    // For node use HTTP adapter
-	    adapter = __webpack_require__(243);
+	    adapter = __webpack_require__(291);
 	  }
 	  return adapter;
 	}
@@ -25797,12 +27208,12 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 242 */
+/* 290 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(237);
+	var utils = __webpack_require__(285);
 
 	module.exports = function normalizeHeaderName(headers, normalizedName) {
 	  utils.forEach(headers, function processHeader(value, name) {
@@ -25815,18 +27226,18 @@
 
 
 /***/ }),
-/* 243 */
+/* 291 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var utils = __webpack_require__(237);
-	var settle = __webpack_require__(244);
-	var buildURL = __webpack_require__(247);
-	var parseHeaders = __webpack_require__(248);
-	var isURLSameOrigin = __webpack_require__(249);
-	var createError = __webpack_require__(245);
-	var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(250);
+	var utils = __webpack_require__(285);
+	var settle = __webpack_require__(292);
+	var buildURL = __webpack_require__(295);
+	var parseHeaders = __webpack_require__(296);
+	var isURLSameOrigin = __webpack_require__(297);
+	var createError = __webpack_require__(293);
+	var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(298);
 
 	module.exports = function xhrAdapter(config) {
 	  return new Promise(function dispatchXhrRequest(resolve, reject) {
@@ -25923,7 +27334,7 @@
 	    // This is only done if running in a standard browser environment.
 	    // Specifically not if we're in a web worker, or react-native.
 	    if (utils.isStandardBrowserEnv()) {
-	      var cookies = __webpack_require__(251);
+	      var cookies = __webpack_require__(299);
 
 	      // Add xsrf header
 	      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
@@ -26002,12 +27413,12 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 244 */
+/* 292 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var createError = __webpack_require__(245);
+	var createError = __webpack_require__(293);
 
 	/**
 	 * Resolve or reject a Promise based on response status.
@@ -26034,12 +27445,12 @@
 
 
 /***/ }),
-/* 245 */
+/* 293 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var enhanceError = __webpack_require__(246);
+	var enhanceError = __webpack_require__(294);
 
 	/**
 	 * Create an Error with the specified message, config, error code, request and response.
@@ -26058,7 +27469,7 @@
 
 
 /***/ }),
-/* 246 */
+/* 294 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -26085,12 +27496,12 @@
 
 
 /***/ }),
-/* 247 */
+/* 295 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(237);
+	var utils = __webpack_require__(285);
 
 	function encode(val) {
 	  return encodeURIComponent(val).
@@ -26159,12 +27570,12 @@
 
 
 /***/ }),
-/* 248 */
+/* 296 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(237);
+	var utils = __webpack_require__(285);
 
 	/**
 	 * Parse headers into an object
@@ -26202,12 +27613,12 @@
 
 
 /***/ }),
-/* 249 */
+/* 297 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(237);
+	var utils = __webpack_require__(285);
 
 	module.exports = (
 	  utils.isStandardBrowserEnv() ?
@@ -26276,7 +27687,7 @@
 
 
 /***/ }),
-/* 250 */
+/* 298 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -26318,12 +27729,12 @@
 
 
 /***/ }),
-/* 251 */
+/* 299 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(237);
+	var utils = __webpack_require__(285);
 
 	module.exports = (
 	  utils.isStandardBrowserEnv() ?
@@ -26377,12 +27788,12 @@
 
 
 /***/ }),
-/* 252 */
+/* 300 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(237);
+	var utils = __webpack_require__(285);
 
 	function InterceptorManager() {
 	  this.handlers = [];
@@ -26435,15 +27846,15 @@
 
 
 /***/ }),
-/* 253 */
+/* 301 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(237);
-	var transformData = __webpack_require__(254);
-	var isCancel = __webpack_require__(255);
-	var defaults = __webpack_require__(241);
+	var utils = __webpack_require__(285);
+	var transformData = __webpack_require__(302);
+	var isCancel = __webpack_require__(303);
+	var defaults = __webpack_require__(289);
 
 	/**
 	 * Throws a `Cancel` if cancellation has been requested.
@@ -26520,12 +27931,12 @@
 
 
 /***/ }),
-/* 254 */
+/* 302 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(237);
+	var utils = __webpack_require__(285);
 
 	/**
 	 * Transform the data for a request or a response
@@ -26546,7 +27957,7 @@
 
 
 /***/ }),
-/* 255 */
+/* 303 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -26557,7 +27968,7 @@
 
 
 /***/ }),
-/* 256 */
+/* 304 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -26577,7 +27988,7 @@
 
 
 /***/ }),
-/* 257 */
+/* 305 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -26597,7 +28008,7 @@
 
 
 /***/ }),
-/* 258 */
+/* 306 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -26622,12 +28033,12 @@
 
 
 /***/ }),
-/* 259 */
+/* 307 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Cancel = __webpack_require__(258);
+	var Cancel = __webpack_require__(306);
 
 	/**
 	 * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -26685,7 +28096,7 @@
 
 
 /***/ }),
-/* 260 */
+/* 308 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -26718,7 +28129,7 @@
 
 
 /***/ }),
-/* 261 */
+/* 309 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26727,7 +28138,7 @@
 	    value: true
 	});
 
-	var _debounce2 = __webpack_require__(262);
+	var _debounce2 = __webpack_require__(310);
 
 	var _debounce3 = _interopRequireDefault(_debounce2);
 
@@ -26737,11 +28148,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _axios = __webpack_require__(235);
+	var _axios = __webpack_require__(283);
 
-	var _axios2 = _interopRequireDefault(_axios);
+	var _helpers = __webpack_require__(229);
 
-	var _Modal = __webpack_require__(267);
+	var _Modal = __webpack_require__(314);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 
@@ -26753,41 +28164,30 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var Log = function (_Component) {
-	    _inherits(Log, _Component);
+	var NewItem = function (_Component) {
+	    _inherits(NewItem, _Component);
 
-	    function Log(props) {
-	        _classCallCheck(this, Log);
+	    function NewItem(props) {
+	        _classCallCheck(this, NewItem);
 
-	        var _this = _possibleConstructorReturn(this, (Log.__proto__ || Object.getPrototypeOf(Log)).call(this, props));
+	        var _this = _possibleConstructorReturn(this, (NewItem.__proto__ || Object.getPrototypeOf(NewItem)).call(this, props));
 
 	        _this.save = _this.save.bind(_this);
-	        _this.checkBalance = _this.checkBalance.bind(_this);
+	        _this.checkUniqueness = _this.checkUniqueness.bind(_this);
 
 	        _this.state = { error: null };
 	        return _this;
 	    }
 
-	    _createClass(Log, [{
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-	            var _props$item = this.props.item,
-	                added = _props$item.added,
-	                removed = _props$item.removed;
-
-	            this.added.value = added;
-	            this.removed.value = removed;
-	        }
-	    }, {
-	        key: 'checkBalance',
-	        value: function checkBalance() {
-	            var inStock = this.props.item.inStock,
-	                added = Number(this.added.value),
-	                removed = Number(this.removed.value);
+	    _createClass(NewItem, [{
+	        key: 'checkUniqueness',
+	        value: function checkUniqueness() {
+	            var names = this.props.names,
+	                name = this.name.value.toLowerCase();
 
 
-	            if (inStock + added - removed < 0) {
-	                var error = 'That is impossible, as it would result in a negative stock level';
+	            if (names.indexOf(name) > -1) {
+	                var error = 'An item with that name already exists';
 	                this.setState({ error: error });
 	                return;
 	            }
@@ -26797,52 +28197,49 @@
 	    }, {
 	        key: 'save',
 	        value: function save() {
-	            var _this2 = this;
+	            var category = this.category,
+	                name = this.name,
+	                inStock = this.inStock,
+	                lowAt = this.lowAt,
+	                _props = this.props,
+	                save = _props.save,
+	                items = _props.items;
 
-	            var _props$item2 = this.props.item,
-	                inStock = _props$item2.inStock,
-	                _id = _props$item2._id,
-	                added = Number(this.added.value),
-	                removed = Number(this.removed.value),
-	                balance = inStock + added - removed;
 
+	            if (name.value.trim() === '') {
+	                var error = 'A name must be specified';
+	                this.setState({ error: error });
+	                return;
+	            }
+	            var body = { item: {
+	                    category: category.value,
+	                    name: name.value,
+	                    inStock: Number(inStock.value),
+	                    lowAt: Number(lowAt.value)
+	                } };
 
-	            (0, _axios.post)('housekeeping/' + _id, { added: added, removed: removed }).then(function (res) {
-	                return _this2.props.onLog(balance);
-	            }).catch(function (e) {
-	                return console.log(e);
-	            });
+	            save(items, body);
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this3 = this;
+	            var _this2 = this;
 
-	            var modal = this.modal,
+	            if (!this.props.items) return null;
+
+	            var props = this.props,
 	                save = this.save,
-	                checkBalance = this.checkBalance,
-	                _props = this.props,
-	                onClose = _props.onClose,
-	                item = _props.item,
-	                error = modal ? modal.makeErrorDiv(this.state.error) : null,
-	                submit = modal ? modal.makeSubmitButton('SAVE', this.state.error, save) : null,
-	                check = (0, _debounce3.default)(checkBalance, 200, { leading: false });
+	                error = (0, _helpers.makeErrorDiv)(this.state.error),
+	                submit = (0, _helpers.makeSubmitButton)('SAVE', this.state.error, save);
 
 
 	            return _react2.default.createElement(
 	                _Modal2.default,
-	                { ref: function ref(m) {
-	                        return _this3.modal = m;
-	                    }, onClose: onClose },
+	                { id: 'new' },
 	                _react2.default.createElement(
 	                    'h1',
 	                    { className: 'section-title' },
-	                    'LOG ITEM'
-	                ),
-	                _react2.default.createElement(
-	                    'p',
-	                    { className: 'text-center' },
-	                    item.name
+	                    'NEW ITEM'
 	                ),
 	                _react2.default.createElement(
 	                    'form',
@@ -26854,26 +28251,13 @@
 	                        _react2.default.createElement(
 	                            'p',
 	                            null,
-	                            'Date:'
-	                        ),
-	                        _react2.default.createElement('input', null)
-	                    ),
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'form-group inline' },
-	                        _react2.default.createElement(
-	                            'p',
-	                            null,
-	                            'Added:'
+	                            'Category'
 	                        ),
 	                        _react2.default.createElement('input', {
-	                            type: 'number',
-	                            min: '0',
-	                            onChange: check,
-	                            ref: function ref(a) {
-	                                return _this3.added = a;
-	                            },
-	                            'default': '0'
+	                            list: 'categories-list',
+	                            ref: function ref(c) {
+	                                return _this2.category = c;
+	                            }
 	                        })
 	                    ),
 	                    _react2.default.createElement(
@@ -26882,16 +28266,47 @@
 	                        _react2.default.createElement(
 	                            'p',
 	                            null,
-	                            'Removed:'
+	                            'Name'
+	                        ),
+	                        _react2.default.createElement('input', {
+	                            onChange: (0, _debounce3.default)(this.checkUniqueness, 300, { leading: false }),
+	                            ref: function ref(n) {
+	                                return _this2.name = n;
+	                            }
+	                        })
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'form-group inline' },
+	                        _react2.default.createElement(
+	                            'p',
+	                            null,
+	                            'In Stock'
 	                        ),
 	                        _react2.default.createElement('input', {
 	                            type: 'number',
+	                            'default': '0',
 	                            min: '0',
-	                            onChange: check,
-	                            ref: function ref(r) {
-	                                return _this3.removed = r;
-	                            },
-	                            'default': '0'
+	                            ref: function ref(s) {
+	                                return _this2.inStock = s;
+	                            }
+	                        })
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'form-group inline' },
+	                        _react2.default.createElement(
+	                            'p',
+	                            null,
+	                            'Low At'
+	                        ),
+	                        _react2.default.createElement('input', {
+	                            type: 'number',
+	                            'default': '0',
+	                            min: '0',
+	                            ref: function ref(l) {
+	                                return _this2.lowAt = l;
+	                            }
 	                        })
 	                    )
 	                ),
@@ -26900,18 +28315,18 @@
 	        }
 	    }]);
 
-	    return Log;
+	    return NewItem;
 	}(_react.Component);
 
-	exports.default = Log;
+	exports.default = NewItem;
 
 /***/ }),
-/* 262 */
+/* 310 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(263),
-	    now = __webpack_require__(264),
-	    toNumber = __webpack_require__(265);
+	var isObject = __webpack_require__(246),
+	    now = __webpack_require__(311),
+	    toNumber = __webpack_require__(312);
 
 	/** Error message constants. */
 	var FUNC_ERROR_TEXT = 'Expected a function';
@@ -27100,44 +28515,7 @@
 
 
 /***/ }),
-/* 263 */
-/***/ (function(module, exports) {
-
-	/**
-	 * Checks if `value` is the
-	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
-	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(_.noop);
-	 * // => true
-	 *
-	 * _.isObject(null);
-	 * // => false
-	 */
-	function isObject(value) {
-	  var type = typeof value;
-	  return value != null && (type == 'object' || type == 'function');
-	}
-
-	module.exports = isObject;
-
-
-/***/ }),
-/* 264 */
+/* 311 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var root = __webpack_require__(189);
@@ -27166,11 +28544,11 @@
 
 
 /***/ }),
-/* 265 */
+/* 312 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(263),
-	    isSymbol = __webpack_require__(266);
+	var isObject = __webpack_require__(246),
+	    isSymbol = __webpack_require__(313);
 
 	/** Used as references for various `Number` constants. */
 	var NAN = 0 / 0;
@@ -27238,7 +28616,7 @@
 
 
 /***/ }),
-/* 266 */
+/* 313 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var baseGetTag = __webpack_require__(187),
@@ -27273,7 +28651,7 @@
 
 
 /***/ }),
-/* 267 */
+/* 314 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27328,29 +28706,6 @@
 	            window.removeEventListener('keydown', this.close);
 	        }
 	    }, {
-	        key: 'makeErrorDiv',
-	        value: function makeErrorDiv(error) {
-	            return error ? _react2.default.createElement(
-	                'p',
-	                { className: 'errors' },
-	                error
-	            ) : null;
-	        }
-	    }, {
-	        key: 'makeSubmitButton',
-	        value: function makeSubmitButton(btnText, error, action) {
-	            return error ? null : _react2.default.createElement(
-	                'button',
-	                {
-	                    className: 'submit',
-	                    onClick: function onClick() {
-	                        return action();
-	                    }
-	                },
-	                'SAVE'
-	            );
-	        }
-	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var _props = this.props,
@@ -27384,7 +28739,7 @@
 	exports.default = (0, _helpers.connectToStore)(state, { closeModal: _modals.closeModal }, Modal);
 
 /***/ }),
-/* 268 */
+/* 315 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27393,7 +28748,7 @@
 	    value: true
 	});
 
-	var _debounce2 = __webpack_require__(262);
+	var _debounce2 = __webpack_require__(310);
 
 	var _debounce3 = _interopRequireDefault(_debounce2);
 
@@ -27403,216 +28758,17 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _axios = __webpack_require__(235);
-
-	var _Modal = __webpack_require__(267);
-
-	var _Modal2 = _interopRequireDefault(_Modal);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var NewItem = function (_Component) {
-	    _inherits(NewItem, _Component);
-
-	    function NewItem(props) {
-	        _classCallCheck(this, NewItem);
-
-	        var _this = _possibleConstructorReturn(this, (NewItem.__proto__ || Object.getPrototypeOf(NewItem)).call(this, props));
-
-	        _this.save = _this.save.bind(_this);
-	        _this.checkUniqueness = _this.checkUniqueness.bind(_this);
-
-	        _this.state = { error: null };
-	        return _this;
-	    }
-
-	    _createClass(NewItem, [{
-	        key: 'checkUniqueness',
-	        value: function checkUniqueness() {
-	            var items = this.props.items,
-	                name = this.name,
-	                _name = name.value.toLowerCase();
-
-
-	            for (var i = 0, len = items.length; i < len; i++) {
-	                if (_name === items[i]) {
-	                    var error = 'An item with that name already exists';
-	                    this.setState({ error: error });
-	                    return;
-	                }
-	            }
-
-	            this.setState({ error: null });
-	        }
-	    }, {
-	        key: 'save',
-	        value: function save() {
-	            var _this2 = this;
-
-	            var category = this.category,
-	                name = this.name,
-	                inStock = this.inStock,
-	                lowAt = this.lowAt;
-
-
-	            if (name.value.trim() === '') {
-	                var error = 'A name must be specified';
-	                this.setState({ error: error });
-	                return;
-	            }
-	            var body = { item: {
-	                    category: category.value,
-	                    name: name.value,
-	                    inStock: Number(inStock.value),
-	                    lowAt: Number(lowAt.value)
-	                } };
-
-	            (0, _axios.post)('housekeeping', body).then(function (res) {
-	                return _this2.props.onSave(res.data);
-	            }).catch(function (e) {
-	                return console.log(e.toString());
-	            });
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            var _this3 = this;
-
-	            if (!this.props.items) return null;
-
-	            var props = this.props,
-	                modal = this.modal,
-	                save = this.save,
-	                error = modal ? modal.makeErrorDiv(this.state.error) : null,
-	                submit = modal ? modal.makeSubmitButton('SAVE', this.state.error, save) : null;
-
-
-	            return _react2.default.createElement(
-	                _Modal2.default,
-	                { id: 'new', ref: function ref(m) {
-	                        return _this3.modal = m;
-	                    } },
-	                _react2.default.createElement(
-	                    'h1',
-	                    { className: 'section-title' },
-	                    'NEW ITEM'
-	                ),
-	                _react2.default.createElement(
-	                    'form',
-	                    null,
-	                    error,
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'form-group inline' },
-	                        _react2.default.createElement(
-	                            'p',
-	                            null,
-	                            'Category'
-	                        ),
-	                        _react2.default.createElement('input', {
-	                            list: 'categories-list',
-	                            ref: function ref(c) {
-	                                return _this3.category = c;
-	                            }
-	                        })
-	                    ),
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'form-group inline' },
-	                        _react2.default.createElement(
-	                            'p',
-	                            null,
-	                            'Name'
-	                        ),
-	                        _react2.default.createElement('input', {
-	                            onChange: (0, _debounce3.default)(this.checkUniqueness, 300, { leading: false }),
-	                            ref: function ref(n) {
-	                                return _this3.name = n;
-	                            }
-	                        })
-	                    ),
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'form-group inline' },
-	                        _react2.default.createElement(
-	                            'p',
-	                            null,
-	                            'In Stock'
-	                        ),
-	                        _react2.default.createElement('input', {
-	                            type: 'number',
-	                            'default': '0',
-	                            min: '0',
-	                            ref: function ref(s) {
-	                                return _this3.inStock = s;
-	                            }
-	                        })
-	                    ),
-	                    _react2.default.createElement(
-	                        'div',
-	                        { className: 'form-group inline' },
-	                        _react2.default.createElement(
-	                            'p',
-	                            null,
-	                            'Low At'
-	                        ),
-	                        _react2.default.createElement('input', {
-	                            type: 'number',
-	                            'default': '0',
-	                            min: '0',
-	                            ref: function ref(l) {
-	                                return _this3.lowAt = l;
-	                            }
-	                        })
-	                    )
-	                ),
-	                submit
-	            );
-	        }
-	    }]);
-
-	    return NewItem;
-	}(_react.Component);
-
-	exports.default = NewItem;
-
-/***/ }),
-/* 269 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _debounce2 = __webpack_require__(262);
-
-	var _debounce3 = _interopRequireDefault(_debounce2);
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _axios = __webpack_require__(235);
+	var _axios = __webpack_require__(283);
 
 	var _axios2 = _interopRequireDefault(_axios);
 
-	var _Modal = __webpack_require__(267);
+	var _helpers = __webpack_require__(229);
+
+	var _Modal = __webpack_require__(314);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -27628,22 +28784,20 @@
 
 	        var _this = _possibleConstructorReturn(this, (EditItem.__proto__ || Object.getPrototypeOf(EditItem)).call(this, props));
 
-	        _this.save = _this.save.bind(_this);
 	        _this.checkUniqueness = _this.checkUniqueness.bind(_this);
-
-	        _this.state = {
-	            error: null
-	        };
+	        _this.state = { error: null };
 	        return _this;
 	    }
 
 	    _createClass(EditItem, [{
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-	            var _props$defaults = this.props.defaults,
-	                name = _props$defaults.name,
-	                category = _props$defaults.category,
-	                lowAt = _props$defaults.lowAt;
+	        key: 'componentDidUpdate',
+	        value: function componentDidUpdate() {
+	            if (!this.props.active) return;
+
+	            var _props$active = this.props.active,
+	                name = _props$active.name,
+	                category = _props$active.category,
+	                lowAt = _props$active.lowAt;
 
 	            this.name.value = name;
 	            this.category.value = category;
@@ -27652,30 +28806,26 @@
 	    }, {
 	        key: 'checkUniqueness',
 	        value: function checkUniqueness() {
-	            var defaultName = this.props.defaults.name.toLowerCase(),
-	                items = this.props.items,
-	                name = this.name,
-	                _name = name.value.toLowerCase();
+	            var defaultName = this.props.active.name.toLowerCase(),
+	                name = this.name.value.toLowerCase(),
+	                names = this.props.names;
 
-	            for (var i = 0, len = items.length; i < len; i++) {
-	                if (_name !== defaultName && _name === items[i]) {
-	                    var error = 'An item with that name already exists';
-	                    this.setState({ error: error });
-	                    return;
-	                }
+	            if (name !== defaultName && names.indexOf(name) > -1) {
+	                var error = 'An item with that name already exists';
+	                return this.setState({ error: error });
 	            }
-
 	            this.setState({ error: null });
+	            return;
 	        }
 	    }, {
 	        key: 'save',
 	        value: function save() {
-	            var _this2 = this;
-
 	            var category = this.category,
 	                name = this.name,
 	                lowAt = this.lowAt,
-	                defaults = this.props.defaults;
+	                _props = this.props,
+	                items = _props.items,
+	                active = _props.active;
 
 
 	            if (name.value.trim() === '') {
@@ -27684,49 +28834,31 @@
 	                return;
 	            }
 	            var body = {
-	                category: category.value || defaults.category,
-	                name: name.value || defaults.name,
-	                lowAt: Number(lowAt.value) || defaults.lowAt
+	                category: category.value || active.category,
+	                name: name.value || active.name,
+	                lowAt: Number(lowAt.value) || active.lowAt
 	            },
 	                edited = Object.assign({}, defaults, body);
 
-	            (0, _axios.put)('housekeeping/' + defaults._id, body).then(function (res) {
-	                return _this2.props.onEdit(edited, defaults);
-	            }).catch(function (e) {
-	                return console.log(e);
-	            });
+	            editItem(items, active.index, edited);
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this3 = this;
+	            var _this2 = this;
 
-	            var props = this.props,
+	            if (!this.props.active) return null;
+
+	            var active = this.props.active,
 	                modal = this.modal,
 	                save = this.save,
-	                _props = this.props,
-	                open = _props.open,
-	                categories = _props.categories,
-	                onClose = _props.onClose,
-	                defaults = _props.defaults,
-	                name = defaults.name,
-	                category = defaults.category,
-	                lowAt = defaults.lowAt,
-	                _categories = categories.map(function (c, i) {
-	                return _react2.default.createElement(
-	                    'option',
-	                    { key: i },
-	                    c
-	                );
-	            }),
-	                error = modal ? modal.makeErrorDiv(this.state.error) : null,
-	                submit = modal ? modal.makeSubmitButton('SAVE', this.state.error, save) : null;
+	                error = (0, _helpers.makeErrorDiv)(this.state.error),
+	                submit = (0, _helpers.makeSubmitButton)('SAVE', this.state.error, save);
+
 
 	            return _react2.default.createElement(
 	                _Modal2.default,
-	                { onClose: onClose, ref: function ref(m) {
-	                        return _this3.modal = m;
-	                    } },
+	                { id: 'edit' },
 	                _react2.default.createElement(
 	                    'h1',
 	                    { className: 'section-title' },
@@ -27745,11 +28877,10 @@
 	                            'Category'
 	                        ),
 	                        _react2.default.createElement('input', {
-	                            list: 'categories',
+	                            list: 'categories-list',
 	                            ref: function ref(c) {
-	                                return _this3.category = c;
-	                            },
-	                            'default': category
+	                                return _this2.category = c;
+	                            }
 	                        })
 	                    ),
 	                    _react2.default.createElement(
@@ -27763,9 +28894,8 @@
 	                        _react2.default.createElement('input', {
 	                            onChange: (0, _debounce3.default)(this.checkUniqueness, 200, { leading: false }),
 	                            ref: function ref(n) {
-	                                return _this3.name = n;
-	                            },
-	                            'default': name
+	                                return _this2.name = n;
+	                            }
 	                        })
 	                    ),
 	                    _react2.default.createElement(
@@ -27776,22 +28906,17 @@
 	                            null,
 	                            'Low At'
 	                        ),
-	                        _react2.default.createElement('input', _defineProperty({
+	                        _react2.default.createElement('input', {
 	                            type: 'number',
 	                            'default': '0',
 	                            min: '0',
 	                            ref: function ref(l) {
-	                                return _this3.lowAt = l;
+	                                return _this2.lowAt = l;
 	                            }
-	                        }, 'default', lowAt))
+	                        })
 	                    )
 	                ),
-	                submit,
-	                _react2.default.createElement(
-	                    'datalist',
-	                    { id: 'categories' },
-	                    _categories
-	                )
+	                submit
 	            );
 	        }
 	    }]);
@@ -27802,7 +28927,7 @@
 	exports.default = EditItem;
 
 /***/ }),
-/* 270 */
+/* 316 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27811,7 +28936,7 @@
 	    value: true
 	});
 
-	var _debounce2 = __webpack_require__(262);
+	var _debounce2 = __webpack_require__(310);
 
 	var _debounce3 = _interopRequireDefault(_debounce2);
 
@@ -27821,11 +28946,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _axios = __webpack_require__(235);
+	var _axios = __webpack_require__(283);
 
 	var _axios2 = _interopRequireDefault(_axios);
 
-	var _Modal = __webpack_require__(267);
+	var _Modal = __webpack_require__(314);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 
@@ -27849,7 +28974,7 @@
 	        _this.checkIfExists = _this.checkIfExists.bind(_this);
 
 	        _this.state = {
-	            id: null,
+	            index: null,
 	            error: null
 	        };
 	        return _this;
@@ -27858,34 +28983,31 @@
 	    _createClass(DeleteItem, [{
 	        key: 'checkIfExists',
 	        value: function checkIfExists() {
-	            var items = this.props.items,
+	            var names = this.props.names,
 	                len = items.length,
 	                name = this.name.value;
 
-	            for (var i = 0; i < len; i++) {
-	                if (name === items[i].name) {
-	                    this.setState({ id: items[i]._id, error: null });
-	                    return;
-	                };
-	            }
+	            if (names.indexOf(name) > -1) {
+	                this.setState({ index: names.indexOf(name), error: null });
+	                return;
+	            };
 	            var error = 'The item \'' + name + '\' does not exist';
 	            this.setState({ id: null, error: error });
 	        }
 	    }, {
 	        key: 'delete',
 	        value: function _delete() {
-	            var _this2 = this;
+	            var index = this.state.index,
+	                _props = this.props,
+	                items = _props.items,
+	                removeItem = _props.removeItem;
 
-	            _axios2.default.delete('housekeeping/' + this.state.id).then(function (res) {
-	                return _this2.props.onDelete(_this2.name.value);
-	            }).catch(function (e) {
-	                return console.error(e);
-	            });
+	            del(items, items[index]);
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this3 = this;
+	            var _this2 = this;
 
 	            var id = this.state.id,
 	                onClose = this.props.onClose,
@@ -27937,7 +29059,7 @@
 	                            list: 'items-list',
 	                            onChange: (0, _debounce3.default)(this.checkIfExists, 200, { leading: false }),
 	                            ref: function ref(n) {
-	                                return _this3.name = n;
+	                                return _this2.name = n;
 	                            }
 	                        })
 	                    )
@@ -27953,7 +29075,7 @@
 	exports.default = DeleteItem;
 
 /***/ }),
-/* 271 */
+/* 317 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27967,21 +29089,23 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Modal = __webpack_require__(267);
+	var _Modal = __webpack_require__(314);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function ConfirmDelete(_ref) {
-	    var item = _ref.item,
-	        onConfirm = _ref.onConfirm,
-	        onClose = _ref.onClose;
+	    var items = _ref.items,
+	        item = _ref.item,
+	        del = _ref.del;
 
+
+	    if (!item) return null;
 
 	    return _react2.default.createElement(
 	        _Modal2.default,
-	        { onClose: onClose },
+	        { id: 'confirm-delete' },
 	        _react2.default.createElement(
 	            'p',
 	            { className: 'text-center' },
@@ -27989,14 +29113,19 @@
 	        ),
 	        _react2.default.createElement(
 	            'button',
-	            { className: 'btn btn--wide btn--danger', onClick: onConfirm },
+	            {
+	                className: 'btn btn--wide btn--danger',
+	                onClick: function onClick(e) {
+	                    return del(items, item);
+	                }
+	            },
 	            'CONFIRM'
 	        )
 	    );
 	}
 
 /***/ }),
-/* 272 */
+/* 318 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28014,10 +29143,6 @@
 	var _modals = __webpack_require__(232);
 
 	var _items2 = __webpack_require__(234);
-
-	var _redux = __webpack_require__(184);
-
-	var _reactRedux = __webpack_require__(205);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28122,16 +29247,16 @@
 	}
 
 	function Item(_ref3) {
-	    var _ref3$item = _ref3.item,
-	        name = _ref3$item.name,
-	        inStock = _ref3$item.inStock,
-	        lowAt = _ref3$item.lowAt,
-	        lastModified = _ref3$item.lastModified,
+	    var item = _ref3.item,
 	        _ref3$actions = _ref3.actions,
 	        openModal = _ref3$actions.openModal,
 	        openItemDetails = _ref3$actions.openItemDetails;
 
-	    var isLow = lowAt > inStock,
+	    var name = item.name,
+	        inStock = item.inStock,
+	        lowAt = item.lowAt,
+	        lastModified = item.lastModified,
+	        isLow = lowAt > inStock,
 	        _lastModified = lastModified ? 'Last Updated: ' + lastModified.substring(0, 10) : '';
 
 	    return _react2.default.createElement(
@@ -28140,7 +29265,7 @@
 	        _react2.default.createElement(
 	            'h1',
 	            {
-	                className: 'item-card__item-name',
+	                className: 'item-card__item-name clickable',
 	                onClick: function onClick() {
 	                    return openItemDetails(item);
 	                }
@@ -28228,12 +29353,13 @@
 	        filter = _ref4.filter;
 
 	    return { items: items, filter: filter };
-	};
+	},
+	    actions = { openModal: _modals.openModal, fetchItems: _items2.fetchItems, setCategories: _items2.setCategories, openItemDetails: _items2.openItemDetails };
 
-	exports.default = (0, _helpers.connectToStore)(state, { openModal: _modals.openModal, fetchItems: _items2.fetchItems }, Items);
+	exports.default = (0, _helpers.connectToStore)(state, actions, Items);
 
 /***/ }),
-/* 273 */
+/* 319 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28244,15 +29370,15 @@
 
 	var _redux = __webpack_require__(184);
 
-	var _modals = __webpack_require__(274);
+	var _modals = __webpack_require__(320);
 
 	var _modals2 = _interopRequireDefault(_modals);
 
-	var _filters = __webpack_require__(275);
+	var _filters = __webpack_require__(321);
 
 	var _filters2 = _interopRequireDefault(_filters);
 
-	var _items = __webpack_require__(276);
+	var _items = __webpack_require__(322);
 
 	var _items2 = _interopRequireDefault(_items);
 
@@ -28267,7 +29393,7 @@
 	exports.default = root;
 
 /***/ }),
-/* 274 */
+/* 320 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -28285,17 +29411,20 @@
 	    switch (type) {
 	        case 'MODAL_OPEN':
 	            return payload;
-	        case 'MODAL_CLOSE':
-	            return null;
 	        case 'ACTIVE_ITEM_SET_AND_MODAL_OPEN':
 	            return payload.id;
+	        case 'MODAL_CLOSE':
+	        case 'ITEMS_ADDED':
+	        case 'ITEMS_REMOVED':
+	        case 'ITEMS_EDITED':
+	            return null;
 	        default:
 	            return state;
 	    }
 	};
 
 /***/ }),
-/* 275 */
+/* 321 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -28321,7 +29450,7 @@
 	};
 
 /***/ }),
-/* 276 */
+/* 322 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -28344,7 +29473,7 @@
 	        case 'ITEMS_ADDED':
 	        case 'ITEMS_REMOVED':
 	        case 'ITEMS_EDITED':
-	            return Object.assign({}, state, { all: payload });
+	            return Object.assign({}, state, payload);
 
 	        case 'ACTIVE_ITEM_SET':
 	            return Object.assign({}, state, { active: payload });
