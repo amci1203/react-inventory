@@ -1494,10 +1494,6 @@ table td:first-child, table th:first-child {
     color: inherit !important;
 }
 
-.item-card.single .item-card {}
-
-.item-card.single .item-card__item-stock {}
-
 @media (min-width: 991px) {
     .item-card {
         display: inline-block;
@@ -1514,7 +1510,7 @@ table td:first-child, table th:first-child {
     width: 80%;
 }
 
-.item-card:not(.single) .item-card__item-stock {
+.item-card__item-stock {
     position: absolute;
     top: 50%;
     -webkit-transform: translateY(-50%);
@@ -1541,18 +1537,61 @@ table td:first-child, table th:first-child {
     }
 }
 
-.item-card:hover {
+.item-card:hover:not(.single) {
     border-color: rgba(35, 70, 220, 0.8);
 }
 
-.item-card:hover .item-card__options {
+.item-card:hover:not(.single) .item-card__options {
     position: relative;
     opacity: 1;
     z-index: inherit;
 }
 
-.item-card:hover.low {
+.item-card:hover:not(.single).low {
     border-color: red;
+}
+
+.single .item-card {
+    width: 95%;
+}
+
+.single .item-card .log .strong {
+    font-weight: 600;
+}
+
+.single .item-card .log__record span {
+    display: inline-block;
+    float: left;
+    width: 25%;
+}
+
+.single .item-card .log__record::after {
+    content: '';
+    clear: both;
+    display: table;
+}
+
+.single .item-card__item-name {
+    font-weight: 100;
+    font-size: 2.45rem;
+    margin: 0.65rem 0;
+    margin-top: 4rem;
+    border-bottom: 1px solid #BBB;
+    width: 80%;
+}
+
+.single .item-card__options {
+    opacity: 1;
+    z-index: 100;
+}
+
+.single .item-card__item-stock {
+    position: absolute;
+    top: 5rem;
+    -webkit-transform: none;
+            transform: none;
+    font-weight: 100;
+    font-size: 4rem;
 }
 #date-change-buttons {
     position: absolute;

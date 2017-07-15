@@ -20,7 +20,6 @@ export function setActiveItem (payload) {
 export function openItemDetails (item) {
     if (!item.log) {
         return dispatch => get(`housekeeping/${item._id}`).then(res => {
-            console.log(res.data);
             const payload = Object.assign(item, { log: [...res.data] });
             dispatch({ type: 'ITEM_DETAILS_OPENED', payload, i: item.index, addLog: true })
         })

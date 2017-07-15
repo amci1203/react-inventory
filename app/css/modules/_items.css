@@ -23,14 +23,6 @@
         .option--danger { color: inherit !important }
     }
 
-    &.single {
-        .item-card {
-            &__item-stock {
-
-            }
-        }
-    }
-
     @mixin atLarge {
         display: inline-block;
         width: 46%;
@@ -45,7 +37,7 @@
         width: 80%;
     }
 
-    &:not(.single) &__item-stock {
+    &__item-stock {
         @mixin vCenter;
         right: 15px;
         font-size: 1.6rem;
@@ -68,7 +60,7 @@
         }
     }
 
-    &:hover {
+    &:hover:not(.single) {
         border-color: color($mainBlue a(0.8));
         &.low { border-color: red }
         .item-card__options {
@@ -88,5 +80,46 @@
         font-weight: 800;
 
         &--danger { color: #C00 }
+    }
+}
+
+.single .item-card {
+
+    width: 95%;
+
+    &__item-name {
+        font-weight: 100;
+        font-size: 2.45rem;
+        margin: 0.65rem 0;
+        margin-top: 4rem;
+        border-bottom: 1px solid #BBB;
+        width: 80%;
+    }
+
+    &__options {
+        opacity: 1;
+        z-index: 100;
+    }
+
+    &__item-stock {
+        position: absolute;
+        top: 5rem;
+        transform: none;
+        font-weight: 100;
+        font-size: 4rem;
+    }
+
+    .log {
+
+        &__record {
+            @mixin clearfix;
+            span {
+                display: inline-block;
+                float: left;
+                width: 25%;
+            }
+        }
+
+        .strong { font-weight: 600 }
     }
 }
