@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import axios, { put } from 'axios';
 import { debounce } from 'lodash';
 import { makeErrorDiv, makeSubmitButton } from '../../helpers';
 
@@ -11,16 +10,30 @@ export default class EditItem extends Component {
     constructor (props) {
         super(props);
         this.checkUniqueness = this.checkUniqueness.bind(this);
-        this.state = { error: null };
+        this.save = this.save.bind(this);
+        this.state = {
+            prev: null,
+            error: null
+        };
     }
 
     componentDidUpdate () {
+        const {
+            state: { prev },
+            props: { active }
+        } = this;
+
         if (!this.props.active) return;
 
-        const { name, category, lowAt } = this.props.active;
-        this.name.value = name;
-        this.category.value = category;
-        this.lowAt.value = lowAt;
+        // Use a semblance of a flag in state to determine if we should set the inputs
+        // A hacky fix, I know
+        if (!prev || prev != active.name) {
+            const { name, category, lowAt } = active;
+            this.name.value = name;
+            this.category.value = category;
+            this.lowAt.value = lowAt;
+            this.setState({ prev: name });
+        }
     }
 
     checkUniqueness () {
@@ -39,7 +52,7 @@ export default class EditItem extends Component {
     save () {
         const
             { category, name, lowAt } = this,
-            { items, active } = this.props;
+            { items, active, save } = this.props;
 
         if (name.value.trim() === '') {
             const error = 'A name must be specified';
@@ -53,9 +66,9 @@ export default class EditItem extends Component {
                 lowAt: Number(lowAt.value) || active.lowAt
             },
 
-            edited = Object.assign({}, defaults, body);
+            edited = Object.assign({}, active, body);
 
-        editItem(items, active.index, edited)
+        save(edited)
     }
 
     render() {

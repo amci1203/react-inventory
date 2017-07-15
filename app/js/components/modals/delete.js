@@ -9,7 +9,7 @@ export default class DeleteItem extends Component {
     constructor (props) {
         super(props);
 
-        this.delete = this.delete.bind(this);
+        this.remove = this.remove.bind(this);
         this.checkIfExists = this.checkIfExists.bind(this);
 
         this.state = {
@@ -21,47 +21,44 @@ export default class DeleteItem extends Component {
     checkIfExists () {
         const
             { names } = this.props,
-            len = items.length,
-            name = this.name.value;
+            name = this.name.value.toLowerCase();
         if (names.indexOf(name) > -1) {
             this.setState({ index: names.indexOf(name), error: null });
             return;
         };
         const error = `The item '${name}' does not exist`;
-        this.setState({ id: null, error })
+        this.setState({ index: null, error })
     }
 
-    delete () {
+    remove () {
         const {
             state: { index },
-            props: { items, removeItem }
+            props: { items, del }
         } = this;
-        del(items, items[index])
+        del(items[index])
     }
 
     render () {
         const
-            { id } = this.state,
-            { onClose } = this.props,
-            error = this.state.error ? <p className='errors'>{this.state.error}</p> : null,
-            submit = id ? (
+            { error, index } = this.state,
+            _error = error ? <p className='errors'>{error}</p> : null,
+            submit = index !== null ? (
                 <button
                     className="submit"
-                    onClick={this.delete}
+                    onClick={this.remove}
                 >DELETE</button>
             ) : (
                 <button
                     className="submit"
-                    onClick={this.delete}
                     disabled='disabled'
                 >DELETE</button>
-            )
+            );
 
             return (
                 <Modal id='delete'>
                     <h1 className="section-title">DELETE ITEM</h1>
                     <form>
-                        { error }
+                        { _error }
                         <div className='form-group'>
                             <p className='wide'>Select the item you wish to remove</p>
                             <input

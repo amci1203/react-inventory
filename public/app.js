@@ -68,7 +68,7 @@
 
 	var _components2 = _interopRequireDefault(_components);
 
-	var _reducers = __webpack_require__(319);
+	var _reducers = __webpack_require__(322);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
@@ -24657,10 +24657,6 @@
 
 	var _items2 = _interopRequireDefault(_items);
 
-	var _ = __webpack_require__(226);
-
-	var _2 = _interopRequireDefault(_);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function App(props) {
@@ -25054,6 +25050,7 @@
 	        all = _props$items.all,
 	        active = _props$items.active,
 	        categories = _props$items.categories,
+	        activeModal = props.activeModal,
 	        itemList = all ? all.map(function (i) {
 	        return i.name.toLowerCase();
 	    }) : null,
@@ -25071,32 +25068,41 @@
 	            { key: i },
 	            cat
 	        );
-	    }) : null;
-
+	    }) : null,
+	        modal = function (m) {
+	        switch (m) {
+	            case 'new':
+	                return _react2.default.createElement(_new2.default, {
+	                    items: all,
+	                    names: itemList,
+	                    save: props.addItem
+	                });
+	            case 'delete':
+	                return _react2.default.createElement(_delete2.default, {
+	                    items: all,
+	                    names: itemList,
+	                    del: props.removeItem,
+	                    modal: activeModal
+	                });
+	            case 'edit':
+	                return _react2.default.createElement(_edit2.default, {
+	                    items: all,
+	                    names: itemList,
+	                    active: active,
+	                    save: props.editItem
+	                });
+	            case 'confirm-delete':
+	                return _react2.default.createElement(_confirmDelete2.default, {
+	                    item: active,
+	                    del: props.removeItem
+	                });
+	        }
+	    }(activeModal);
 
 	    return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement(_new2.default, {
-	            items: all,
-	            names: itemList,
-	            save: props.addItem
-	        }),
-	        _react2.default.createElement(_delete2.default, {
-	            items: all,
-	            names: itemList,
-	            del: props.removeItem
-	        }),
-	        _react2.default.createElement(_edit2.default, {
-	            items: all,
-	            names: itemList,
-	            active: active
-	        }),
-	        _react2.default.createElement(_confirmDelete2.default, {
-	            items: all,
-	            item: active,
-	            del: props.removeItem
-	        }),
+	        modal,
 	        _react2.default.createElement(
 	            'datalist',
 	            { id: 'items-list' },
@@ -25110,8 +25116,8 @@
 	    );
 	}
 
-	var state = function state(items) {
-	    return Object.assign({}, items);
+	var state = function state(items, activeModal) {
+	    return Object.assign({}, items, activeModal);
 	};
 	exports.default = (0, _helpers.connectToStore)(state, actions, Modals);
 
@@ -25161,15 +25167,16 @@
 	    return { type: 'ACTIVE_ITEM_SET', payload: payload };
 	}
 
-	function openItemDetails(payload) {
-	    if (!payload.log) {
+	function openItemDetails(item) {
+	    if (!item.log) {
 	        return function (dispatch) {
-	            return (0, _axios.get)('housekeeping/' + payload._id, function (res) {
-	                Object.assign(payload, { log: res.log });
-	                return { type: 'ITEM_DETAILS_OPENED', payload: payload, addLog: true };
+	            return (0, _axios.get)('housekeeping/' + item._id).then(function (res) {
+	                console.log(res.data);
+	                var payload = Object.assign(item, { log: [].concat(_toConsumableArray(res.data)) });
+	                dispatch({ type: 'ITEM_DETAILS_OPENED', payload: payload, i: item.index, addLog: true });
 	            });
 	        };
-	    } else return { type: 'ITEM_DETAILS_OPENED', payload: payload };
+	    } else return { type: 'ITEM_DETAILS_OPENED', payload: item, i: item.index };
 	}
 
 	function closeItemDetails() {
@@ -25177,7 +25184,7 @@
 	}
 
 	function setStockBalance(i, payload) {
-	    return { type: 'ACTIVE_ITEM_STOCK_CHANGED', index: i, payload: payload };
+	    return { type: 'ACTIVE_ITEM_STOCK_CHANGED', i: i, payload: payload };
 	}
 
 	function fetchItems() {
@@ -25196,29 +25203,9 @@
 	    };
 	}
 
-	function addItem(arr, item, noDispatch) {
-	    var name = item.name.toLowerCase(),
-	        category = item.category.toLowerCase(),
-	        categories = arr.map(function (c) {
-	        return c.category.toLowerCase();
-	    }),
-	        items = arr.map(function (n) {
-	        return n.name.toLowerCase();
-	    }),
-	        categoryArr = [].concat(_toConsumableArray(categories), [category]).sort(),
-
-
-	    // first & last occurence of the new item's category
-	    fc = categoryArr.indexOf(category),
-	        lc = categoryArr.lastIndexOf(category);
-
-	    categoryItemsArr = [].concat(_toConsumableArray(items.slice(fc, lc + 1)), [name]).sort(), pos = fc === lc ? fc : fc + categoryItemsArr.indexOf(name), payload = [].concat(_toConsumableArray(arr.slice(0, pos)), [item], _toConsumableArray(arr.slice(pos))).map(function (n, i) {
-	        return Object.assign(n, { index: i });
-	    });
-
-	    if (noDispatch) return payload;
-	    return noDispatch ? payload : function (dispatch) {
-	        (0, _axios.post)('housekeeping', item).then(function (res) {
+	function addItem(payload) {
+	    return function (dispatch) {
+	        (0, _axios.post)('housekeeping', payload).then(function (res) {
 	            var err = res.data.err;
 
 	            console.log(err || 'ADD OK');
@@ -25227,28 +25214,27 @@
 	    };
 	}
 
-	function editItem(arr, i, item) {
-	    var edited = Object.assign(item, { index: i }),
-	        payload = addItem([].concat(_toConsumableArray(arr.slice(0, i)), _toConsumableArray(arr.slice(i + 1))), item, true);
+	function editItem(payload) {
 	    return function (dispatch) {
-	        return (0, _axios.put)('housekeeping/' + item._id, item).then(function (data) {
+	        return (0, _axios.put)('housekeeping/' + payload._id, payload).then(function (res) {
+	            var err = res.data.err;
 
-	            dispatch({ type: 'ITEM_EDITED', payload: payload });
+	            console.log(err || 'EDIT OK');
+	            dispatch({ type: 'ITEM_EDITED', payload: payload, i: payload.index });
 	        });
 	    };
 	}
 
-	function removeItem(arr, _ref, noDispatch) {
-	    var index = _ref.index,
-	        _id = _ref._id;
+	function removeItem(payload) {
+	    var index = payload.index,
+	        _id = payload._id;
 
-	    var payload = [].concat(_toConsumableArray(arr.slice(0, index)), _toConsumableArray(arr.slice(index + 1)));
-	    return noDispatch ? payload : function (dispatch) {
+	    return function (dispatch) {
 	        _axios2.default.delete('housekeeping/' + _id).then(function (res) {
 	            var err = res.data.err;
 
 	            console.log(err || 'DELETE OK');
-	            if (!err) dispatch({ type: 'ITEM_REMOVED', payload: payload });
+	            if (!err) dispatch({ type: 'ITEM_REMOVED', i: index });
 	        });
 	    };
 	}
@@ -28211,14 +28197,14 @@
 	                this.setState({ error: error });
 	                return;
 	            }
-	            var body = { item: {
-	                    category: category.value,
-	                    name: name.value,
-	                    inStock: Number(inStock.value),
-	                    lowAt: Number(lowAt.value)
-	                } };
+	            var body = {
+	                category: category.value,
+	                name: name.value,
+	                inStock: Number(inStock.value),
+	                lowAt: Number(lowAt.value)
+	            };
 
-	            save(items, body);
+	            save(body);
 	        }
 	    }, {
 	        key: 'render',
@@ -28758,10 +28744,6 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _axios = __webpack_require__(283);
-
-	var _axios2 = _interopRequireDefault(_axios);
-
 	var _helpers = __webpack_require__(229);
 
 	var _Modal = __webpack_require__(314);
@@ -28785,23 +28767,35 @@
 	        var _this = _possibleConstructorReturn(this, (EditItem.__proto__ || Object.getPrototypeOf(EditItem)).call(this, props));
 
 	        _this.checkUniqueness = _this.checkUniqueness.bind(_this);
-	        _this.state = { error: null };
+	        _this.save = _this.save.bind(_this);
+	        _this.state = {
+	            prev: null,
+	            error: null
+	        };
 	        return _this;
 	    }
 
 	    _createClass(EditItem, [{
 	        key: 'componentDidUpdate',
 	        value: function componentDidUpdate() {
+	            var prev = this.state.prev,
+	                active = this.props.active;
+
+
 	            if (!this.props.active) return;
 
-	            var _props$active = this.props.active,
-	                name = _props$active.name,
-	                category = _props$active.category,
-	                lowAt = _props$active.lowAt;
+	            // Use a semblance of a flag in state to determine if we should set the inputs
+	            // A hacky fix, I know
+	            if (!prev || prev != active.name) {
+	                var name = active.name,
+	                    category = active.category,
+	                    lowAt = active.lowAt;
 
-	            this.name.value = name;
-	            this.category.value = category;
-	            this.lowAt.value = lowAt;
+	                this.name.value = name;
+	                this.category.value = category;
+	                this.lowAt.value = lowAt;
+	                this.setState({ prev: name });
+	            }
 	        }
 	    }, {
 	        key: 'checkUniqueness',
@@ -28825,7 +28819,8 @@
 	                lowAt = this.lowAt,
 	                _props = this.props,
 	                items = _props.items,
-	                active = _props.active;
+	                active = _props.active,
+	                save = _props.save;
 
 
 	            if (name.value.trim() === '') {
@@ -28838,9 +28833,9 @@
 	                name: name.value || active.name,
 	                lowAt: Number(lowAt.value) || active.lowAt
 	            },
-	                edited = Object.assign({}, defaults, body);
+	                edited = Object.assign({}, active, body);
 
-	            editItem(items, active.index, edited);
+	            save(edited);
 	        }
 	    }, {
 	        key: 'render',
@@ -28970,7 +28965,7 @@
 
 	        var _this = _possibleConstructorReturn(this, (DeleteItem.__proto__ || Object.getPrototypeOf(DeleteItem)).call(this, props));
 
-	        _this.delete = _this.delete.bind(_this);
+	        _this.remove = _this.remove.bind(_this);
 	        _this.checkIfExists = _this.checkIfExists.bind(_this);
 
 	        _this.state = {
@@ -28984,55 +28979,53 @@
 	        key: 'checkIfExists',
 	        value: function checkIfExists() {
 	            var names = this.props.names,
-	                len = items.length,
-	                name = this.name.value;
+	                name = this.name.value.toLowerCase();
 
 	            if (names.indexOf(name) > -1) {
 	                this.setState({ index: names.indexOf(name), error: null });
 	                return;
 	            };
 	            var error = 'The item \'' + name + '\' does not exist';
-	            this.setState({ id: null, error: error });
+	            this.setState({ index: null, error: error });
 	        }
 	    }, {
-	        key: 'delete',
-	        value: function _delete() {
+	        key: 'remove',
+	        value: function remove() {
 	            var index = this.state.index,
 	                _props = this.props,
 	                items = _props.items,
-	                removeItem = _props.removeItem;
+	                del = _props.del;
 
-	            del(items, items[index]);
+	            del(items[index]);
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var _this2 = this;
 
-	            var id = this.state.id,
-	                onClose = this.props.onClose,
-	                error = this.state.error ? _react2.default.createElement(
+	            var _state = this.state,
+	                error = _state.error,
+	                index = _state.index,
+	                _error = error ? _react2.default.createElement(
 	                'p',
 	                { className: 'errors' },
-	                this.state.error
+	                error
 	            ) : null,
-	                submit = id ? _react2.default.createElement(
+	                submit = index !== null ? _react2.default.createElement(
 	                'button',
 	                {
 	                    className: 'submit',
-	                    onClick: this.delete
+	                    onClick: this.remove
 	                },
 	                'DELETE'
 	            ) : _react2.default.createElement(
 	                'button',
 	                {
 	                    className: 'submit',
-	                    onClick: this.delete,
 	                    disabled: 'disabled'
 	                },
 	                'DELETE'
 	            );
-
 
 	            return _react2.default.createElement(
 	                _Modal2.default,
@@ -29045,7 +29038,7 @@
 	                _react2.default.createElement(
 	                    'form',
 	                    null,
-	                    error,
+	                    _error,
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'form-group' },
@@ -29096,8 +29089,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function ConfirmDelete(_ref) {
-	    var items = _ref.items,
-	        item = _ref.item,
+	    var item = _ref.item,
 	        del = _ref.del;
 
 
@@ -29116,7 +29108,7 @@
 	            {
 	                className: 'btn btn--wide btn--danger',
 	                onClick: function onClick(e) {
-	                    return del(items, item);
+	                    return del(item);
 	                }
 	            },
 	            'CONFIRM'
@@ -29144,6 +29136,14 @@
 
 	var _items2 = __webpack_require__(234);
 
+	var _categoryGroup = __webpack_require__(319);
+
+	var _categoryGroup2 = _interopRequireDefault(_categoryGroup);
+
+	var _details = __webpack_require__(320);
+
+	var _details2 = _interopRequireDefault(_details);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -29152,6 +29152,7 @@
 	    var _ref$items = _ref.items,
 	        all = _ref$items.all,
 	        active = _ref$items.active,
+	        logOpen = _ref$items.logOpen,
 	        filter = _ref.filter,
 	        openModal = _ref.openModal,
 	        openItemDetails = _ref.openItemDetails,
@@ -29161,18 +29162,24 @@
 	        fetchItems();
 	        return _react2.default.createElement(
 	            'section',
-	            { className: 'items' },
-	            _react2.default.createElement(
-	                'h1',
-	                null,
-	                'LOADING...'
-	            )
+	            { className: 'items loading' },
+	            _react2.default.createElement('img', { src: 'icons/loading.svg' })
 	        );
 	    }
 
 	    var actions = { openModal: openModal, openItemDetails: openItemDetails };
+
+	    if (logOpen) {
+	        var props = {
+	            item: active,
+	            actions: actions,
+	            logOpen: logOpen
+	        };
+	        return _react2.default.createElement(_details2.default, props);
+	    }
+
 	    var groupedItems = function (_items, filter, search) {
-	        var _search = search ? new RegExp('^(' + search + ')', 'i') : null,
+	        var _search = search ? new RegExp('^(' + search.replace(/\s/g, '') + ')', 'i') : null,
 	            grouped = [],
 	            items = _items.filter(function (i) {
 	            return matchFilter(i, filter);
@@ -29211,7 +29218,7 @@
 	    }(filter.stock),
 	        viewableItems = groupedItems.map(function (group, key) {
 	        var props = { group: group, actions: actions, key: key };
-	        return _react2.default.createElement(CategoryGroup, props);
+	        return _react2.default.createElement(_categoryGroup2.default, props);
 	    });
 
 	    return _react2.default.createElement(
@@ -29222,16 +29229,76 @@
 	    );
 	}
 
-	function CategoryGroup(_ref2) {
-	    var _ref2$group = _ref2.group,
-	        category = _ref2$group.category,
-	        items = _ref2$group.items,
-	        actions = _ref2.actions;
+	function matchSearch(item, search) {
+	    if (!search) return true;
+
+	    var nameWords = [item.name].concat(_toConsumableArray(item.name.split(' '))),
+	        categoryWords = [item.category].concat(_toConsumableArray(item.category.split(' '))),
+	        len = Math.max(nameWords.length, categoryWords.length);
+
+	    for (var i = 0; i < len; i++) {
+	        var nW = nameWords[i],
+	            cW = categoryWords[i];
+
+	        if (nW && nW.replace(/\s/g, '').match(search)) return true;
+	        if (cW && cW.replace(/\s/g, '').match(search)) return true;
+	    }
+
+	    return false;
+	}
+
+	function matchFilter(item, filter) {
+	    var inStock = item.inStock,
+	        lowAt = item.lowAt;
+
+	    if (filter === 'ALL') return true;
+	    if (filter === 'LOW' && lowAt > inStock) return true;
+	    if (filter === 'IN_STOCK' && lowAt < inStock) return true;
+	    if (filter === 'DEPLETED' && inStock === 0) return true;
+	    return false;
+	}
+
+	var state = function state(_ref2) {
+	    var items = _ref2.items,
+	        filter = _ref2.filter;
+
+	    return { items: items, filter: filter };
+	},
+	    actions = { openModal: _modals.openModal, fetchItems: _items2.fetchItems, setCategories: _items2.setCategories, openItemDetails: _items2.openItemDetails };
+
+	exports.default = (0, _helpers.connectToStore)(state, actions, Items);
+
+/***/ }),
+/* 319 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = CategoryGroup;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _details = __webpack_require__(320);
+
+	var _details2 = _interopRequireDefault(_details);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function CategoryGroup(_ref) {
+	    var _ref$group = _ref.group,
+	        category = _ref$group.category,
+	        items = _ref$group.items,
+	        actions = _ref.actions;
 
 	    var href = category ? category.replace(' ', '-').toLowerCase() : 'uncategorized',
 	        list = items.map(function (item, key) {
 	        var props = { item: item, actions: actions, key: key };
-	        return _react2.default.createElement(Item, props);
+	        return _react2.default.createElement(_details2.default, props);
 	    });
 
 	    return _react2.default.createElement(
@@ -29246,18 +29313,41 @@
 	    );
 	}
 
-	function Item(_ref3) {
-	    var item = _ref3.item,
-	        _ref3$actions = _ref3.actions,
-	        openModal = _ref3$actions.openModal,
-	        openItemDetails = _ref3$actions.openItemDetails;
+/***/ }),
+/* 320 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = ItemDetails;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _log = __webpack_require__(321);
+
+	var _log2 = _interopRequireDefault(_log);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function ItemDetails(_ref) {
+	    var item = _ref.item,
+	        logOpen = _ref.logOpen,
+	        _ref$actions = _ref.actions,
+	        openModal = _ref$actions.openModal,
+	        openItemDetails = _ref$actions.openItemDetails;
 
 	    var name = item.name,
 	        inStock = item.inStock,
 	        lowAt = item.lowAt,
 	        lastModified = item.lastModified,
 	        isLow = lowAt > inStock,
-	        _lastModified = lastModified ? 'Last Updated: ' + lastModified.substring(0, 10) : '';
+	        _lastModified = lastModified ? 'Last Updated: ' + lastModified.substring(0, 10) : '',
+	        log = logOpen ? _react2.default.createElement(_log2.default, { log: item.log }) : null;
 
 	    return _react2.default.createElement(
 	        'article',
@@ -29290,6 +29380,16 @@
 	                {
 	                    className: 'option clickable',
 	                    onClick: function onClick() {
+	                        return openItemDetails(item);
+	                    }
+	                },
+	                'OPEN'
+	            ),
+	            _react2.default.createElement(
+	                'span',
+	                {
+	                    className: 'option clickable',
+	                    onClick: function onClick() {
 	                        return openModal('edit', item);
 	                    }
 	                },
@@ -29303,7 +29403,7 @@
 	                        return openModal('log', item);
 	                    }
 	                },
-	                'LOG'
+	                'ADD LOG'
 	            ),
 	            _react2.default.createElement(
 	                'span',
@@ -29315,51 +29415,63 @@
 	                },
 	                'DELETE'
 	            )
-	        )
+	        ),
+	        log
 	    );
 	}
 
-	function matchSearch(item, search) {
-	    if (!search) return true;
+/***/ }),
+/* 321 */
+/***/ (function(module, exports, __webpack_require__) {
 
-	    var nameWords = [item.name].concat(_toConsumableArray(item.name.split(' '))),
-	        categoryWords = [item.category].concat(_toConsumableArray(item.category.split(' '))),
-	        len = Math.max(nameWords.length, categoryWords.length);
+	'use strict';
 
-	    for (var i = 0; i < len; i++) {
-	        var nW = nameWords[i],
-	            cW = categoryWords[i];
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = Log;
 
-	        if (nW && nW.match(search)) return true;
-	        if (cW && cW.match(search)) return true;
-	    }
+	var _react = __webpack_require__(1);
 
-	    return false;
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function Log(_ref) {
+	    var log = _ref.log;
+
+
+	    var logs = log.map(function (l, i) {
+	        return _react2.default.createElement(
+	            'p',
+	            { key: i },
+	            _react2.default.createElement(
+	                'span',
+	                null,
+	                l.date
+	            ),
+	            _react2.default.createElement(
+	                'span',
+	                null,
+	                l.added
+	            ),
+	            _react2.default.createElement(
+	                'span',
+	                null,
+	                l.removed
+	            )
+	        );
+	    });
+
+	    return _react2.default.createElement(
+	        'div',
+	        null,
+	        logs
+	    );
 	}
-
-	function matchFilter(item, filter) {
-	    var inStock = item.inStock,
-	        lowAt = item.lowAt;
-
-	    if (filter === 'ALL') return true;
-	    if (filter === 'LOW' && lowAt > inStock) return true;
-	    if (filter === 'IN_STOCK' && lowAt < inStock) return true;
-	    if (filter === 'DEPLETED' && inStock === 0) return true;
-	    return false;
-	}
-
-	var state = function state(_ref4) {
-	    var items = _ref4.items,
-	        filter = _ref4.filter;
-
-	    return { items: items, filter: filter };
-	},
-	    actions = { openModal: _modals.openModal, fetchItems: _items2.fetchItems, setCategories: _items2.setCategories, openItemDetails: _items2.openItemDetails };
-
-	exports.default = (0, _helpers.connectToStore)(state, actions, Items);
 
 /***/ }),
-/* 319 */
+/* 322 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29370,15 +29482,15 @@
 
 	var _redux = __webpack_require__(184);
 
-	var _modals = __webpack_require__(320);
+	var _modals = __webpack_require__(323);
 
 	var _modals2 = _interopRequireDefault(_modals);
 
-	var _filters = __webpack_require__(321);
+	var _filters = __webpack_require__(324);
 
 	var _filters2 = _interopRequireDefault(_filters);
 
-	var _items = __webpack_require__(322);
+	var _items = __webpack_require__(325);
 
 	var _items2 = _interopRequireDefault(_items);
 
@@ -29393,7 +29505,7 @@
 	exports.default = root;
 
 /***/ }),
-/* 320 */
+/* 323 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -29414,9 +29526,12 @@
 	        case 'ACTIVE_ITEM_SET_AND_MODAL_OPEN':
 	            return payload.id;
 	        case 'MODAL_CLOSE':
+	        case 'ITEM_ADDED':
+	        case 'ITEM_LOGGED':
+	        case 'ITEM_REMOVED':
+	        case 'ITEM_EDITED':
 	        case 'ITEMS_ADDED':
-	        case 'ITEMS_REMOVED':
-	        case 'ITEMS_EDITED':
+	        case 'ITEMS_LOGGED':
 	            return null;
 	        default:
 	            return state;
@@ -29424,7 +29539,7 @@
 	};
 
 /***/ }),
-/* 321 */
+/* 324 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -29450,7 +29565,7 @@
 	};
 
 /***/ }),
-/* 322 */
+/* 325 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -29465,15 +29580,39 @@
 	    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    var action = arguments[1];
 	    var type = action.type,
-	        payload = action.payload;
+	        payload = action.payload,
+	        i = action.i,
+	        all = state.all,
+	        active = state.active;
 
 
 	    switch (type) {
 	        case 'ITEMS_FETCHED':
-	        case 'ITEMS_ADDED':
-	        case 'ITEMS_REMOVED':
-	        case 'ITEMS_EDITED':
 	            return Object.assign({}, state, payload);
+
+	        case 'ITEM_REMOVED':
+	            return Object.assign({}, state, {
+	                all: [].concat(_toConsumableArray(all.slice(0, i)), _toConsumableArray(all.slice(i + 1)))
+	            });
+
+	        case 'ITEM_ADDED':
+	            var addPos = all.map(function (c) {
+	                return c.category;
+	            }).concat(payload.category).sort().lastIndexOf(payload.category),
+	                next = [].concat(_toConsumableArray(all.slice(0, addPos)), [payload], _toConsumableArray(all.slice(addPos))).map(function (item, i) {
+	                return Object.assign(item, { index: i });
+	            });
+	            return Object.assign({}, state, { all: next });
+
+	        case 'ITEM_EDITED':
+	            var rem = [].concat(_toConsumableArray(all.slice(0, i)), _toConsumableArray(all.slice(i + 1))),
+	                editPos = active.category == payload.category ? active.index : all.map(function (c) {
+	                return c.category;
+	            }).concat(payload.category).sort().lastIndexOf(payload.category) + 1,
+	                edited = Object.assign(payload, { index: editPos });
+	            return Object.assign({}, state, {
+	                all: [].concat(_toConsumableArray(rem.slice(0, editPos)), [edited], _toConsumableArray(rem.slice(editPos)))
+	            });
 
 	        case 'ACTIVE_ITEM_SET':
 	            return Object.assign({}, state, { active: payload });
@@ -29484,26 +29623,21 @@
 	        case 'ITEM_DETAILS_CLOSED':
 	            return Object.assign({}, state, {
 	                active: null,
-	                detailsOpen: false
+	                logOpen: false
 	            });
 
 	        case 'ACTIVE_ITEM_STOCK_CHANGED':
-	            var i = action.index,
-	                items = state.all,
-	                item = Object.assign({}, items[i], {
-	                inStock: payload
-	            });
+	            var item = Object.assign({}, active, { inStock: payload });
 	            return Object.assign({}, state, {
-	                all: [].concat(_toConsumableArray(items.slice(0, i)), [item, items.slice(i + 1)])
+	                all: [].concat(_toConsumableArray(all.slice(0, i)), [item, all.slice(i + 1)])
 	            });
 
 	        case 'ITEM_DETAILS_OPENED':
-	            var obj = { active: payload, detailsOpen: true };
+	            var obj = { active: payload, logOpen: true };
 	            if (action.addLog) {
-	                var _i = payload.index,
-	                    _items = state.all;
+	                var items = state.all;
 	                return Object.assign({}, state, obj, {
-	                    all: [].concat(_toConsumableArray(_items.slice(0, _i)), [payload], _toConsumableArray(_items.slice(_i + 1)))
+	                    all: [].concat(_toConsumableArray(items.slice(0, i)), [payload], _toConsumableArray(items.slice(i + 1)))
 	                });
 	            }
 	            return Object.assign({}, state, obj);

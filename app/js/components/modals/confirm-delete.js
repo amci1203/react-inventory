@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Modal from '../Modal';
 
-export default function ConfirmDelete ({ items, item, del }) {
+export default function ConfirmDelete ({ item, del }) {
 
     if (!item) return null;
 
@@ -10,7 +10,7 @@ export default function ConfirmDelete ({ items, item, del }) {
             <p className='text-center'>{'Are you sure you want to delete ' + item.name + '?'}</p>
             <button
                 className='btn btn--wide btn--danger'
-                onClick={e => del(items, item)}
+                onClick={e => del(item)}
             >CONFIRM</button>
         </Modal>
     )

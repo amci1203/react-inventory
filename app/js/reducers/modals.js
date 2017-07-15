@@ -5,9 +5,12 @@ export default (state = null, { type, payload }) => {
         case 'ACTIVE_ITEM_SET_AND_MODAL_OPEN':
             return payload.id;
         case 'MODAL_CLOSE':
+        case 'ITEM_ADDED':
+        case 'ITEM_LOGGED':
+        case 'ITEM_REMOVED':
+        case 'ITEM_EDITED':
         case 'ITEMS_ADDED':
-        case 'ITEMS_REMOVED':
-        case 'ITEMS_EDITED':
+        case 'ITEMS_LOGGED':
             return null;
         default:
             return state;

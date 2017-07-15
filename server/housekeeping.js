@@ -49,10 +49,10 @@ function getAllItems (req, res) {
 }
 
 function saveItem (req, res) {
-    if (!req.body.item.name) {
+    if (!req.body.name) {
         res.json({error: 'A name MUST be entered' })
     }
-    else Item.add(req.body.item, (err, item) => {
+    else Item.add(req.body, (err, item) => {
         if (err) res.status(500).json(error(err));
         res.json(item)
     })

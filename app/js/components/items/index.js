@@ -1,25 +1,41 @@
 import React, { Component } from 'react';
-import { connectToStore } from '../helpers';
-import { openModal } from '../actions/modals';
-import { fetchItems, setCategories, openItemDetails } from '../actions/items';
+import { connectToStore } from '../../helpers';
+import { openModal } from '../../actions/modals';
+import { fetchItems, setCategories, openItemDetails } from '../../actions/items';
 
+import CategoryGroup from './category-group';
+import ItemDetails from './details';
 
 function Items ({
-    items: { all, active },
+    items: { all, active, logOpen },
     filter,
     openModal,
     openItemDetails,
-    fetchItems,
+    fetchItems
 }) {
     if (!all) {
         fetchItems();
-        return (<section className='items'><h1>LOADING...</h1></section>)
+        return (
+            <section className='items loading'>
+                <img src='icons/loading.svg' />
+            </section>
+        )
     }
 
     const actions = { openModal, openItemDetails };
+
+    if (logOpen) {
+        const props = {
+            item: active,
+            actions,
+            logOpen
+        };
+        return (<ItemDetails {...props} />);
+    }
+
     const groupedItems = ((_items, filter, search) => {
         const
-            _search = search ? new RegExp(`^(${search})`, 'i') : null,
+            _search = search ? new RegExp(`^(${search.replace(/\s/g, '')})`, 'i') : null,
             grouped = [],
             items   = _items
                 .filter(i => matchFilter(i, filter))
@@ -50,6 +66,7 @@ function Items ({
     })(all, filter.stock, filter.nominal);
 
     const
+
         filterNotification = (f => {
             f ? (<h3>Showing: {f.toUpperCase().replace('_', '\ ')}</h3>) : null;
         })(filter.stock),
@@ -63,61 +80,6 @@ function Items ({
             { filterNotification }
             { viewableItems }
         </section>
-    )
-
-
-}
-
-function CategoryGroup ({ group: {category, items}, actions }) {
-    const
-        href = category ? category.replace(' ', '-').toLowerCase() : 'uncategorized',
-        list = items.map((item, key) => {
-            const props = { item, actions, key };
-            return <Item {...props} ></Item>
-        });
-
-    return (
-        <section className='item-group'>
-            <h1 className='item-group__category' id={href}>{category}</h1>
-            {list}
-        </section>
-    )
-
-}
-
-
-function Item ({
-    item,
-    actions: { openModal, openItemDetails }
-}) {
-    const
-        { name, inStock, lowAt, lastModified } = item,
-        isLow = lowAt > inStock,
-        _lastModified = lastModified ? `Last Updated: ${lastModified.substring(0, 10)}` : '';
-
-    return (
-        <article className={`item-card ${isLow ? 'low' : ''}`}>
-            <h1
-                className='item-card__item-name clickable'
-                onClick={() => openItemDetails(item)}
-            >{name}</h1>
-            <span className='item-card__item-stock'>{inStock}</span>
-            <span className='item-card__item-last-modified'>{_lastModified}</span>
-            <div className='item-card__options'>
-                <span
-                    className='option clickable'
-                    onClick={() => openModal('edit', item)}
-                >EDIT</span>
-                <span
-                    className='option clickable'
-                    onClick={() => openModal('log', item)}
-                >LOG</span>
-                <span
-                    className='option option--danger clickable text-danger'
-                    onClick={() => openModal('confirm-delete', item)}
-                >DELETE</span>
-            </div>
-        </article>
     )
 }
 
@@ -133,8 +95,8 @@ function matchSearch (item, search) {
         let nW = nameWords[i],
             cW = categoryWords[i];
 
-        if (nW && nW.match(search)) return true;
-        if (cW && cW.match(search)) return true;
+        if (nW && nW.replace(/\s/g, '').match(search)) return true;
+        if (cW && cW.replace(/\s/g, '').match(search)) return true;
     }
 
     return false;

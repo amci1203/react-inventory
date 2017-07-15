@@ -40,14 +40,14 @@ export default class NewItem extends Component {
             this.setState({error})
             return
         }
-        const body = { item: {
+        const body = {
             category: category.value,
             name: name.value,
             inStock: Number(inStock.value),
             lowAt: Number(lowAt.value)
-        }};
+        };
 
-        save(items, body)
+        save(body)
     }
 
     render() {

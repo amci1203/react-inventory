@@ -17,14 +17,15 @@ export function setActiveItem (payload) {
     return { type: 'ACTIVE_ITEM_SET', payload  }
 }
 
-export function openItemDetails (payload) {
-    if (!payload.log) {
-        return dispatch => get(`housekeeping/${payload._id}`, res => {
-            Object.assign(payload, { log: res.log });
-            return { type: 'ITEM_DETAILS_OPENED', payload, addLog: true }
+export function openItemDetails (item) {
+    if (!item.log) {
+        return dispatch => get(`housekeeping/${item._id}`).then(res => {
+            console.log(res.data);
+            const payload = Object.assign(item, { log: [...res.data] });
+            dispatch({ type: 'ITEM_DETAILS_OPENED', payload, i: item.index, addLog: true })
         })
     }
-    else return { type: 'ITEM_DETAILS_OPENED', payload }
+    else return { type: 'ITEM_DETAILS_OPENED', payload: item, i: item.index }
 }
 
 export function closeItemDetails () {
@@ -32,7 +33,7 @@ export function closeItemDetails () {
 }
 
 export function setStockBalance (i, payload) {
-    return { type: 'ACTIVE_ITEM_STOCK_CHANGED', index: i, payload }
+    return { type: 'ACTIVE_ITEM_STOCK_CHANGED', i, payload }
 }
 
 export function fetchItems () {
@@ -45,30 +46,9 @@ export function fetchItems () {
     });
 }
 
-export function addItem (arr, item, noDispatch) {
-    const
-        name        = item.name.toLowerCase(),
-        category    = item.category.toLowerCase(),
-        categories  = arr.map(c => c.category.toLowerCase()),
-        items       = arr.map(n => n.name.toLowerCase()),
-        categoryArr = [...categories, category].sort(),
-
-        // first & last occurence of the new item's category
-        fc = categoryArr.indexOf(category),
-        lc = categoryArr.lastIndexOf(category);
-
-        categoryItemsArr = [...items.slice(fc, lc + 1), name].sort(),
-
-        pos = fc === lc ? fc : fc + categoryItemsArr.indexOf(name),
-
-        payload = [...arr.slice(0, pos), item , ...arr.slice(pos)]
-            .map((n, i) => Object.assign(n, {index: i}))
-        ;
-
-
-    if (noDispatch) return payload;
-    return noDispatch ? payload : dispatch => {
-        post('housekeeping', item).then(res => {
+export function addItem (payload) {
+    return dispatch => {
+        post('housekeeping', payload).then(res => {
             const { err } = res.data;
             console.log(err || 'ADD OK');
             if (!err) dispatch({ type: 'ITEM_ADDED', payload });
@@ -76,23 +56,21 @@ export function addItem (arr, item, noDispatch) {
     }
 }
 
-export function editItem (arr, i, item) {
-    const
-        edited = Object.assign(item, { index: i }),
-        payload =  addItem([ ...arr.slice(0, i), ...arr.slice(i + 1)], item, true);
-    return dispatch => put(`housekeeping/${item._id}`, item).then(data => {
-
-        dispatch({ type: 'ITEM_EDITED', payload })
+export function editItem (payload) {
+    return dispatch => put(`housekeeping/${payload._id}`, payload).then(res => {
+        const { err } = res.data;
+        console.log(err || 'EDIT OK');
+        dispatch({ type: 'ITEM_EDITED', payload, i: payload.index })
     })
 }
 
-export function removeItem (arr, { index, _id }, noDispatch) {
-    const payload =  [ ...arr.slice(0, index), ...arr.slice(index + 1)];
-    return noDispatch ? payload : dispatch => {
+export function removeItem (payload) {
+    const { index, _id } = payload;
+    return dispatch => {
         axios.delete(`housekeeping/${_id}`).then(res => {
             const { err } = res.data;
             console.log(err || 'DELETE OK');
-            if (!err) dispatch({ type: 'ITEM_REMOVED', payload });
+            if (!err) dispatch({ type: 'ITEM_REMOVED', i: index });
         })
     }
 }

@@ -5,78 +5,88 @@
         font-weight: 100;
         border-bottom: 1px solid #CCC;
     }
+}
 
-    .item-card {
-        position: relative;
-        font-weight: 100;
-        margin: 1.85rem 0;
-        padding: 0.5rem 1.35rem;
-        border: 2px solid $body-bg;
-        border-radius: 15px;
+.item-card {
+    position: relative;
+    font-weight: 100;
+    margin: 1.85rem 0;
+    padding: 0.5rem 1.35rem;
+    border: 2px solid $body-bg;
+    border-radius: 15px;
 
-        &.low {
-            /*border-color: red;*/
-            background: $lowRed;
-            color: $white;
+    &.low {
+        /*border-color: red;*/
+        background: $lowRed;
+        color: $white;
 
-            .option--danger { color: inherit !important }
-        }
+        .option--danger { color: inherit !important }
+    }
 
-        @mixin atLarge {
-            display: inline-block;
-            width: 46%;
-            margin: 5px 2%;
-        }
+    &.single {
+        .item-card {
+            &__item-stock {
 
-        &__item-name {
-            font-weight: inherit;
-            font-size: 1.45rem;
-            margin: 0.25rem 0;
-            border-bottom: 1px solid #BBB;
-            width: 80%;
-        }
-
-        &__item-stock {
-            @mixin vCenter;
-            right: 15px;
-            font-size: 1.6rem;
-            font-weight: 600;
-        }
-
-        &__item-last-modified {
-            display: block;
-            width: 80%;
-            text-align: right;
-        }
-
-
-        &__options {
-            @mixin atMedium {
-                position: relative;
-                opacity: 0;
-                z-index: -100;
             }
         }
+    }
 
-        &:hover {
-            border-color: color($mainBlue a(0.8));
-            &.low { border-color: red }
-            .item-card__options {
-                position: relative;
-                opacity: 1;
-                z-index: inherit;
-            }
+    @mixin atLarge {
+        display: inline-block;
+        width: 46%;
+        margin: 5px 2%;
+    }
+
+    &__item-name {
+        font-weight: inherit;
+        font-size: 1.45rem;
+        margin: 0.25rem 0;
+        border-bottom: 1px solid #BBB;
+        width: 80%;
+    }
+
+    &:not(.single) &__item-stock {
+        @mixin vCenter;
+        right: 15px;
+        font-size: 1.6rem;
+        font-weight: 600;
+    }
+
+    &__item-last-modified {
+        display: block;
+        width: 80%;
+        text-align: right;
+    }
+
+
+    &__options {
+        @mixin atMedium {
+            position: relative;
+            opacity: 0;
+            z-index: -100;
+            padding-top: 12px;
         }
+    }
 
-        .option {
-            @mixin clickable underline;
+    &:hover {
+        border-color: color($mainBlue a(0.8));
+        &.low { border-color: red }
+        .item-card__options {
+            position: relative;
+            opacity: 1;
+            z-index: inherit;
 
-            margin: 0 5px;
-            margin-top: 7px;
-            padding: 3px 7px;
-            font-weight: 800;
-
-            &--danger { color: #C00 }
         }
+    }
+
+    .option {
+        @mixin clickable underline;
+
+        margin: 0 5px;
+        margin-top: 7px;
+        padding: 3px 7px;
+        font-weight: 800;
+
+        &--danger { color: #C00 }
     }
 }
