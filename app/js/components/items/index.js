@@ -10,12 +10,13 @@ class Items extends Component {
 
     constructor (props) {
         super(props)
+        this.addListener()
     }
 
-    componentDidMount () {
-        const { logOpen, closeItemDetails } = this.props;
-        this.closeLog = e => logOpen && e.keyCode == 27 && closeItemDetails();
-        window.addEventListener('keydown', this.closeLog)
+    addListener () {
+        const { closeItemDetails } = this.props;
+        this.closeLog = e => !this.props.activeModal && this.props.items.logOpen && e.keyCode == 27 && closeItemDetails();
+        window.addEventListener('keydown', this.closeLog);
     }
 
     componentWillUnmount () {
@@ -49,11 +50,12 @@ class Items extends Component {
         const actions = { openModal, openItemDetails, closeItemDetails };
 
         if (logOpen) {
-            const props = {
-                item: active,
-                actions,
-                logOpen
-            };
+            const
+                item = active,
+                prev = active.index === 0 ? null : all[active.index - 1],
+                next = active.index === all.length - 1 ? null : all[active.index + 1],
+                props = { item, prev, next, actions, logOpen };
+
             return (<div className='single'><ItemDetails {...props} /></div>);
         }
 
@@ -139,8 +141,8 @@ function matchFilter (item, filter) {
 
 
 const
-    state = ({items, filter}) => {
-        return { items, filter }
+    state = ({items, filter, activeModal}) => {
+        return { items, filter, activeModal }
     },
     actions = { openModal, fetchItems, openItemDetails, closeItemDetails };
 

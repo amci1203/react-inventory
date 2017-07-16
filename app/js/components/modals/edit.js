@@ -17,23 +17,12 @@ export default class EditItem extends Component {
         };
     }
 
-    componentDidUpdate () {
-        const {
-            state: { prev },
-            props: { active }
-        } = this;
-
-        if (!this.props.active) return;
-
-        // Use a semblance of a flag in state to determine if we should set the inputs
-        // A hacky fix, I know
-        if (!prev || prev != active.name) {
-            const { name, category, lowAt } = active;
-            this.name.value = name;
-            this.category.value = category;
-            this.lowAt.value = lowAt;
-            this.setState({ prev: name });
-        }
+    componentDidMount () {
+        const { name, category, lowAt } = this.props.active;
+        this.name.value = name;
+        this.category.value = category;
+        this.lowAt.value = lowAt;
+        this.setState({ prev: name });
     }
 
     checkUniqueness () {

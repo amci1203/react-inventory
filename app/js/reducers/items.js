@@ -69,7 +69,8 @@ export default (state = {}, action) => {
             }
             return Object.assign({}, state, obj);
 
-
+        case 'LOG_POSTED':
+            return state;
 
         default:
             return state;

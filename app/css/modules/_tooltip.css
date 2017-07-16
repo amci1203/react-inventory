@@ -1,22 +1,41 @@
 .tooltip {
     position: relative;
     & &-text {
-        @media print { display: none !important}
         transition: all 0.2s ease-out;
         visibility: hidden;
         opacity: 0;
         min-width: 180px;
         max-width: 270px;
         font-size: 1.15rem;
-        background-color: #111;
-        color: #FFF;
+        background: #CCC;
+        color: #333;
         text-align: center;
         border-radius: 6px;
-        box-shadow: 3px 2px 2px 1px #333;
+        box-shadow: 0 2px 1px 1px color(#333 a(0.5));
         padding: 0.35rem 0.5rem;
         /* Position the tooltip */
-        @mixin vCenter;
         left: 120%;
+        @mixin vCenter;
+        @media print { display: none !important}
+
+        &.show- {
+            &right { left: 120%  }
+            &left  { left: -180% }
+            &top  {
+                @mixin hCenter;
+                top  : -80%;
+            }
+            &bottom  {
+                @mixin hCenter;
+                top  : 140%;
+            }
+        }
+
+        @mixin atMedium {
+            min-width  : 80px;
+            max-width  : 280px;
+            font-size  : 1.05rem;
+        }
     }
     &:hover &-text {
         z-index: 1000 !important;

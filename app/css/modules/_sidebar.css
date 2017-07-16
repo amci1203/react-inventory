@@ -101,7 +101,7 @@
         }
     }
 
-    .categories-list {
+    &__list {
         padding: 0;
 
         li {
@@ -110,10 +110,13 @@
             a {
                 @mixin noTextDecoration;
                 display: block;
-                padding: 0.5rem 0.65rem;
+                width: 95%;
+                margin: 0 auto;
+                padding: 0.5rem 0.95rem;
                 color: #FFF;
+                border-radius: 40px;
 
-                &:hover {
+                &:hover, &.active {
                     background: color($sidebar-color b(+ 20));
                 }
             }

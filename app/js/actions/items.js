@@ -5,6 +5,7 @@
     ITEM_DETAILS_OPENED  : sets active item and opens up its log in the view
     ITEM_DETAILS_CLOSED  : sets active item to null and rturns to item list
     ITEMS_FETCHED        : items retrieved from server; push the array to state
+    LOG_POSTED           : pushes a log to an item's log array
     ACTIVE_ITEM_ STOCK_CHANGED    : active item's stock balance has changed
     ITEM_(REMOVED, ADDED, EDITED) : All self explanatory
 
@@ -20,7 +21,9 @@ export function setActiveItem (payload) {
 export function openItemDetails (item) {
     if (!item.log) {
         return dispatch => get(`housekeeping/${item._id}`).then(res => {
-            const payload = Object.assign(item, { log: [...res.data] });
+            const
+                log = [ ...res.data.map((l, i) => Object.assign(l, { index: i })) ],
+                payload = Object.assign(item, { log });
             dispatch({ type: 'ITEM_DETAILS_OPENED', payload, i: item.index, addLog: true })
         })
     }
@@ -74,4 +77,4 @@ export function removeItem (payload) {
     }
 }
 
-export function postLog () {}
+export function postLog (item, log) {}

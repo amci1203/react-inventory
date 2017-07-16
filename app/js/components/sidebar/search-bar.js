@@ -1,9 +1,7 @@
 import React from 'react';
-import { connectToStore } from '../../helpers';
 
-import { setSearch } from '../../actions/filters';
 
-function SearchBar ({ setSearch }) {
+export default function SearchBar ({ setSearch }) {
 
     return (
         <input
@@ -13,4 +11,3 @@ function SearchBar ({ setSearch }) {
     )
 
 }
-export default connectToStore(null, { setSearch }, SearchBar);

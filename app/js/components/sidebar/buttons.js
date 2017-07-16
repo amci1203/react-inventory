@@ -1,10 +1,7 @@
 import React from 'react';
 import { connectToStore } from '../../helpers';
 
-import { setFilter } from '../../actions/filters';
-import { openModal } from '../../actions/modals';
-
-function SidebarButtons ({ filter, openModal, setFilter }) {
+export default function SidebarButtons ({ filter, openModal, setFilter }) {
 
     const filterButton = (f => {
         let props;
@@ -44,7 +41,7 @@ function SidebarButtons ({ filter, openModal, setFilter }) {
                 <span dangerouslySetInnerHTML={{__html: props.icon}}></span>
             </span>
         )
-    })(filter.stock);
+    })(filter);
 
     return (
         <aside className='sidebar__aside-buttons'>
@@ -85,6 +82,3 @@ function SidebarButtons ({ filter, openModal, setFilter }) {
         </aside>
     )
 }
-
-const state = filter => Object.assign({}, filter);
-export default connectToStore(state, { openModal, setFilter }, SidebarButtons);

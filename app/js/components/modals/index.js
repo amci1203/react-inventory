@@ -4,6 +4,7 @@ import * as actions from '../../actions/items';
 
 // import Log           from './log'
 import NewItem       from './new';
+import LogItem       from './log';
 import EditItem      from './edit';
 import DeleteItem    from './delete';
 import ConfirmDelete from './confirm-delete';
@@ -31,13 +32,19 @@ function Modals (props) {
                             save={props.addItem}
                         />
                     )
+                case 'log':
+                    return (
+                        <LogItem
+                            item={active}
+                            log={props.postLog}
+                        />
+                    )
                 case 'delete':
                     return (
                         <DeleteItem
                             items={all}
                             names={itemList}
                             del={props.removeItem}
-                            modal={activeModal}
                         />
                     )
                 case 'edit':

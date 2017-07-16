@@ -3,6 +3,7 @@
 @import './base/globals';
 
 @import './modules/btn';
+@import './modules/caret';
 @import './modules/header';
 @import './modules/icons';
 @import './modules/item-panes';

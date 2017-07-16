@@ -24,6 +24,14 @@ export default function Log ({ log }) {
 
     return (
         <div className='log'>
+            <hr />
+            <p className='log__record log__record--headings'>
+                <span className='date'>Date</span>
+                <span>Added</span>
+                <span>Removed</span>
+                <span>Balance</span>
+            </p>
+            <hr />
             {logs}
             <button
                 className='btn btn--primary log__add-button'

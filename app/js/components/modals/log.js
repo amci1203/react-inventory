@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import axios, { post } from 'axios';
 import { debounce } from 'lodash';
+import moment from 'moment';
 import { makeErrorDiv, makeSubmitButton } from '../../helpers';
 
 import Modal from '../Modal';
@@ -38,24 +38,27 @@ export default class LogItem extends Component {
         this.setState({ error: null });
     }
 
+    checkDate () {
+        if (moment().isBefore(this.date.value, 'days')) {
+            const error = 'You cannot select a date that has yet to exist';
+            this.setState({ error });
+        }
+    }
+
     save () {
         const
             { inStock, _id } = this.props.item,
+            date    = this.date.value || moment().format('YYYY-MM-DD'),
             added   = Number(this.added.value),
             removed = Number(this.removed.value),
             balance = inStock + added - removed;
 
-        post('housekeeping/' + _id, { added, removed })
-            .then(res => this.props.onLog(balance))
-            .catch(e => console.log(e));
+        this.props.log(this.props.item, { date, added, removed, balance });
     }
 
     render() {
-        if (!this.props.active) return null;
-
         const
-            { modal, save, checkBalance } = this,
-            { active } = this.props,
+            { save, checkBalance, props: { item } } = this,
 
             error  = makeErrorDiv(this.state.error),
             submit = makeSubmitButton('SAVE', this.state.error, save);
@@ -68,14 +71,18 @@ export default class LogItem extends Component {
                     {error}
                     <div className='form-group inline'>
                         <p>Date:</p>
-                        <input />
+                        <input
+                            type='date'
+                            onChange={checkDate}
+                            ref={d => this.date = d}
+                        />
                     </div>
                     <div className="form-group inline">
                         <p>Added:</p>
                         <input
                             type='number'
                             min='0'
-                            onChange={check}
+                            onChange={checkBalance}
                             ref={a => this.added = a}
                             default='0'
                         />
@@ -85,7 +92,7 @@ export default class LogItem extends Component {
                         <input
                             type='number'
                             min='0'
-                            onChange={check}
+                            onChange={checkBalance}
                             ref={r => this.removed = r}
                             default='0'
                         />

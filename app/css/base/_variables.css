@@ -12,19 +12,19 @@
     $lighter-gray  : color($white l(- 20%));
     $lightest-gray : color($white l(- 10%));
 
-    /* CONTEXTUAL COLORS */
-    $brand-default : $lightest-gray;
-    $brand-primary : rgb(51, 122, 183);
-    $brand-success : rgb(92, 184, 92);
-    $brand-info    : rgb(91, 192, 222);
-    $brand-warning : rgb(240, 173, 78);
-    $brand-danger  : rgb(217, 83, 79);
-
     /* CUSTOM COLORS */
     $mainBlue   : rgb(35, 70, 220);
     $mainYellow : rgb(253, 188, 0);
     $mainOrange : rgb(213, 149, 65);
     $lowRed     : rgb(241, 75, 75);
+
+    /* CONTEXTUAL COLORS */
+    $brand-default : $lightest-gray;
+    $brand-primary : $mainBlue;
+    $brand-success : rgb(92, 184, 92);
+    $brand-info    : rgb(91, 192, 222);
+    $brand-warning : rgb(240, 173, 78);
+    $brand-danger  : rgb(217, 83, 79);
 
 /* COLORS END */
 
