@@ -13,6 +13,9 @@
 
 import axios, { get, post, put } from 'axios';
 import { uniq } from 'lodash';
+import moment from 'moment';
+
+window.moment = moment;
 
 export function setActiveItem (payload) {
     return { type: 'ACTIVE_ITEM_SET', payload  }
@@ -51,18 +54,18 @@ export function fetchItems () {
 export function addItem (payload) {
     return dispatch => {
         post('housekeeping', payload).then(res => {
-            const { err } = res.data;
-            console.log(err || 'ADD OK');
-            if (!err) dispatch({ type: 'ITEM_ADDED', payload });
+            const { error } = res.data;
+            console.log(error || 'ADD OK');
+            if (!error) dispatch({ type: 'ITEM_ADDED', payload });
         })
     }
 }
 
 export function editItem (payload) {
     return dispatch => put(`housekeeping/${payload._id}`, payload).then(res => {
-        const { err } = res.data;
-        console.log(err || 'EDIT OK');
-        dispatch({ type: 'ITEM_EDITED', payload, i: payload.index })
+        const { error } = res.data;
+        console.log(error || 'EDIT OK');
+        if (!error) dispatch({ type: 'ITEM_EDITED', payload, i: payload.index })
     })
 }
 
@@ -70,11 +73,21 @@ export function removeItem (payload) {
     const { index, _id } = payload;
     return dispatch => {
         axios.delete(`housekeeping/${_id}`).then(res => {
-            const { err } = res.data;
-            console.log(err || 'DELETE OK');
-            if (!err) dispatch({ type: 'ITEM_REMOVED', i: index });
+            const { error } = res.data;
+            console.log(error || 'DELETE OK');
+            if (!error) dispatch({ type: 'ITEM_REMOVED', i: index });
         })
     }
 }
 
-export function postLog (item, log) {}
+export function postLog (item, payload) {
+
+    return dispatch => {
+        axios.post(`housekeeping/${item._id}`, payload, res => {
+            const { error } = res.data;
+            console.log(error || 'LOG OK');
+            if (!error) dispatch({ type: 'LOG_POSTED', payload, i: item.index });
+        })
+    }
+
+}

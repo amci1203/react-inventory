@@ -1658,6 +1658,11 @@ table td:first-child, table th:first-child {
     background: #DDD;
 }
 
+.single .item-card.low {
+    background: inherit;
+    color: inherit;
+}
+
 .single .item-card__item-name {
     font-weight: 100;
     font-size: 2.45rem;
@@ -1694,6 +1699,10 @@ table td:first-child, table th:first-child {
             transform: none;
     font-weight: 100;
     font-size: 3.2rem;
+}
+
+.single .item-card.low .single .item-card__item-stock {
+    color: rgb(241, 75, 75);
 }
 
 .single .item-card__top-nav .prev {

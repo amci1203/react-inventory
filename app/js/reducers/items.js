@@ -70,7 +70,8 @@ export default (state = {}, action) => {
             return Object.assign({}, state, obj);
 
         case 'LOG_POSTED':
-            return state;
+            const nextActive = Object.assign(active, { log: [...active.log, payload] });
+            return Object.assign({}, state, { active: nextActive });
 
         default:
             return state;

@@ -141,9 +141,7 @@ function matchFilter (item, filter) {
 
 
 const
-    state = ({items, filter, activeModal}) => {
-        return { items, filter, activeModal }
-    },
+    state = ({items, filter, activeModal}) => Object.assign({}, { items, filter, activeModal }),
     actions = { openModal, fetchItems, openItemDetails, closeItemDetails };
 
 export default connectToStore(state, actions, Items);

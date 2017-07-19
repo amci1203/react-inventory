@@ -13,6 +13,7 @@ export default class LogItem extends Component {
 
         this.save = this.save.bind(this);
         this.checkBalance = debounce(this.checkBalance.bind(this), 200, { leading: false });
+        this.checkDate = debounce(this.checkDate.bind(this), 200, { leading: false });
 
         this.state = { error: null };
     }
@@ -32,33 +33,46 @@ export default class LogItem extends Component {
         if (inStock + added - removed < 0) {
             const error = 'That is impossible, as it would result in a negative stock level';
             this.setState({ error });
-            return;
+            return false;
         }
 
+        if (this.checkDate()) return;
+
         this.setState({ error: null });
+        return true;
     }
 
     checkDate () {
         if (moment().isBefore(this.date.value, 'days')) {
             const error = 'You cannot select a date that has yet to exist';
             this.setState({ error });
+            return false;
         }
+
+        if (this.checkBalance()) return;
+
+        this.setState({ error: null });
+        return true;
     }
 
     save () {
+        this.checkBalance();
+        this.checkDate();
+
         const
             { inStock, _id } = this.props.item,
             date    = this.date.value || moment().format('YYYY-MM-DD'),
             added   = Number(this.added.value),
             removed = Number(this.removed.value),
-            balance = inStock + added - removed;
+            balance = inStock + added - removed,
+            comments = this.comments.value;
 
-        this.props.log(this.props.item, { date, added, removed, balance });
+        this.props.log(this.props.item, { date, added, removed, balance, comments });
     }
 
     render() {
         const
-            { save, checkBalance, props: { item } } = this,
+            { save, checkBalance, checkDate, props: { item } } = this,
 
             error  = makeErrorDiv(this.state.error),
             submit = makeSubmitButton('SAVE', this.state.error, save);
@@ -96,6 +110,12 @@ export default class LogItem extends Component {
                             ref={r => this.removed = r}
                             default='0'
                         />
+                    </div>
+                    <div className='form-group'>
+                        <textarea
+                            placeholder='Comments...'
+                            ref={c => this.comments = c}
+                        ></textarea>
                     </div>
                 </form>
                 { submit }

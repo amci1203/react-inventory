@@ -9,8 +9,8 @@ export default function Log ({ log }) {
             const
                 { added, removed } = l,
                 date = moment(l.date).format('ddd, MMM DD YYYY'),
-                addClass = added > removed ? 'added strong' : 'added',
-                removeClass = added < removed ? 'removed strong' : 'removed';
+                addClass = added >= removed ? 'added strong' : 'added',
+                removeClass = added <= removed ? 'removed strong' : 'removed';
 
             return (
                 <p className='log__record' key={i}>

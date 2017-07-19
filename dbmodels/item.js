@@ -78,35 +78,33 @@ function add (item, callback) {
     this.create(item, (err, _item) => isOK(err, _item, callback))
 }
 
-function push (isById, queryVal, log, callback) {
+function push (isById, queryVal, incoming, callback) {
     const
-        query    = isById ? {_id: queryVal}  :  {name: new RegExp(`${queryVal}`)},
-        balance  = log.added - log.removed,
-        date     = log.date || currentDate(),
+        { added, removed, date } = incoming,
+        query    = isById ? { _id: queryVal }  :  { name: new RegExp(`${queryVal}`) },
+        balance  = added - removed,
         self     = this;
 
     self
         .findOne(query)
         .select('_id inStock log')
         .exec((err, doc) => {
-            if (!doc) return callback(`${item} not found.`);
+            if (!doc) return callback(`${queryVal} not found.`);
             if (err) return callback(err);
 
             const { log, inStock } = doc;
-            for (let i = 0, len = log.length; i < len; i++) {
-                if (date === log[i].date) {
-                    return callback('Log with that date is already in the database.');
-                }
+            if (log.map(d => d.date).indexOf(date) > -1) {
+                return callback('Log with that date is already in the database.');
             }
 
-            log.balance = inStock + balance;
+            incoming.balance = inStock + balance;
 
             return self.findOneAndUpdate(
                 {_id: doc._id},
                 {
                     $inc:  { inStock  : balance },
                     $push: { log : {
-                        $each: [ log ],
+                        $each: [ ...log, incoming ],
                         $sort: { date: 1 }
                     }}
                 },

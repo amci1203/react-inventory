@@ -7,7 +7,7 @@ const
     with at least an "error" field to the client.
 */
 const
-    error = e => typeof e == 'string' ? {error: e} :{ error: e.toString() },
+    error = e => typeof e == 'string' ? { error: e } :{ error: e.toString() },
     reload = () => { reload: true };
 
 
@@ -23,7 +23,7 @@ module.exports = app => {
 
     app.get('/print/:date', printDayReport);
 
-    app.get('/:itemId', getItem);
+    app.get('/:itemId', getItemLog);
     app.post('/:itemId', saveLog);
     app.put('/:itemId', editItem);
     app.delete('/:itemId', deleteItem);
@@ -80,7 +80,7 @@ function editItem (req, res) {
     })
 }
 
-function getItem (req, res) {
+function getItemLog (req, res) {
     const { itemId } = req.params;
     Item.getItemLog(itemId, (err, log) => {
         if (err) res.status(500).json(error(err));
@@ -98,18 +98,12 @@ function deleteItem (req, res) {
 }
 
 function saveLog (req, res) {
-    const
-        { body }   = req,
-        { itemId } = req.params,
-        tStamp     = new Date(),
-        date       = tStamp.toISOString().substring(0,10);
-        log        = Object.assign({}, { date }, body);
+    const { body, params: { itemId } } = req;
+    console.log(body);
 
-    console.log(log);
-
-    Item.push(true, itemId, log, (err, affected) => {
+    Item.push(true, itemId, body, (err, affected) => {
         if (err) res.json(error(err));
-        else res.end();
+        else res.json({ error: null });
     })
 }
 
