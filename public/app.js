@@ -25145,10 +25145,11 @@
 	    };
 	}
 
-	function addItem(payload) {
+	function addItem(item) {
 	    return function (dispatch) {
-	        (0, _axios.post)('housekeeping', payload).then(function (res) {
-	            var error = res.data.error;
+	        (0, _axios.post)('housekeeping', item).then(function (res) {
+	            var error = res.data.error,
+	                payload = res.data;
 
 	            console.log(error || 'ADD OK');
 	            if (!error) dispatch({ type: 'ITEM_ADDED', payload: payload });
@@ -25181,14 +25182,19 @@
 	    };
 	}
 
-	function postLog(item, payload) {
+	function postLog(item, log) {
 
 	    return function (dispatch) {
-	        _axios2.default.post('housekeeping/' + item._id, payload, function (res) {
-	            var error = res.data.error;
+	        _axios2.default.post('housekeeping/' + item._id, log).then(function (res) {
+	            var _res$data = res.data,
+	                error = _res$data.error,
+	                logs = _res$data.logs,
+	                log = logs,
+	                i = item.index,
+	                inStock = logs.slice(-1)[0].balance;
 
 	            console.log(error || 'LOG OK');
-	            if (!error) dispatch({ type: 'LOG_POSTED', payload: payload, i: item.index });
+	            if (!error) dispatch({ type: 'LOG_POSTED', inStock: inStock, log: log, i: i });
 	        });
 	    };
 	}
@@ -45838,6 +45844,7 @@
 	        case 'ITEM_EDITED':
 	        case 'ITEMS_ADDED':
 	        case 'ITEMS_LOGGED':
+	        case 'LOG_POSTED':
 	            return null;
 	        default:
 	            return state;
@@ -45888,6 +45895,8 @@
 	    var type = action.type,
 	        payload = action.payload,
 	        i = action.i,
+	        inStock = action.inStock,
+	        log = action.log,
 	        all = state.all,
 	        active = state.active;
 
@@ -45897,28 +45906,33 @@
 	            return Object.assign({}, state, payload);
 
 	        case 'ITEM_REMOVED':
+	            var rNext = [].concat(_toConsumableArray(all.slice(0, i)), _toConsumableArray(all.slice(i + 1))).map(function (item, i) {
+	                return Object.assign(item, { index: i });
+	            });
 	            return Object.assign({}, state, {
-	                all: [].concat(_toConsumableArray(all.slice(0, i)), _toConsumableArray(all.slice(i + 1)))
+	                all: rNext,
+	                active: null,
+	                logOpen: false
 	            });
 
 	        case 'ITEM_ADDED':
 	            var addPos = all.map(function (c) {
 	                return c.category;
 	            }).concat(payload.category).sort().lastIndexOf(payload.category),
-	                next = [].concat(_toConsumableArray(all.slice(0, addPos)), [payload], _toConsumableArray(all.slice(addPos))).map(function (item, i) {
+	                aNext = [].concat(_toConsumableArray(all.slice(0, addPos)), [payload], _toConsumableArray(all.slice(addPos))).map(function (item, i) {
 	                return Object.assign(item, { index: i });
 	            });
-	            return Object.assign({}, state, { all: next });
+	            return Object.assign({}, state, { all: aNext });
 
 	        case 'ITEM_EDITED':
 	            var rem = [].concat(_toConsumableArray(all.slice(0, i)), _toConsumableArray(all.slice(i + 1))),
 	                editPos = active.category == payload.category ? active.index : all.map(function (c) {
 	                return c.category;
 	            }).concat(payload.category).sort().lastIndexOf(payload.category) + 1,
-	                edited = Object.assign(payload, { index: editPos });
-	            return Object.assign({}, state, {
-	                all: [].concat(_toConsumableArray(rem.slice(0, editPos)), [edited], _toConsumableArray(rem.slice(editPos)))
+	                eNext = [].concat(_toConsumableArray(rem.slice(0, editPos)), [payload], _toConsumableArray(rem.slice(editPos))).map(function (item, i) {
+	                return Object.assign(item, { index: i });
 	            });
+	            return Object.assign({}, state, { all: eNext });
 
 	        case 'ACTIVE_ITEM_SET':
 	            return Object.assign({}, state, { active: payload });
@@ -45932,25 +45946,21 @@
 	                logOpen: false
 	            });
 
-	        case 'ACTIVE_ITEM_STOCK_CHANGED':
-	            var item = Object.assign({}, active, { inStock: payload });
-	            return Object.assign({}, state, {
-	                all: [].concat(_toConsumableArray(all.slice(0, i)), [item, all.slice(i + 1)])
-	            });
-
 	        case 'ITEM_DETAILS_OPENED':
 	            var obj = { active: payload, logOpen: true };
 	            if (action.addLog) {
-	                var items = state.all;
 	                return Object.assign({}, state, obj, {
-	                    all: [].concat(_toConsumableArray(items.slice(0, i)), [payload], _toConsumableArray(items.slice(i + 1)))
+	                    all: [].concat(_toConsumableArray(all.slice(0, i)), [payload], _toConsumableArray(all.slice(i + 1)))
 	                });
 	            }
 	            return Object.assign({}, state, obj);
 
 	        case 'LOG_POSTED':
-	            var nextActive = Object.assign(active, { log: [].concat(_toConsumableArray(active.log), [payload]) });
-	            return Object.assign({}, state, { active: nextActive });
+	            var nextActive = Object.assign(active, { log: log, inStock: inStock });
+	            return Object.assign({}, state, {
+	                all: [].concat(_toConsumableArray(all.slice(0, i)), [nextActive], _toConsumableArray(all.slice(i + 1))),
+	                active: nextActive
+	            });
 
 	        default:
 	            return state;

@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const
     mongoose = require('mongoose'),
 
@@ -78,11 +80,9 @@ function add (item, callback) {
     this.create(item, (err, _item) => isOK(err, _item, callback))
 }
 
-function push (isById, queryVal, incoming, callback) {
+function push (isById, queryVal, _log, callback) {
     const
-        { added, removed, date } = incoming,
         query    = isById ? { _id: queryVal }  :  { name: new RegExp(`${queryVal}`) },
-        balance  = added - removed,
         self     = this;
 
     self
@@ -92,26 +92,61 @@ function push (isById, queryVal, incoming, callback) {
             if (!doc) return callback(`${queryVal} not found.`);
             if (err) return callback(err);
 
-            const { log, inStock } = doc;
-            if (log.map(d => d.date).indexOf(date) > -1) {
+            if (doc.log.map(d => d.date).indexOf(_log.date) > -1) {
                 return callback('Log with that date is already in the database.');
             }
 
-            incoming.balance = inStock + balance;
+            const
+                log = calculateBalances(doc.log, _log),
+                inStock = log[log.length - 1].balance;
 
             return self.findOneAndUpdate(
                 {_id: doc._id},
-                {
-                    $inc:  { inStock  : balance },
-                    $push: { log : {
-                        $each: [ ...log, incoming ],
-                        $sort: { date: 1 }
-                    }}
-                },
+                { inStock, log },
                 { upsert: true },
-                (err, id) => isOK(err, id, callback)
+                (err, id) => isOK(err, log, callback)
             )
         })
+
+    function calculateBalances (existing, log) {
+        if ( moment(existing.slice(-1)[0].date).isBefore(log.date, 'days') ) {
+            return [...existing, log];
+        }
+
+        const
+            start = existing
+                .map(l => l.date)
+                .concat(log.date)
+                .sort()
+                .indexOf(log.date)
+            ,
+            // calculates and returns new balance from log
+            calc = ({ added, removed }) => {
+                const ans = prevBalance + added - removed;
+                prevBalance = ans;
+                return ans;
+            }
+            // begin the new array from right before where the new log will be inserted
+            arr = start === 0 ? [] : existing.slice(0, start),
+            len = existing.length;
+
+        let prevBalance = start === 0 ? 0 : existing[start - 1].balance;
+        // push the new log first;
+        arr.push( Object.assign(log, { balance: calc(log) }) )
+        // keep pushing from right after the insertion to the end
+        for (let i = start; i < len; i++) {
+            const balance = calc(existing[i]);
+            prevBalance = balance;
+            arr.push( Object.assign(existing[i], { balance }) )
+        }
+
+        console.log('EXISTING ARRAY');
+        console.log(existing);
+        console.log('START INDEX');
+        console.log(start);
+
+        return arr;
+    }
 }
 
 function editItem (_id, data, callback) {

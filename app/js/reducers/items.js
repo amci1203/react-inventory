@@ -1,6 +1,6 @@
 export default (state = {}, action) => {
     const
-        { type, payload, i } = action,
+        { type, payload, i, inStock, log } = action,
         { all, active } = state;
 
     switch (type) {
@@ -8,8 +8,12 @@ export default (state = {}, action) => {
             return Object.assign({}, state, payload);
 
         case 'ITEM_REMOVED':
+            const rNext = [...all.slice(0, i), ...all.slice(i + 1)]
+                .map((item, i) => Object.assign(item, { index: i }));
             return Object.assign({}, state, {
-                all: [...all.slice(0, i), ...all.slice(i + 1)]
+                all: rNext,
+                active: null,
+                logOpen: false
             });
 
         case 'ITEM_ADDED':
@@ -20,9 +24,9 @@ export default (state = {}, action) => {
                     .sort()
                     .lastIndexOf(payload.category)
                 ,
-                next = [...all.slice(0, addPos), payload, ...all.slice(addPos)]
+                aNext = [...all.slice(0, addPos), payload, ...all.slice(addPos)]
                     .map((item, i) => Object.assign(item, { index: i }));
-            return Object.assign({}, state, { all: next });
+            return Object.assign({}, state, { all: aNext });
 
         case 'ITEM_EDITED':
             const
@@ -35,10 +39,9 @@ export default (state = {}, action) => {
                     .sort()
                     .lastIndexOf(payload.category) + 1
                 ,
-                edited = Object.assign(payload, { index: editPos });
-            return Object.assign({}, state, {
-                all: [...rem.slice(0, editPos), edited, ...rem.slice(editPos)]
-            });
+                eNext = [...rem.slice(0, editPos), payload, ...rem.slice(editPos)]
+                    .map((item, i) => Object.assign(item, { index: i }));
+            return Object.assign({}, state, { all: eNext });
 
         case 'ACTIVE_ITEM_SET':
             return Object.assign({}, state, { active: payload })
@@ -52,26 +55,21 @@ export default (state = {}, action) => {
                 logOpen: false
             });
 
-        case 'ACTIVE_ITEM_STOCK_CHANGED':
-            const
-                item = Object.assign({}, active, { inStock: payload });
-            return Object.assign({}, state, {
-                all: [...all.slice(0, i), item, all.slice(i + 1)]
-            });
-
         case 'ITEM_DETAILS_OPENED':
             const obj = { active: payload, logOpen: true };
             if (action.addLog) {
-                const items = state.all;
                 return Object.assign({}, state, obj, {
-                    all: [...items.slice(0, i), payload, ...items.slice(i + 1)]
+                    all: [...all.slice(0, i), payload, ...all.slice(i + 1)]
                 })
             }
             return Object.assign({}, state, obj);
 
         case 'LOG_POSTED':
-            const nextActive = Object.assign(active, { log: [...active.log, payload] });
-            return Object.assign({}, state, { active: nextActive });
+            const nextActive = Object.assign(active, { log, inStock });
+            return Object.assign({}, state, {
+                all: [...all.slice(0, i), nextActive, ...all.slice(i + 1)],
+                active: nextActive
+            });
 
         default:
             return state;

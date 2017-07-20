@@ -51,10 +51,12 @@ export function fetchItems () {
     });
 }
 
-export function addItem (payload) {
+export function addItem (item) {
     return dispatch => {
-        post('housekeeping', payload).then(res => {
-            const { error } = res.data;
+        post('housekeeping', item).then(res => {
+            const
+                { error } = res.data,
+                payload = res.data;
             console.log(error || 'ADD OK');
             if (!error) dispatch({ type: 'ITEM_ADDED', payload });
         })
@@ -80,13 +82,17 @@ export function removeItem (payload) {
     }
 }
 
-export function postLog (item, payload) {
+export function postLog (item, log) {
 
     return dispatch => {
-        axios.post(`housekeeping/${item._id}`, payload, res => {
-            const { error } = res.data;
+        axios.post(`housekeeping/${item._id}`, log).then(res => {
+            const
+                { error, logs } = res.data,
+                log = logs,
+                i = item.index,
+                inStock = logs.slice(-1)[0].balance;
             console.log(error || 'LOG OK');
-            if (!error) dispatch({ type: 'LOG_POSTED', payload, i: item.index });
+            if (!error) dispatch({ type: 'LOG_POSTED', inStock, log, i });
         })
     }
 
