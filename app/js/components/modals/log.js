@@ -25,6 +25,7 @@ export default class LogItem extends Component {
     }
 
     checkBalance () {
+        if (!this.added) return;
         const
             { inStock } = this.props.item,
             added   = Number(this.added.value),
@@ -43,6 +44,7 @@ export default class LogItem extends Component {
     }
 
     checkDate () {
+        if (!this.date) return;
         if (moment().isBefore(this.date.value, 'days')) {
             const error = 'You cannot select a date that has yet to exist';
             this.setState({ error });

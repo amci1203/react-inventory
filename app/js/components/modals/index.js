@@ -4,11 +4,11 @@ import * as actions from '../../actions/items';
 
 // import Log           from './log'
 import NewItem       from './new';
+import NewMany       from './new-many';
 import LogItem       from './log';
 import EditItem      from './edit';
 import DeleteItem    from './delete';
 import ConfirmDelete from './confirm-delete';
-// import ConfirmDelete from './confirm-delete';
 
 function Modals (props) {
     const
@@ -30,6 +30,14 @@ function Modals (props) {
                             items={all}
                             names={itemList}
                             save={props.addItem}
+                        />
+                    )
+                case 'new-many':
+                    return (
+                        <NewMany
+                            items={all}
+                            names={itemList}
+                            saveAll={props.addManyItems}
                         />
                     )
                 case 'log':
@@ -75,5 +83,5 @@ function Modals (props) {
     )
 }
 
-const state = (items, activeModal) => Object.assign({}, items, activeModal);
+const state = ({ items, activeModal }) => ({ items, activeModal });
 export default connectToStore(state, actions, Modals)

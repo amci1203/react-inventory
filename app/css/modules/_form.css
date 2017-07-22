@@ -117,3 +117,23 @@ form {
         }
     }
 }
+
+.form-group.controls {
+    text-align: center;
+
+    .num-entries {
+        font-family: monospace;
+        font-size: 1.65rem;
+    }
+    .multi-control-button {
+        margin: 15px;
+        font-size: 1.45rem;
+        height: 2.5rem;
+        width: 2.5rem;
+        background: $mainBlue;
+        border-radius: 999px;
+        border: none;
+        color: #FFF;
+        @mixin clickable;
+    }
+}

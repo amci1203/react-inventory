@@ -71,10 +71,14 @@
             &--text {
                 line-height: calc($sidebar-buttonsW - ($sidebar-buttonsP * 2));
                 font-size: 2.5rem;
-                font-weight: 600;
                 &.shrink {
                     font-size: 1.55rem;
                 }
+                .tooltip-text {
+                    line-height: normal;
+                    font-size: 1rem;
+                }
+
             }
 
             &:hover {

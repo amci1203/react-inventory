@@ -620,6 +620,27 @@ form .form-group--inline input {
         float: left;
     }
 }
+.form-group.controls {
+    text-align: center;
+}
+.form-group.controls .num-entries {
+    font-family: monospace;
+    font-size: 1.65rem;
+}
+.form-group.controls .multi-control-button {
+    margin: 15px;
+    font-size: 1.45rem;
+    height: 2.5rem;
+    width: 2.5rem;
+    background: rgb(35, 70, 220);
+    border-radius: 999px;
+    border: none;
+    color: #FFF;
+}
+.form-group.controls .multi-control-button:hover {
+    cursor: pointer;
+    text-decoration: none;
+}
 table {
     width: 90%;
     margin: 0 auto;
@@ -1274,7 +1295,10 @@ table td:first-child, table th:first-child {
 .sidebar__aside-buttons .icon.icon.icon--text {
     line-height: calc(64px - 0.9rem);
     font-size: 2.5rem;
-    font-weight: 600;
+}
+.sidebar__aside-buttons .icon.icon.icon--text .tooltip-text {
+    line-height: normal;
+    font-size: 1rem;
 }
 .sidebar__aside-buttons .icon.icon.icon--text.shrink {
     font-size: 1.55rem;
@@ -1409,10 +1433,11 @@ table td:first-child, table th:first-child {
     transition: all 0.2s ease-out;
     visibility: hidden;
     opacity: 0;
-    min-width: 180px;
-    max-width: 270px;
+    height: auto;
+    min-width: 150px;
+    max-width: 240px;
     font-size: 1.15rem;
-    background: #CCC;
+    background: #FFF;
     color: #333;
     text-align: center;
     border-radius: 6px;
@@ -1453,7 +1478,7 @@ table td:first-child, table th:first-child {
 }
 @media (min-width: 768px) {
     .tooltip .tooltip-text {
-        min-width: 80px;
+        min-width: 210px;
         max-width: 280px;
         font-size: 1.05rem;
     }

@@ -31,7 +31,6 @@ function saveItem (req, res) {
         res.json({error: 'A name MUST be entered' })
     }
     else Item.add(req.body, (err, item) => {
-        console.log(item);
         if (err) res.status(500).json(error(err));
         res.json(item)
     })

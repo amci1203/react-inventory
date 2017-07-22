@@ -17,6 +17,16 @@ import moment from 'moment';
 
 window.moment = moment;
 
+export function fetchItems () {
+    return dispatch => get('housekeeping').then(res => {
+        const payload = {
+            all: res.data.map((n, i) => Object.assign(n, { index: i })),
+            categories: uniq(res.data.map(c => c.category))
+        };
+        dispatch({ type: 'ITEMS_FETCHED', payload });
+    });
+}
+
 export function setActiveItem (payload) {
     return { type: 'ACTIVE_ITEM_SET', payload  }
 }
@@ -41,16 +51,6 @@ export function setStockBalance (i, payload) {
     return { type: 'ACTIVE_ITEM_STOCK_CHANGED', i, payload }
 }
 
-export function fetchItems () {
-    return dispatch => get('housekeeping').then(res => {
-        const payload = {
-            all: res.data.map((n, i) => Object.assign(n, { index: i })),
-            categories: uniq(res.data.map(c => c.category))
-        };
-        dispatch({ type: 'ITEMS_FETCHED', payload });
-    });
-}
-
 export function addItem (item) {
     return dispatch => {
         post('housekeeping', item).then(res => {
@@ -60,6 +60,30 @@ export function addItem (item) {
             console.log(error || 'ADD OK');
             if (!error) dispatch({ type: 'ITEM_ADDED', payload });
         })
+    }
+}
+
+export function addManyItems (items) {
+    return dispatch => {
+        const
+            payload = [],
+            notAdded =[],
+            len = items.length;
+        let
+            completed = 0;
+
+        for (let i = 0; i < len; i++) {
+            post('housekeeping', items[i]).then(res => {
+                completed++;
+                const { error } = res.data;
+                if (error) {
+                    notAdded.push(items[i].name);
+                    console.error(error);
+                }
+                else payload.push(res.data);
+                completed === len && dispatch({ type: 'ITEMS_ADDED', payload, notAdded })
+            })
+        }
     }
 }
 

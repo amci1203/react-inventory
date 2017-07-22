@@ -68,7 +68,7 @@
 
 	var _components2 = _interopRequireDefault(_components);
 
-	var _reducers = __webpack_require__(441);
+	var _reducers = __webpack_require__(442);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
@@ -24653,7 +24653,7 @@
 
 	var _modals2 = _interopRequireDefault(_modals);
 
-	var _items = __webpack_require__(437);
+	var _items = __webpack_require__(438);
 
 	var _items2 = _interopRequireDefault(_items);
 
@@ -24828,7 +24828,7 @@
 	            case 'LOW':
 	                props = {
 	                    text: 'DEPLETED',
-	                    icon: '&#10060'
+	                    icon: '&#215;'
 	                };
 	                break;
 	            case 'DEPLETED':
@@ -24879,9 +24879,24 @@
 	                _react2.default.createElement(
 	                    'span',
 	                    { className: 'tooltip-text' },
-	                    'New item'
+	                    'New Item'
 	                ),
 	                '+'
+	            ),
+	            _react2.default.createElement(
+	                'span',
+	                {
+	                    className: 'icon icon--text shrink tooltip',
+	                    onClick: function onClick(e) {
+	                        return openModal('new-many');
+	                    }
+	                },
+	                _react2.default.createElement(
+	                    'span',
+	                    { className: 'tooltip-text' },
+	                    'Many New Item'
+	                ),
+	                '++'
 	            ),
 	            _react2.default.createElement(
 	                'span',
@@ -25068,12 +25083,13 @@
 
 	var _uniq3 = _interopRequireDefault(_uniq2);
 
+	exports.fetchItems = fetchItems;
 	exports.setActiveItem = setActiveItem;
 	exports.openItemDetails = openItemDetails;
 	exports.closeItemDetails = closeItemDetails;
 	exports.setStockBalance = setStockBalance;
-	exports.fetchItems = fetchItems;
 	exports.addItem = addItem;
+	exports.addManyItems = addManyItems;
 	exports.editItem = editItem;
 	exports.removeItem = removeItem;
 	exports.postLog = postLog;
@@ -25103,6 +25119,22 @@
 
 	window.moment = _moment2.default;
 
+	function fetchItems() {
+	    return function (dispatch) {
+	        return (0, _axios.get)('housekeeping').then(function (res) {
+	            var payload = {
+	                all: res.data.map(function (n, i) {
+	                    return Object.assign(n, { index: i });
+	                }),
+	                categories: (0, _uniq3.default)(res.data.map(function (c) {
+	                    return c.category;
+	                }))
+	            };
+	            dispatch({ type: 'ITEMS_FETCHED', payload: payload });
+	        });
+	    };
+	}
+
 	function setActiveItem(payload) {
 	    return { type: 'ACTIVE_ITEM_SET', payload: payload };
 	}
@@ -25129,22 +25161,6 @@
 	    return { type: 'ACTIVE_ITEM_STOCK_CHANGED', i: i, payload: payload };
 	}
 
-	function fetchItems() {
-	    return function (dispatch) {
-	        return (0, _axios.get)('housekeeping').then(function (res) {
-	            var payload = {
-	                all: res.data.map(function (n, i) {
-	                    return Object.assign(n, { index: i });
-	                }),
-	                categories: (0, _uniq3.default)(res.data.map(function (c) {
-	                    return c.category;
-	                }))
-	            };
-	            dispatch({ type: 'ITEMS_FETCHED', payload: payload });
-	        });
-	    };
-	}
-
 	function addItem(item) {
 	    return function (dispatch) {
 	        (0, _axios.post)('housekeeping', item).then(function (res) {
@@ -25154,6 +25170,32 @@
 	            console.log(error || 'ADD OK');
 	            if (!error) dispatch({ type: 'ITEM_ADDED', payload: payload });
 	        });
+	    };
+	}
+
+	function addManyItems(items) {
+	    return function (dispatch) {
+	        var payload = [],
+	            notAdded = [],
+	            len = items.length;
+	        var completed = 0;
+
+	        var _loop = function _loop(i) {
+	            (0, _axios.post)('housekeeping', items[i]).then(function (res) {
+	                completed++;
+	                var error = res.data.error;
+
+	                if (error) {
+	                    notAdded.push(items[i].name);
+	                    console.error(error);
+	                } else payload.push(res.data);
+	                completed === len && dispatch({ type: 'ITEMS_ADDED', payload: payload, notAdded: notAdded });
+	            });
+	        };
+
+	        for (var i = 0; i < len; i++) {
+	            _loop(i);
+	        }
 	    };
 	}
 
@@ -43946,19 +43988,23 @@
 
 	var _new2 = _interopRequireDefault(_new);
 
-	var _log = __webpack_require__(433);
+	var _newMany = __webpack_require__(433);
+
+	var _newMany2 = _interopRequireDefault(_newMany);
+
+	var _log = __webpack_require__(434);
 
 	var _log2 = _interopRequireDefault(_log);
 
-	var _edit = __webpack_require__(434);
+	var _edit = __webpack_require__(435);
 
 	var _edit2 = _interopRequireDefault(_edit);
 
-	var _delete = __webpack_require__(435);
+	var _delete = __webpack_require__(436);
 
 	var _delete2 = _interopRequireDefault(_delete);
 
-	var _confirmDelete = __webpack_require__(436);
+	var _confirmDelete = __webpack_require__(437);
 
 	var _confirmDelete2 = _interopRequireDefault(_confirmDelete);
 
@@ -43966,8 +44012,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	// import ConfirmDelete from './confirm-delete';
-
+	// import Log           from './log'
 	function Modals(props) {
 	    var _props$items = props.items,
 	        all = _props$items.all,
@@ -43999,6 +44044,12 @@
 	                    items: all,
 	                    names: itemList,
 	                    save: props.addItem
+	                });
+	            case 'new-many':
+	                return _react2.default.createElement(_newMany2.default, {
+	                    items: all,
+	                    names: itemList,
+	                    saveAll: props.addManyItems
 	                });
 	            case 'log':
 	                return _react2.default.createElement(_log2.default, {
@@ -44043,11 +44094,10 @@
 	    );
 	}
 
-	// import Log           from './log'
-
-
-	var state = function state(items, activeModal) {
-	    return Object.assign({}, items, activeModal);
+	var state = function state(_ref2) {
+	    var items = _ref2.items,
+	        activeModal = _ref2.activeModal;
+	    return { items: items, activeModal: activeModal };
 	};
 	exports.default = (0, _helpers.connectToStore)(state, actions, Modals);
 
@@ -44671,6 +44721,275 @@
 	    value: true
 	});
 
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactDom = __webpack_require__(37);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+
+	var _axios = __webpack_require__(281);
+
+	var _helpers = __webpack_require__(230);
+
+	var _Modal = __webpack_require__(432);
+
+	var _Modal2 = _interopRequireDefault(_Modal);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var NewMany = function (_Component) {
+	    _inherits(NewMany, _Component);
+
+	    function NewMany(props) {
+	        _classCallCheck(this, NewMany);
+
+	        var _this = _possibleConstructorReturn(this, (NewMany.__proto__ || Object.getPrototypeOf(NewMany)).call(this, props));
+
+	        _this.save = _this.save.bind(_this);
+	        _this.checkUniqueness = _this.checkUniqueness.bind(_this);
+	        _this.changeNumEntries = _this.changeNumEntries.bind(_this);
+
+	        _this.state = {
+	            error: null,
+	            adding: 5
+	        };
+	        return _this;
+	    }
+
+	    _createClass(NewMany, [{
+	        key: 'componentWillMount',
+	        value: function componentWillMount() {
+	            this.forms = [];
+	        }
+	    }, {
+	        key: 'changeNumEntries',
+	        value: function changeNumEntries(str) {
+	            var adding = this.state.adding;
+
+	            switch (str) {
+	                case 'INC':
+	                    adding < 20 && this.setState({ adding: adding + 1 });
+	                    break;
+	                case 'DEC':
+	                    adding > 2 && this.setState({ adding: adding - 1 });
+	                    break;
+	                default:
+	                    return false;
+	            }
+
+	            return false;
+	        }
+	    }, {
+	        key: 'checkUniqueness',
+	        value: function checkUniqueness(str) {
+	            var names = this.props.names,
+	                name = str.toLowerCase();
+
+
+	            if (names.indexOf(name) > -1) {
+	                var error = 'An item with the name "' + name + '" already exists';
+	                this.setState({ error: error });
+	                return;
+	            }
+
+	            this.setState({ error: null });
+	        }
+	    }, {
+	        key: 'save',
+	        value: function save() {
+	            var _this2 = this;
+
+	            var submit = (0, _reactDom.findDOMNode)(this.submit),
+	                entries = this.forms.slice(0, this.state.adding).map(function (form) {
+	                return {
+	                    category: _this2.category.value || 'Uncategorized',
+	                    name: form.name.value,
+	                    inStock: form.inStock.value || 0,
+	                    lowAt: form.lowAt.value || 0
+	                };
+	            }),
+	                names = entries.map(function (e) {
+	                return e.name.toLowerCase();
+	            }),
+	                items = this.props.names,
+	                len = names.length;
+
+	            submit.setAttribute('disabled', 'disabled');
+
+	            for (var i = 0; i < len; i++) {
+	                if (names[i].trim() === '') {
+	                    var error = 'Every item should at least have a name';
+	                    this.setState({ error: error });
+	                    submit.removeAttribute('disabled');
+	                    return;
+	                }
+	                var index = items.indexOf(names[i]);
+	                if (index > -1) {
+	                    var _error = 'An item with the name "' + items[index] + '" already exists';
+	                    this.setState({ error: _error });
+	                    submit.removeAttribute('disabled');
+	                    return;
+	                }
+	            }
+
+	            this.props.saveAll(entries);
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this3 = this;
+
+	            if (!this.props.items) return null;
+
+	            var props = this.props,
+	                save = this.save,
+	                changeNumEntries = this.changeNumEntries,
+	                error = (0, _helpers.makeErrorDiv)(this.state.error),
+	                entries = [],
+	                len = this.state.adding,
+	                controls = _react2.default.createElement(
+	                'div',
+	                { className: 'form-group controls' },
+	                _react2.default.createElement(
+	                    'button',
+	                    {
+	                        className: 'multi-control-button',
+	                        onClick: function onClick(e) {
+	                            return changeNumEntries('DEC');
+	                        }
+	                    },
+	                    '-'
+	                ),
+	                _react2.default.createElement(
+	                    'span',
+	                    { className: 'num-entries' },
+	                    this.state.adding
+	                ),
+	                _react2.default.createElement(
+	                    'button',
+	                    {
+	                        className: 'multi-control-button',
+	                        onClick: function onClick(e) {
+	                            return changeNumEntries('INC');
+	                        }
+	                    },
+	                    '+'
+	                )
+	            );
+
+	            var _loop = function _loop(i) {
+	                _this3.forms.push({});
+	                entries.push(_react2.default.createElement(
+	                    'form',
+	                    {
+	                        key: i,
+	                        className: 'form-group'
+	                    },
+	                    _react2.default.createElement('input', {
+	                        type: 'text',
+	                        name: 'name',
+	                        placeholder: 'Name...',
+	                        ref: function ref(e) {
+	                            return _this3.forms[i].name = e;
+	                        }
+	                    }),
+	                    _react2.default.createElement('input', {
+	                        type: 'number',
+	                        name: 'inStock',
+	                        placeholder: 'In Stock...',
+	                        'default': '0',
+	                        min: '0',
+	                        ref: function ref(e) {
+	                            return _this3.forms[i].inStock = e;
+	                        }
+	                    }),
+	                    _react2.default.createElement('input', {
+	                        type: 'number',
+	                        name: 'lowAt',
+	                        placeholder: 'Low At...',
+	                        'default': '0',
+	                        min: '0',
+	                        ref: function ref(e) {
+	                            return _this3.forms[i].lowAt = e;
+	                        }
+	                    })
+	                ));
+	            };
+
+	            for (var i = 0; i < len; i++) {
+	                _loop(i);
+	            }
+
+	            return _react2.default.createElement(
+	                _Modal2.default,
+	                { id: 'new-many' },
+	                _react2.default.createElement(
+	                    'h1',
+	                    { className: 'section-title' },
+	                    'NEW ITEM'
+	                ),
+	                controls,
+	                _react2.default.createElement(
+	                    'form',
+	                    { className: 'multi-form' },
+	                    error,
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'form-group inline' },
+	                        _react2.default.createElement(
+	                            'p',
+	                            null,
+	                            'Category'
+	                        ),
+	                        _react2.default.createElement('input', {
+	                            list: 'categories-list',
+	                            ref: function ref(c) {
+	                                return _this3.category = c;
+	                            }
+	                        })
+	                    )
+	                ),
+	                entries,
+	                _react2.default.createElement(
+	                    'button',
+	                    {
+	                        className: 'submit',
+	                        ref: function ref(s) {
+	                            return _this3.submit = s;
+	                        },
+	                        onClick: save
+	                    },
+	                    'SAVE'
+	                )
+	            );
+	        }
+	    }]);
+
+	    return NewMany;
+	}(_react.Component);
+
+	exports.default = NewMany;
+
+/***/ }),
+/* 434 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
 	var _debounce2 = __webpack_require__(428);
 
 	var _debounce3 = _interopRequireDefault(_debounce2);
@@ -44728,6 +45047,8 @@
 	    }, {
 	        key: 'checkBalance',
 	        value: function checkBalance() {
+	            if (!this.added) return;
+
 	            var inStock = this.props.item.inStock,
 	                added = Number(this.added.value),
 	                removed = Number(this.removed.value);
@@ -44747,6 +45068,7 @@
 	    }, {
 	        key: 'checkDate',
 	        value: function checkDate() {
+	            if (!this.date) return;
 	            if ((0, _moment2.default)().isBefore(this.date.value, 'days')) {
 	                var error = 'You cannot select a date that has yet to exist';
 	                this.setState({ error: error });
@@ -44880,7 +45202,7 @@
 	exports.default = LogItem;
 
 /***/ }),
-/* 434 */
+/* 435 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45068,7 +45390,7 @@
 	exports.default = EditItem;
 
 /***/ }),
-/* 435 */
+/* 436 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45214,7 +45536,7 @@
 	exports.default = DeleteItem;
 
 /***/ }),
-/* 436 */
+/* 437 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45263,7 +45585,7 @@
 	}
 
 /***/ }),
-/* 437 */
+/* 438 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45284,11 +45606,11 @@
 
 	var _items2 = __webpack_require__(232);
 
-	var _categoryGroup = __webpack_require__(438);
+	var _categoryGroup = __webpack_require__(439);
 
 	var _categoryGroup2 = _interopRequireDefault(_categoryGroup);
 
-	var _details = __webpack_require__(439);
+	var _details = __webpack_require__(440);
 
 	var _details2 = _interopRequireDefault(_details);
 
@@ -45470,7 +45792,7 @@
 	exports.default = (0, _helpers.connectToStore)(state, actions, Items);
 
 /***/ }),
-/* 438 */
+/* 439 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45484,7 +45806,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _details = __webpack_require__(439);
+	var _details = __webpack_require__(440);
 
 	var _details2 = _interopRequireDefault(_details);
 
@@ -45515,7 +45837,7 @@
 	}
 
 /***/ }),
-/* 439 */
+/* 440 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45529,7 +45851,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _log = __webpack_require__(440);
+	var _log = __webpack_require__(441);
 
 	var _log2 = _interopRequireDefault(_log);
 
@@ -45681,7 +46003,7 @@
 	}
 
 /***/ }),
-/* 440 */
+/* 441 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45783,7 +46105,7 @@
 	}
 
 /***/ }),
-/* 441 */
+/* 442 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45794,15 +46116,15 @@
 
 	var _redux = __webpack_require__(184);
 
-	var _modals = __webpack_require__(442);
+	var _modals = __webpack_require__(443);
 
 	var _modals2 = _interopRequireDefault(_modals);
 
-	var _filters = __webpack_require__(443);
+	var _filters = __webpack_require__(444);
 
 	var _filters2 = _interopRequireDefault(_filters);
 
-	var _items = __webpack_require__(444);
+	var _items = __webpack_require__(445);
 
 	var _items2 = _interopRequireDefault(_items);
 
@@ -45817,7 +46139,7 @@
 	exports.default = root;
 
 /***/ }),
-/* 442 */
+/* 443 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -45852,7 +46174,7 @@
 	};
 
 /***/ }),
-/* 443 */
+/* 444 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -45878,14 +46200,20 @@
 	};
 
 /***/ }),
-/* 444 */
-/***/ (function(module, exports) {
+/* 445 */
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
+
+	var _uniq2 = __webpack_require__(233);
+
+	var _uniq3 = _interopRequireDefault(_uniq2);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -45908,9 +46236,13 @@
 	        case 'ITEM_REMOVED':
 	            var rNext = [].concat(_toConsumableArray(all.slice(0, i)), _toConsumableArray(all.slice(i + 1))).map(function (item, i) {
 	                return Object.assign(item, { index: i });
-	            });
+	            }),
+	                rNextCategories = (0, _uniq3.default)(rNext.map(function (c) {
+	                return c.category;
+	            }));
 	            return Object.assign({}, state, {
 	                all: rNext,
+	                categories: rNextCategories,
 	                active: null,
 	                logOpen: false
 	            });
@@ -45921,8 +46253,29 @@
 	            }).concat(payload.category).sort().lastIndexOf(payload.category),
 	                aNext = [].concat(_toConsumableArray(all.slice(0, addPos)), [payload], _toConsumableArray(all.slice(addPos))).map(function (item, i) {
 	                return Object.assign(item, { index: i });
+	            }),
+	                aNextCategories = (0, _uniq3.default)(aNext.map(function (c) {
+	                return c.category;
+	            }));
+	            return Object.assign({}, state, {
+	                all: aNext,
+	                categories: aNextCategories
 	            });
-	            return Object.assign({}, state, { all: aNext });
+
+	        case 'ITEMS_ADDED':
+	            var addManyPos = all.map(function (c) {
+	                return c.category;
+	            }).concat(payload[0].category).sort().lastIndexOf(payload.category),
+	                amNext = [].concat(_toConsumableArray(all.slice(0, addManyPos)), _toConsumableArray(payload), _toConsumableArray(all.slice(addManyPos))).map(function (item, i) {
+	                return Object.assign(item, { index: i });
+	            }),
+	                amNextCategories = (0, _uniq3.default)(amNext.map(function (c) {
+	                return c.category;
+	            }));
+	            return Object.assign({}, state, {
+	                all: amNext,
+	                categories: amNextCategories
+	            });
 
 	        case 'ITEM_EDITED':
 	            var rem = [].concat(_toConsumableArray(all.slice(0, i)), _toConsumableArray(all.slice(i + 1))),
@@ -45931,8 +46284,14 @@
 	            }).concat(payload.category).sort().lastIndexOf(payload.category) + 1,
 	                eNext = [].concat(_toConsumableArray(rem.slice(0, editPos)), [payload], _toConsumableArray(rem.slice(editPos))).map(function (item, i) {
 	                return Object.assign(item, { index: i });
+	            }),
+	                eNextCategories = (0, _uniq3.default)(eNext.map(function (c) {
+	                return c.category;
+	            }));
+	            return Object.assign({}, state, {
+	                all: eNext,
+	                categories: eNextCategories
 	            });
-	            return Object.assign({}, state, { all: eNext });
 
 	        case 'ACTIVE_ITEM_SET':
 	            return Object.assign({}, state, { active: payload });

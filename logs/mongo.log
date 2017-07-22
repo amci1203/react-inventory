@@ -216,3 +216,15 @@
 2017-07-19T21:13:06.557-0400 I NETWORK  [initandlisten] connection accepted from 127.0.0.1:55885 #52 (1 connection now open)
 2017-07-19T21:13:06.878-0400 I INDEX    [conn52] build index on: housekeeping.items properties: { v: 1, unique: true, key: { log.date: 1 }, name: "log.date_1", ns: "housekeeping.items", background: true }
 2017-07-19T21:13:06.891-0400 I COMMAND  [conn52] command housekeeping.$cmd command: createIndexes { createIndexes: "items", indexes: [ { name: "log.date_1", key: { log.date: 1 }, unique: true, background: true } ], writeConcern: { w: 1 } } keyUpdates:0 writeConflicts:0 exception: E11000 duplicate key error collection: housekeeping.items index: log.date_1 dup key: { : "2016-12-07" } code:11000 numYields:0 reslen:163 locks:{ Global: { acquireCount: { r: 1, w: 1 } }, Database: { acquireCount: { w: 1, W: 2 } }, Collection: { acquireCount: { w: 1 } }, Metadata: { acquireCount: { W: 1 } } } protocol:op_query 302ms
+2017-07-21T21:53:01.870-0400 I NETWORK  [initandlisten] connection accepted from 127.0.0.1:62043 #53 (2 connections now open)
+2017-07-21T21:53:01.888-0400 I NETWORK  [initandlisten] connection accepted from 127.0.0.1:62044 #54 (3 connections now open)
+2017-07-21T21:53:01.888-0400 I NETWORK  [initandlisten] connection accepted from 127.0.0.1:62045 #55 (4 connections now open)
+2017-07-21T21:53:01.889-0400 I NETWORK  [initandlisten] connection accepted from 127.0.0.1:62046 #56 (5 connections now open)
+2017-07-21T22:44:32.385-0400 I NETWORK  [conn56] end connection 127.0.0.1:62046 (4 connections now open)
+2017-07-21T22:44:32.385-0400 I NETWORK  [conn55] end connection 127.0.0.1:62045 (4 connections now open)
+2017-07-21T22:44:32.385-0400 I NETWORK  [conn54] end connection 127.0.0.1:62044 (4 connections now open)
+2017-07-21T22:44:32.385-0400 I NETWORK  [conn53] end connection 127.0.0.1:62043 (4 connections now open)
+2017-07-21T22:44:32.385-0400 I NETWORK  [conn52] end connection 127.0.0.1:55885 (4 connections now open)
+2017-07-21T22:44:35.135-0400 I NETWORK  [initandlisten] connection accepted from 127.0.0.1:58331 #57 (1 connection now open)
+2017-07-21T22:44:36.212-0400 I INDEX    [conn57] build index on: housekeeping.items properties: { v: 1, unique: true, key: { log.date: 1 }, name: "log.date_1", ns: "housekeeping.items", background: true }
+2017-07-21T22:44:36.212-0400 I COMMAND  [conn57] command housekeeping.$cmd command: createIndexes { createIndexes: "items", indexes: [ { name: "log.date_1", key: { log.date: 1 }, unique: true, background: true } ], writeConcern: { w: 1 } } keyUpdates:0 writeConflicts:0 exception: E11000 duplicate key error collection: housekeeping.items index: log.date_1 dup key: { : "2016-12-07" } code:11000 numYields:0 reslen:163 locks:{ Global: { acquireCount: { r: 1, w: 1 } }, Database: { acquireCount: { w: 1, W: 2 } }, Collection: { acquireCount: { w: 1 } }, Metadata: { acquireCount: { W: 1 } } } protocol:op_query 1026ms

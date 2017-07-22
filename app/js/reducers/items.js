@@ -1,3 +1,5 @@
+import { uniq } from 'lodash';
+
 export default (state = {}, action) => {
     const
         { type, payload, i, inStock, log } = action,
@@ -8,10 +10,14 @@ export default (state = {}, action) => {
             return Object.assign({}, state, payload);
 
         case 'ITEM_REMOVED':
-            const rNext = [...all.slice(0, i), ...all.slice(i + 1)]
-                .map((item, i) => Object.assign(item, { index: i }));
+            const 
+                rNext = [...all.slice(0, i), ...all.slice(i + 1)]
+                    .map((item, i) => Object.assign(item, { index: i }))
+                ,
+                rNextCategories = uniq(rNext.map(c => c.category));
             return Object.assign({}, state, {
                 all: rNext,
+                categories: rNextCategories,
                 active: null,
                 logOpen: false
             });
@@ -25,8 +31,30 @@ export default (state = {}, action) => {
                     .lastIndexOf(payload.category)
                 ,
                 aNext = [...all.slice(0, addPos), payload, ...all.slice(addPos)]
-                    .map((item, i) => Object.assign(item, { index: i }));
-            return Object.assign({}, state, { all: aNext });
+                    .map((item, i) => Object.assign(item, { index: i }))
+                ,
+                aNextCategories = uniq(aNext.map(c => c.category));
+            return Object.assign({}, state, {
+                all: aNext,
+                categories: aNextCategories
+            });
+
+        case 'ITEMS_ADDED':
+            const
+                addManyPos = all
+                    .map(c => c.category)
+                    .concat(payload[0].category)
+                    .sort()
+                    .lastIndexOf(payload.category)
+                ,
+                amNext = [...all.slice(0, addManyPos), ...payload, ...all.slice(addManyPos)]
+                    .map((item, i) => Object.assign(item, { index: i }))
+                ,
+                amNextCategories = uniq(amNext.map(c => c.category));
+            return Object.assign({}, state, {
+                all: amNext,
+                categories: amNextCategories
+            });
 
         case 'ITEM_EDITED':
             const
@@ -40,8 +68,13 @@ export default (state = {}, action) => {
                     .lastIndexOf(payload.category) + 1
                 ,
                 eNext = [...rem.slice(0, editPos), payload, ...rem.slice(editPos)]
-                    .map((item, i) => Object.assign(item, { index: i }));
-            return Object.assign({}, state, { all: eNext });
+                    .map((item, i) => Object.assign(item, { index: i }))
+                ,
+                eNextCategories = uniq(eNext.map(c => c.category));
+            return Object.assign({}, state, {
+                all: eNext,
+                categories: eNextCategories
+            });
 
         case 'ACTIVE_ITEM_SET':
             return Object.assign({}, state, { active: payload })

@@ -4,10 +4,11 @@
         transition: all 0.2s ease-out;
         visibility: hidden;
         opacity: 0;
-        min-width: 180px;
-        max-width: 270px;
+        height: auto;
+        min-width: 150px;
+        max-width: 240px;
         font-size: 1.15rem;
-        background: #CCC;
+        background: #FFF;
         color: #333;
         text-align: center;
         border-radius: 6px;
@@ -32,7 +33,7 @@
         }
 
         @mixin atMedium {
-            min-width  : 80px;
+            min-width  : 210px;
             max-width  : 280px;
             font-size  : 1.05rem;
         }

@@ -15,7 +15,7 @@ export default function SidebarButtons ({ filter, openModal, setFilter }) {
             case 'LOW':
                 props = {
                     text: 'DEPLETED',
-                    icon: '&#10060'
+                    icon: '&#215;'
                 }
                 break;
             case 'DEPLETED':
@@ -50,8 +50,15 @@ export default function SidebarButtons ({ filter, openModal, setFilter }) {
                     className='icon icon--text tooltip'
                     onClick={e => openModal('new')}
                 >
-                    <span className='tooltip-text'>New item</span>
+                    <span className='tooltip-text'>New Item</span>
                     +
+                </span>
+                <span
+                    className='icon icon--text shrink tooltip'
+                    onClick={e => openModal('new-many')}
+                >
+                    <span className='tooltip-text'>Many New Item</span>
+                    ++
                 </span>
                 <span
                     className='icon tooltip'
