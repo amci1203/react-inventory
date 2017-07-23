@@ -111,13 +111,38 @@ export function postLog (item, log) {
     return dispatch => {
         axios.post(`housekeeping/${item._id}`, log).then(res => {
             const
-                { error, logs } = res.data,
-                log = logs,
+                { error } = res.data,
+                log = res.data,
                 i = item.index,
-                inStock = logs.slice(-1)[0].balance;
+                inStock = log.slice(-1)[0].balance;
             console.log(error || 'LOG OK');
             if (!error) dispatch({ type: 'LOG_POSTED', inStock, log, i });
         })
     }
 
+}
+
+export function postManyLogs (logs) {
+    return dispatch => {
+        const
+            payload = [],
+            notAdded = [],
+            len = logs.length;
+        let
+            completed = 0;
+
+        for (let i = 0; i < len; i++) {
+            const { added, removed, balance } = logs[i]
+            post(`housekeeping/${logs[i]._id}`, { added, removed, balance }).then(res => {
+                completed++;
+                const { error } = res.data;
+                if (error) {
+                    notAdded.push(logs[i].name);
+                    console.error(error);
+                }
+                else payload.push(res.data);
+                completed === len && dispatch({ type: 'ITEMS_ADDED', payload, notAdded })
+            })
+        }
+    }
 }

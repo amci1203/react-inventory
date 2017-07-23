@@ -68,7 +68,7 @@
 
 	var _components2 = _interopRequireDefault(_components);
 
-	var _reducers = __webpack_require__(442);
+	var _reducers = __webpack_require__(443);
 
 	var _reducers2 = _interopRequireDefault(_reducers);
 
@@ -24653,7 +24653,7 @@
 
 	var _modals2 = _interopRequireDefault(_modals);
 
-	var _items = __webpack_require__(438);
+	var _items = __webpack_require__(439);
 
 	var _items2 = _interopRequireDefault(_items);
 
@@ -24903,7 +24903,7 @@
 	                {
 	                    className: 'icon tooltip',
 	                    onClick: function onClick(e) {
-	                        return openModal('log-multi');
+	                        return openModal('log-many');
 	                    }
 	                },
 	                _react2.default.createElement(
@@ -25093,6 +25093,7 @@
 	exports.editItem = editItem;
 	exports.removeItem = removeItem;
 	exports.postLog = postLog;
+	exports.postManyLogs = postManyLogs;
 
 	var _axios = __webpack_require__(281);
 
@@ -25228,16 +25229,45 @@
 
 	    return function (dispatch) {
 	        _axios2.default.post('housekeeping/' + item._id, log).then(function (res) {
-	            var _res$data = res.data,
-	                error = _res$data.error,
-	                logs = _res$data.logs,
-	                log = logs,
+	            var error = res.data.error,
+	                log = res.data,
 	                i = item.index,
-	                inStock = logs.slice(-1)[0].balance;
+	                inStock = log.slice(-1)[0].balance;
 
 	            console.log(error || 'LOG OK');
 	            if (!error) dispatch({ type: 'LOG_POSTED', inStock: inStock, log: log, i: i });
 	        });
+	    };
+	}
+
+	function postManyLogs(logs) {
+	    return function (dispatch) {
+	        var payload = [],
+	            notAdded = [],
+	            len = logs.length;
+	        var completed = 0;
+
+	        var _loop2 = function _loop2(i) {
+	            var _logs$i = logs[i],
+	                added = _logs$i.added,
+	                removed = _logs$i.removed,
+	                balance = _logs$i.balance;
+
+	            (0, _axios.post)('housekeeping/' + logs[i]._id, { added: added, removed: removed, balance: balance }).then(function (res) {
+	                completed++;
+	                var error = res.data.error;
+
+	                if (error) {
+	                    notAdded.push(logs[i].name);
+	                    console.error(error);
+	                } else payload.push(res.data);
+	                completed === len && dispatch({ type: 'ITEMS_ADDED', payload: payload, notAdded: notAdded });
+	            });
+	        };
+
+	        for (var i = 0; i < len; i++) {
+	            _loop2(i);
+	        }
 	    };
 	}
 
@@ -43996,15 +44026,19 @@
 
 	var _log2 = _interopRequireDefault(_log);
 
-	var _edit = __webpack_require__(435);
+	var _logMany = __webpack_require__(435);
+
+	var _logMany2 = _interopRequireDefault(_logMany);
+
+	var _edit = __webpack_require__(436);
 
 	var _edit2 = _interopRequireDefault(_edit);
 
-	var _delete = __webpack_require__(436);
+	var _delete = __webpack_require__(437);
 
 	var _delete2 = _interopRequireDefault(_delete);
 
-	var _confirmDelete = __webpack_require__(437);
+	var _confirmDelete = __webpack_require__(438);
 
 	var _confirmDelete2 = _interopRequireDefault(_confirmDelete);
 
@@ -44012,7 +44046,6 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	// import Log           from './log'
 	function Modals(props) {
 	    var _props$items = props.items,
 	        all = _props$items.all,
@@ -44056,6 +44089,12 @@
 	                    item: active,
 	                    log: props.postLog
 	                });
+	            case 'log-many':
+	                return _react2.default.createElement(_logMany2.default, {
+	                    items: all,
+	                    names: itemList,
+	                    logAll: props.postManyLogs
+	                });
 	            case 'delete':
 	                return _react2.default.createElement(_delete2.default, {
 	                    items: all,
@@ -44093,6 +44132,9 @@
 	        )
 	    );
 	}
+
+	// import Log           from './log'
+
 
 	var state = function state(_ref2) {
 	    var items = _ref2.items,
@@ -45211,6 +45253,287 @@
 	    value: true
 	});
 
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactDom = __webpack_require__(37);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+
+	var _axios = __webpack_require__(281);
+
+	var _helpers = __webpack_require__(230);
+
+	var _moment = __webpack_require__(307);
+
+	var _moment2 = _interopRequireDefault(_moment);
+
+	var _Modal = __webpack_require__(432);
+
+	var _Modal2 = _interopRequireDefault(_Modal);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var LogMany = function (_Component) {
+	    _inherits(LogMany, _Component);
+
+	    function LogMany(props) {
+	        _classCallCheck(this, LogMany);
+
+	        var _this = _possibleConstructorReturn(this, (LogMany.__proto__ || Object.getPrototypeOf(LogMany)).call(this, props));
+
+	        _this.save = _this.save.bind(_this);
+	        _this.checkExistence = _this.checkExistence.bind(_this);
+	        _this.changeNumEntries = _this.changeNumEntries.bind(_this);
+
+	        _this.state = {
+	            error: null,
+	            adding: 5
+	        };
+	        return _this;
+	    }
+
+	    _createClass(LogMany, [{
+	        key: 'componentWillMount',
+	        value: function componentWillMount() {
+	            this.forms = [];
+	        }
+	    }, {
+	        key: 'changeNumEntries',
+	        value: function changeNumEntries(str) {
+	            var adding = this.state.adding;
+
+	            switch (str) {
+	                case 'INC':
+	                    adding < 20 && this.setState({ adding: adding + 1 });
+	                    break;
+	                case 'DEC':
+	                    adding > 2 && this.setState({ adding: adding - 1 });
+	                    break;
+	                default:
+	                    return false;
+	            }
+
+	            return false;
+	        }
+	    }, {
+	        key: 'checkExistence',
+	        value: function checkExistence(str) {
+	            var names = this.props.names,
+	                name = str.toLowerCase();
+
+
+	            if (names.indexOf(name) == -1) {
+	                var error = 'An item with the name "' + name + '" does not exist';
+	                this.setState({ error: error });
+	                return;
+	            }
+
+	            this.setState({ error: null });
+	        }
+	    }, {
+	        key: 'save',
+	        value: function save() {
+	            var _this2 = this;
+
+	            var submit = (0, _reactDom.findDOMNode)(this.submit),
+	                entries = this.forms.slice(0, this.state.adding).map(function (form) {
+	                return {
+	                    date: _this2.date.value || (0, _moment2.default)().format('YYYY-MM-DD'),
+	                    name: form.name.value,
+	                    added: Number(form.added.value) || 0,
+	                    removed: Number(form.removed.value) || 0
+	                };
+	            }),
+	                names = entries.map(function (e) {
+	                return e.name.toLowerCase();
+	            }),
+	                items = this.props.items,
+	                itemNames = this.props.names,
+	                len = names.length;
+
+	            submit.setAttribute('disabled', 'disabled');
+
+	            for (var i = 0; i < len; i++) {
+	                if (names[i].trim() === '') {
+	                    var error = 'Every record should be assigned to an existing item';
+	                    this.setState({ error: error });
+	                    submit.removeAttribute('disabled');
+	                    return;
+	                }
+
+	                var index = itemNames.indexOf(names[i]),
+	                    _id = index > -1 ? items[index]._id : null;
+
+	                if (index == -1) {
+	                    var _error = '"' + items[index] + '" does not exist';
+	                    this.setState({ error: _error });
+	                    submit.removeAttribute('disabled');
+	                    return;
+	                }
+
+	                Object.assign(entries[i], { _id: _id, index: index });
+	            }
+
+	            console.log(entries);
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this3 = this;
+
+	            if (!this.props.items) return null;
+
+	            var props = this.props,
+	                save = this.save,
+	                changeNumEntries = this.changeNumEntries,
+	                error = (0, _helpers.makeErrorDiv)(this.state.error),
+	                entries = [],
+	                len = this.state.adding,
+	                controls = _react2.default.createElement(
+	                'div',
+	                { className: 'form-group controls' },
+	                _react2.default.createElement(
+	                    'button',
+	                    {
+	                        className: 'multi-control-button',
+	                        onClick: function onClick(e) {
+	                            return changeNumEntries('DEC');
+	                        }
+	                    },
+	                    '-'
+	                ),
+	                _react2.default.createElement(
+	                    'span',
+	                    { className: 'num-entries' },
+	                    this.state.adding
+	                ),
+	                _react2.default.createElement(
+	                    'button',
+	                    {
+	                        className: 'multi-control-button',
+	                        onClick: function onClick(e) {
+	                            return changeNumEntries('INC');
+	                        }
+	                    },
+	                    '+'
+	                )
+	            );
+
+	            var _loop = function _loop(i) {
+	                _this3.forms.push({});
+	                entries.push(_react2.default.createElement(
+	                    'form',
+	                    {
+	                        key: i,
+	                        className: 'form-group'
+	                    },
+	                    _react2.default.createElement('input', {
+	                        type: 'text',
+	                        name: 'name',
+	                        placeholder: 'Name...',
+	                        list: 'items-list',
+	                        ref: function ref(e) {
+	                            return _this3.forms[i].name = e;
+	                        }
+	                    }),
+	                    _react2.default.createElement('input', {
+	                        type: 'number',
+	                        name: 'added',
+	                        placeholder: 'Added...',
+	                        'default': '0',
+	                        min: '0',
+	                        ref: function ref(e) {
+	                            return _this3.forms[i].added = e;
+	                        }
+	                    }),
+	                    _react2.default.createElement('input', {
+	                        type: 'number',
+	                        name: 'removed',
+	                        placeholder: 'Removed...',
+	                        'default': '0',
+	                        min: '0',
+	                        ref: function ref(e) {
+	                            return _this3.forms[i].removed = e;
+	                        }
+	                    })
+	                ));
+	            };
+
+	            for (var i = 0; i < len; i++) {
+	                _loop(i);
+	            }
+
+	            return _react2.default.createElement(
+	                _Modal2.default,
+	                { id: 'log-many' },
+	                _react2.default.createElement(
+	                    'h1',
+	                    { className: 'section-title' },
+	                    'POST RECORDS'
+	                ),
+	                controls,
+	                _react2.default.createElement(
+	                    'form',
+	                    { className: 'multi-form' },
+	                    error,
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'form-group inline' },
+	                        _react2.default.createElement(
+	                            'p',
+	                            null,
+	                            'Date'
+	                        ),
+	                        _react2.default.createElement('input', {
+	                            type: 'date',
+	                            placeholder: 'Date...',
+	                            ref: function ref(d) {
+	                                return _this3.date = d;
+	                            }
+	                        })
+	                    )
+	                ),
+	                entries,
+	                _react2.default.createElement(
+	                    'button',
+	                    {
+	                        className: 'submit',
+	                        ref: function ref(s) {
+	                            return _this3.submit = s;
+	                        },
+	                        onClick: save
+	                    },
+	                    'SAVE'
+	                )
+	            );
+	        }
+	    }]);
+
+	    return LogMany;
+	}(_react.Component);
+
+	exports.default = LogMany;
+
+/***/ }),
+/* 436 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
 	var _debounce2 = __webpack_require__(428);
 
 	var _debounce3 = _interopRequireDefault(_debounce2);
@@ -45390,7 +45713,7 @@
 	exports.default = EditItem;
 
 /***/ }),
-/* 436 */
+/* 437 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45536,7 +45859,7 @@
 	exports.default = DeleteItem;
 
 /***/ }),
-/* 437 */
+/* 438 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45585,7 +45908,7 @@
 	}
 
 /***/ }),
-/* 438 */
+/* 439 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45606,11 +45929,11 @@
 
 	var _items2 = __webpack_require__(232);
 
-	var _categoryGroup = __webpack_require__(439);
+	var _categoryGroup = __webpack_require__(440);
 
 	var _categoryGroup2 = _interopRequireDefault(_categoryGroup);
 
-	var _details = __webpack_require__(440);
+	var _details = __webpack_require__(441);
 
 	var _details2 = _interopRequireDefault(_details);
 
@@ -45792,7 +46115,7 @@
 	exports.default = (0, _helpers.connectToStore)(state, actions, Items);
 
 /***/ }),
-/* 439 */
+/* 440 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45806,7 +46129,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _details = __webpack_require__(440);
+	var _details = __webpack_require__(441);
 
 	var _details2 = _interopRequireDefault(_details);
 
@@ -45837,7 +46160,7 @@
 	}
 
 /***/ }),
-/* 440 */
+/* 441 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45851,7 +46174,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _log = __webpack_require__(441);
+	var _log = __webpack_require__(442);
 
 	var _log2 = _interopRequireDefault(_log);
 
@@ -46003,7 +46326,7 @@
 	}
 
 /***/ }),
-/* 441 */
+/* 442 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -46105,7 +46428,7 @@
 	}
 
 /***/ }),
-/* 442 */
+/* 443 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -46116,15 +46439,15 @@
 
 	var _redux = __webpack_require__(184);
 
-	var _modals = __webpack_require__(443);
+	var _modals = __webpack_require__(444);
 
 	var _modals2 = _interopRequireDefault(_modals);
 
-	var _filters = __webpack_require__(444);
+	var _filters = __webpack_require__(445);
 
 	var _filters2 = _interopRequireDefault(_filters);
 
-	var _items = __webpack_require__(445);
+	var _items = __webpack_require__(446);
 
 	var _items2 = _interopRequireDefault(_items);
 
@@ -46139,7 +46462,7 @@
 	exports.default = root;
 
 /***/ }),
-/* 443 */
+/* 444 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -46174,7 +46497,7 @@
 	};
 
 /***/ }),
-/* 444 */
+/* 445 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -46200,7 +46523,7 @@
 	};
 
 /***/ }),
-/* 445 */
+/* 446 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';

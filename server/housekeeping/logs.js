@@ -27,9 +27,9 @@ function getItemLog (req, res) {
 
 function saveLog (req, res) {
     const { body, params: { itemId } } = req;
-    Item.push(true, itemId, body, (err, logs) => {
+    Item.push(true, itemId, body, (err, log) => {
         if (err) res.json(error(err));
-        else res.json({ logs, error: null });
+        else res.json(log);
     })
 }
 

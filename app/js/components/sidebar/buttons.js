@@ -62,7 +62,7 @@ export default function SidebarButtons ({ filter, openModal, setFilter }) {
                 </span>
                 <span
                     className='icon tooltip'
-                    onClick={e => openModal('log-multi')}
+                    onClick={e => openModal('log-many')}
                 >
                     <span className='tooltip-text'>Submit Logs</span>
                     <img src='icons/log.png' />

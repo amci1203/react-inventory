@@ -59,15 +59,6 @@ function getItemLog (_id, callback) {
     ;
 }
 
-// PLAN TO DELETE. JUST WANT TO MAKE SURE ALTERNATIVE WORKS FIRST
-function getCategoryItems (category, callback) {
-    return this.find({ category })
-        .select('_id name')
-        .sort('name')
-        .exec((err, docs) => isOK(err, docs, callback))
-    ;
-}
-
 // Saves a new item; adds first log; and returns the new item to the client
 function add (item, callback) {
     item.category = item.category || 'Uncategorized';
@@ -139,11 +130,6 @@ function push (isById, queryVal, _log, callback) {
             prevBalance = balance;
             arr.push( Object.assign(existing[i], { balance }) )
         }
-
-        console.log('EXISTING ARRAY');
-        console.log(existing);
-        console.log('START INDEX');
-        console.log(start);
 
         return arr;
     }

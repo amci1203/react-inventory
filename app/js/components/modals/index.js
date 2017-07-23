@@ -6,6 +6,7 @@ import * as actions from '../../actions/items';
 import NewItem       from './new';
 import NewMany       from './new-many';
 import LogItem       from './log';
+import LogMany       from './log-many';
 import EditItem      from './edit';
 import DeleteItem    from './delete';
 import ConfirmDelete from './confirm-delete';
@@ -45,6 +46,14 @@ function Modals (props) {
                         <LogItem
                             item={active}
                             log={props.postLog}
+                        />
+                    )
+                case 'log-many':
+                    return (
+                        <LogMany
+                            items={all}
+                            names={itemList}
+                            logAll={props.postManyLogs}
                         />
                     )
                 case 'delete':
