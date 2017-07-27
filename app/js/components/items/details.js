@@ -10,7 +10,10 @@ export default function ItemDetails ({
         isLow = lowAt > inStock,
         _lastModified = lastModified ? `Last Updated: ${lastModified.substring(0, 10)}` : '',
 
-        log = logOpen ? (<Log log={item.log} />) : null,
+        log = logOpen ? (<Log
+            log={item.log}
+            openLogModal={() => openModal('log', item)} 
+        />) : null,
 
         open = logOpen ? null : (
             <span

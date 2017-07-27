@@ -104,6 +104,22 @@ export default (state = {}, action) => {
                 active: nextActive
             });
 
+        case 'LOGS_POSTED':
+            const stateAfterManyLogs = () => {
+                const
+                    next = all.slice(0),
+                    len = payload.length;
+                for (let i = 0; i < len; i++) {
+                    const { log, index, inStock } = payload[i];
+                    Object.assign(next[index], {
+                        log,
+                        inStock: log.slice(-1)[0].balance
+                    });
+                }
+                return Object.assign({}, state, { all: next });
+            };
+            return stateAfterManyLogs();
+
         default:
             return state;
     }

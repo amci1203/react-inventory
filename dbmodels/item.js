@@ -29,8 +29,15 @@ const schema = new mongoose.Schema(
 
 const
     statics = {
-        getAll, getItemLog, getCategoryItems, add, push, editItem, editItemLog, remove,
-        getRecordsForDate, checkBalances
+        getAll,
+        getItemLog,
+        add,
+        push,
+        editItem,
+        editItemLog,
+        remove,
+        getRecordsForDate,
+        checkBalances
     }
     // In case I ever decide to put some.
     methods = {};
@@ -44,7 +51,7 @@ function getAll (callback) {
     const sort = {category: 1, name: 1};
     return this
         .find({})
-        .select('-log -createdAt')
+        .select('-createdAt')
         .sort(sort)
         .exec((err, docs) => isOK(err, docs, callback))
     ;
@@ -63,7 +70,7 @@ function getItemLog (_id, callback) {
 function add (item, callback) {
     item.category = item.category || 'Uncategorized';
     item.log  = [{
-        date     : item.date || currentDate(),
+        date     : item.date || moment().format('YYYY-MM-DD'),
         added    : item.inStock,
         balance  : item.inStock,
         comments : `Added ${item.name} to inventory`
@@ -71,16 +78,12 @@ function add (item, callback) {
     this.create(item, (err, _item) => isOK(err, _item, callback))
 }
 
-function push (isById, queryVal, _log, callback) {
-    const
-        query    = isById ? { _id: queryVal }  :  { name: new RegExp(`${queryVal}`) },
-        self     = this;
-
-    self
-        .findOne(query)
+function push (_id, _log, callback) {
+    this
+        .findOne({ _id })
         .select('_id inStock log')
         .exec((err, doc) => {
-            if (!doc) return callback(`${queryVal} not found.`);
+            if (!doc) return callback('No item with the specified _id found');
             if (err) return callback(err);
 
             if (doc.log.map(d => d.date).indexOf(_log.date) > -1) {
@@ -89,9 +92,9 @@ function push (isById, queryVal, _log, callback) {
 
             const
                 log = calculateBalances(doc.log, _log),
-                inStock = log[log.length - 1].balance;
+                inStock = log.slice(-1)[0].balance;
 
-            return self.findOneAndUpdate(
+            return this.findOneAndUpdate(
                 {_id: doc._id},
                 { inStock, log },
                 { upsert: true },
@@ -101,7 +104,10 @@ function push (isById, queryVal, _log, callback) {
 
     function calculateBalances (existing, log) {
         if ( moment(existing.slice(-1)[0].date).isBefore(log.date, 'days') ) {
-            return [...existing, log];
+            const
+                balance = existing.slice(-1)[0].balance + log.added - log.removed,
+                insert  = Object.assign(log, { balance });
+            return [...existing, insert];
         }
 
         const
@@ -248,12 +254,6 @@ function checkBalances (id, log, callback) {
 module.exports = mongoose.model('Item', schema)
 
 
-
-function currentDate () {
-    const d = new Date();
-    return d.toISOString().substring(0, 10);
-}
-
 function isOK (err, data, cb) {
     if (err) {
         console.error(err.toString());
@@ -262,30 +262,4 @@ function isOK (err, data, cb) {
     }
     if (typeof cb == 'function') cb(null, data);
     return true;
-}
-
-function correctBalances (itemId, logId, balance) {
-    const id = { _id: itemId };
-    this
-        .findOne(id)
-        .select('log')
-        .exec((err, doc) => {
-            if (err) return err;
-
-            const
-                { log } = doc,
-                len = log.length,
-                start = log.map(l => l._id).indexOf(logId) + 1;
-            let prev = balance;
-
-            for (let i = start; i < len; i++) {
-                const balance = prev + log[i].added - log[i].removed;
-                Object.assign(log[i], { balance });
-                prev = balance;
-            }
-
-            this.update(id, { $set: { log } }, { upsert: false }, err => {
-                isOK(err, log, callback);
-            })
-        })
 }

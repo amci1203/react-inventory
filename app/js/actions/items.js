@@ -132,16 +132,16 @@ export function postManyLogs (logs) {
             completed = 0;
 
         for (let i = 0; i < len; i++) {
-            const { added, removed, balance } = logs[i]
-            post(`housekeeping/${logs[i]._id}`, { added, removed, balance }).then(res => {
+            const { body, _id, name, index } = logs[i];
+            post(`housekeeping/${_id}`, body).then(res => {
                 completed++;
                 const { error } = res.data;
                 if (error) {
-                    notAdded.push(logs[i].name);
+                    notAdded.push(name);
                     console.error(error);
                 }
-                else payload.push(res.data);
-                completed === len && dispatch({ type: 'ITEMS_ADDED', payload, notAdded })
+                else payload.push( Object.assign({}, { log: res.data, index }) );
+                completed === len && dispatch({ type: 'LOGS_POSTED', payload, notAdded })
             })
         }
     }

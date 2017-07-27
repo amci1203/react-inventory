@@ -69,7 +69,7 @@ export default class LogItem extends Component {
             balance = inStock + added - removed,
             comments = this.comments.value;
 
-        this.props.log(this.props.item, { date, added, removed, balance, comments });
+        this.props.log(this.props.item, { date, added, removed, comments });
     }
 
     render() {

@@ -12,6 +12,7 @@ export default (state = null, { type, payload }) => {
         case 'ITEMS_ADDED':
         case 'ITEMS_LOGGED':
         case 'LOG_POSTED':
+        case 'LOGS_POSTED':
             return null;
         default:
             return state;

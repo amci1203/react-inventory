@@ -10,7 +10,6 @@ const
 module.exports = {
     getItemLog,
     saveLog,
-    saveManyLogs,
     editItemLog,
     printDayReport
 };
@@ -27,32 +26,9 @@ function getItemLog (req, res) {
 
 function saveLog (req, res) {
     const { body, params: { itemId } } = req;
-    Item.push(true, itemId, body, (err, log) => {
+    Item.push(itemId, body, (err, log) => {
         if (err) res.json(error(err));
         else res.json(log);
-    })
-}
-
-function saveManyLogs (req, res) {
-    const
-        { itemLogs, date } = req.body,
-        tStamp = new Date(),
-        today  = tStamp.toISOString().substring(0,10),
-        _date  = date || today,
-        nLogs  = itemLogs.length;
-
-    let savesCompleted = 0;
-
-    itemLogs.forEach(item => {
-        const { log, name } = item;
-
-        Item.push(false, name, log, (err) => {
-            if (err) res.json(error(err));
-            else {
-                savesCompleted++
-                if (savesCompleted === nLogs) res.end();
-            }
-        })
     })
 }
 

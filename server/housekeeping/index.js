@@ -8,9 +8,6 @@ module.exports = app => {
     app.get('/', getAllItems);
     app.post('/', saveItem);
 
-    app.post('/items', saveManyItems);
-    app.post('/logs', saveManyLogs);
-
     // app.get('/utils/fix-logs', fixBalances);
 
     app.get('/print/:date', printDayReport);

@@ -75,17 +75,19 @@ export default function SidebarButtons ({ filter, openModal, setFilter }) {
                     <img src='icons/delete.png' />
                 </span>
             </div>
-            <div className='sidebar__aside-buttons__bottom'>
-                <span
-                    className='icon tooltip'
-                    onClick={() => {}}
-                >
-                    <span className='tooltip-text'>Print Day Report</span>
-                    <img src='icons/print.png' />
-                </span>
-                {filterButton}
-                <span className='icon icon--text'>?</span>
-            </div>
         </aside>
     )
 }
+            // NOT IMPLEMENTED AS YET
+            //
+            //  <div className='sidebar__aside-buttons__bottom'>
+            //     <span
+            //         className='icon tooltip'
+            //         onClick={() => {}}
+            //     >
+            //         <span className='tooltip-text'>Print Day Report</span>
+            //         <img src='icons/print.png' />
+            //     </span>
+            //     {filterButton}
+            //     <span className='icon icon--text'>?</span>
+            // </div> 

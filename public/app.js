@@ -24928,32 +24928,22 @@
 	                ),
 	                _react2.default.createElement('img', { src: 'icons/delete.png' })
 	            )
-	        ),
-	        _react2.default.createElement(
-	            'div',
-	            { className: 'sidebar__aside-buttons__bottom' },
-	            _react2.default.createElement(
-	                'span',
-	                {
-	                    className: 'icon tooltip',
-	                    onClick: function onClick() {}
-	                },
-	                _react2.default.createElement(
-	                    'span',
-	                    { className: 'tooltip-text' },
-	                    'Print Day Report'
-	                ),
-	                _react2.default.createElement('img', { src: 'icons/print.png' })
-	            ),
-	            filterButton,
-	            _react2.default.createElement(
-	                'span',
-	                { className: 'icon icon--text' },
-	                '?'
-	            )
 	        )
 	    );
 	}
+	// NOT IMPLEMENTED AS YET
+	//
+	//  <div className='sidebar__aside-buttons__bottom'>
+	//     <span
+	//         className='icon tooltip'
+	//         onClick={() => {}}
+	//     >
+	//         <span className='tooltip-text'>Print Day Report</span>
+	//         <img src='icons/print.png' />
+	//     </span>
+	//     {filterButton}
+	//     <span className='icon icon--text'>?</span>
+	// </div>
 
 /***/ }),
 /* 230 */
@@ -25249,19 +25239,20 @@
 
 	        var _loop2 = function _loop2(i) {
 	            var _logs$i = logs[i],
-	                added = _logs$i.added,
-	                removed = _logs$i.removed,
-	                balance = _logs$i.balance;
+	                body = _logs$i.body,
+	                _id = _logs$i._id,
+	                name = _logs$i.name,
+	                index = _logs$i.index;
 
-	            (0, _axios.post)('housekeeping/' + logs[i]._id, { added: added, removed: removed, balance: balance }).then(function (res) {
+	            (0, _axios.post)('housekeeping/' + _id, body).then(function (res) {
 	                completed++;
 	                var error = res.data.error;
 
 	                if (error) {
-	                    notAdded.push(logs[i].name);
+	                    notAdded.push(name);
 	                    console.error(error);
-	                } else payload.push(res.data);
-	                completed === len && dispatch({ type: 'ITEMS_ADDED', payload: payload, notAdded: notAdded });
+	                } else payload.push(Object.assign({}, { log: res.data, index: index }));
+	                completed === len && dispatch({ type: 'LOGS_POSTED', payload: payload, notAdded: notAdded });
 	            });
 	        };
 
@@ -45138,7 +45129,7 @@
 	                comments = this.comments.value;
 
 
-	            this.props.log(this.props.item, { date: date, added: added, removed: removed, balance: balance, comments: comments });
+	            this.props.log(this.props.item, { date: date, added: added, removed: removed, comments: comments });
 	        }
 	    }, {
 	        key: 'render',
@@ -45292,7 +45283,7 @@
 	        var _this = _possibleConstructorReturn(this, (LogMany.__proto__ || Object.getPrototypeOf(LogMany)).call(this, props));
 
 	        _this.save = _this.save.bind(_this);
-	        _this.checkExistence = _this.checkExistence.bind(_this);
+	        _this.isCleared = _this.isCleared.bind(_this);
 	        _this.changeNumEntries = _this.changeNumEntries.bind(_this);
 
 	        _this.state = {
@@ -45326,70 +45317,96 @@
 	            return false;
 	        }
 	    }, {
-	        key: 'checkExistence',
-	        value: function checkExistence(str) {
-	            var names = this.props.names,
-	                name = str.toLowerCase();
+	        key: 'isCleared',
+	        value: function isCleared(i) {
+	            var _this2 = this;
 
+	            var hasError = function hasError(error) {
+	                return _this2.setState({ error: error });
+	            },
+	                form = this.forms[i],
+	                date = this.date.value || (0, _moment2.default)().format('YYYY-MM-DD'),
+	                name = form.name.value,
+	                added = form.added.value,
+	                removed = form.removed.value,
+	                formNames = this.forms.map(function (n) {
+	                return n.name;
+	            }),
+	                allItems = this.props.items,
+	                validNames = this.props.names,
+	                len = formNames.length,
+	                index = validNames.indexOf(name.toLowerCase()),
+	                _ref = allItems[index] || {},
+	                _id = _ref._id,
+	                log = _ref.log,
+	                inStock = _ref.inStock;
 
-	            if (names.indexOf(name) == -1) {
-	                var error = 'An item with the name "' + name + '" does not exist';
-	                this.setState({ error: error });
-	                return;
+	            if (name.trim() === '') {
+	                hasError('Every record should be assigned to an existing item');
+	                return false;
+	            }
+
+	            if (index == -1) {
+	                hasError('"' + name + '" does not exist');
+	                return false;
+	            }
+
+	            if (formNames.indexOf(name) !== formNames.lastIndexOf(name)) {
+	                hasError('"' + name + '" cannot have duplicate records');
+	                return false;
+	            }
+
+	            if (log.map(function (d) {
+	                return d.date;
+	            }).indexOf(date) > -1) {
+	                hasError('"' + name + '" already has a record for ' + date);
+	                return false;
+	            }
+
+	            if (inStock + added - removed < 0) {
+	                hasError('Items cannot have a negative balance; ' + name + ' currently has ' + inStock + ' unit(s) in stock.');
+	                return false;
 	            }
 
 	            this.setState({ error: null });
+	            return { _id: _id, index: index };
 	        }
 	    }, {
 	        key: 'save',
 	        value: function save() {
-	            var _this2 = this;
+	            var _this3 = this;
 
-	            var submit = (0, _reactDom.findDOMNode)(this.submit),
+	            var data = [],
 	                entries = this.forms.slice(0, this.state.adding).map(function (form) {
 	                return {
-	                    date: _this2.date.value || (0, _moment2.default)().format('YYYY-MM-DD'),
 	                    name: form.name.value,
-	                    added: Number(form.added.value) || 0,
-	                    removed: Number(form.removed.value) || 0
+	                    body: {
+	                        date: _this3.date.value || (0, _moment2.default)().format('YYYY-MM-DD'),
+	                        added: Number(form.added.value) || 0,
+	                        removed: Number(form.removed.value) || 0
+	                    }
 	                };
 	            }),
-	                names = entries.map(function (e) {
-	                return e.name.toLowerCase();
-	            }),
-	                items = this.props.items,
-	                itemNames = this.props.names,
-	                len = names.length;
+	                submit = (0, _reactDom.findDOMNode)(this.submit);
 
 	            submit.setAttribute('disabled', 'disabled');
 
-	            for (var i = 0; i < len; i++) {
-	                if (names[i].trim() === '') {
-	                    var error = 'Every record should be assigned to an existing item';
-	                    this.setState({ error: error });
+	            for (var i = 0, len = entries.length; i < len; i++) {
+	                var cleared = this.isCleared(i);
+	                if (cleared) data.push(Object.assign({}, entries[i], cleared));else {
 	                    submit.removeAttribute('disabled');
-	                    return;
+	                    return false;
 	                }
-
-	                var index = itemNames.indexOf(names[i]),
-	                    _id = index > -1 ? items[index]._id : null;
-
-	                if (index == -1) {
-	                    var _error = '"' + items[index] + '" does not exist';
-	                    this.setState({ error: _error });
-	                    submit.removeAttribute('disabled');
-	                    return;
-	                }
-
-	                Object.assign(entries[i], { _id: _id, index: index });
 	            }
 
-	            console.log(entries);
+	            submit.removeAttribute('disabled');
+
+	            this.props.logAll(data);
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this3 = this;
+	            var _this4 = this;
 
 	            if (!this.props.items) return null;
 
@@ -45430,7 +45447,7 @@
 	            );
 
 	            var _loop = function _loop(i) {
-	                _this3.forms.push({});
+	                _this4.forms.push({});
 	                entries.push(_react2.default.createElement(
 	                    'form',
 	                    {
@@ -45443,7 +45460,10 @@
 	                        placeholder: 'Name...',
 	                        list: 'items-list',
 	                        ref: function ref(e) {
-	                            return _this3.forms[i].name = e;
+	                            return _this4.forms[i].name = e;
+	                        },
+	                        onClick: function onClick(e) {
+	                            return _this4.isCleared(i);
 	                        }
 	                    }),
 	                    _react2.default.createElement('input', {
@@ -45453,7 +45473,10 @@
 	                        'default': '0',
 	                        min: '0',
 	                        ref: function ref(e) {
-	                            return _this3.forms[i].added = e;
+	                            return _this4.forms[i].added = e;
+	                        },
+	                        onClick: function onClick(e) {
+	                            return _this4.isCleared(i);
 	                        }
 	                    }),
 	                    _react2.default.createElement('input', {
@@ -45463,7 +45486,10 @@
 	                        'default': '0',
 	                        min: '0',
 	                        ref: function ref(e) {
-	                            return _this3.forms[i].removed = e;
+	                            return _this4.forms[i].removed = e;
+	                        },
+	                        onClick: function onClick(e) {
+	                            return _this4.isCleared(i);
 	                        }
 	                    })
 	                ));
@@ -45492,13 +45518,13 @@
 	                        _react2.default.createElement(
 	                            'p',
 	                            null,
-	                            'Date'
+	                            'Date:'
 	                        ),
 	                        _react2.default.createElement('input', {
 	                            type: 'date',
 	                            placeholder: 'Date...',
 	                            ref: function ref(d) {
-	                                return _this3.date = d;
+	                                return _this4.date = d;
 	                            }
 	                        })
 	                    )
@@ -45509,7 +45535,7 @@
 	                    {
 	                        className: 'submit',
 	                        ref: function ref(s) {
-	                            return _this3.submit = s;
+	                            return _this4.submit = s;
 	                        },
 	                        onClick: save
 	                    },
@@ -46197,7 +46223,12 @@
 	        index = item.index,
 	        isLow = lowAt > inStock,
 	        _lastModified = lastModified ? 'Last Updated: ' + lastModified.substring(0, 10) : '',
-	        log = logOpen ? _react2.default.createElement(_log2.default, { log: item.log }) : null,
+	        log = logOpen ? _react2.default.createElement(_log2.default, {
+	        log: item.log,
+	        openLogModal: function openLogModal() {
+	            return openModal('log', item);
+	        }
+	    }) : null,
 	        open = logOpen ? null : _react2.default.createElement(
 	        'span',
 	        {
@@ -46347,7 +46378,8 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function Log(_ref) {
-	    var log = _ref.log;
+	    var log = _ref.log,
+	        openLogModal = _ref.openLogModal;
 
 
 	    var logs = log.map(function (l, i) {
@@ -46420,7 +46452,7 @@
 	            'button',
 	            {
 	                className: 'btn btn--primary log__add-button',
-	                onClick: function onClick() {}
+	                onClick: openLogModal
 	            },
 	            'ADD'
 	        )
@@ -46490,6 +46522,7 @@
 	        case 'ITEMS_ADDED':
 	        case 'ITEMS_LOGGED':
 	        case 'LOG_POSTED':
+	        case 'LOGS_POSTED':
 	            return null;
 	        default:
 	            return state;
@@ -46643,6 +46676,25 @@
 	                all: [].concat(_toConsumableArray(all.slice(0, i)), [nextActive], _toConsumableArray(all.slice(i + 1))),
 	                active: nextActive
 	            });
+
+	        case 'LOGS_POSTED':
+	            var stateAfterManyLogs = function stateAfterManyLogs() {
+	                var next = all.slice(0),
+	                    len = payload.length;
+	                for (var _i = 0; _i < len; _i++) {
+	                    var _payload$_i = payload[_i],
+	                        _log = _payload$_i.log,
+	                        index = _payload$_i.index,
+	                        _inStock = _payload$_i.inStock;
+
+	                    Object.assign(next[index], {
+	                        log: _log,
+	                        inStock: _log.slice(-1)[0].balance
+	                    });
+	                }
+	                return Object.assign({}, state, { all: next });
+	            };
+	            return stateAfterManyLogs();
 
 	        default:
 	            return state;

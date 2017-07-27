@@ -13,7 +13,7 @@ export default class LogMany extends Component {
         super(props);
 
         this.save = this.save.bind(this);
-        this.checkExistence = this.checkExistence.bind(this);
+        this.isCleared = this.isCleared.bind(this);
         this.changeNumEntries = this.changeNumEntries.bind(this);
 
         this.state = {
@@ -42,62 +42,84 @@ export default class LogMany extends Component {
         return false;
     }
 
-    checkExistence (str) {
+    isCleared (i) {
         const
-            { names } = this.props,
-            name = str.toLowerCase();
+            hasError = error => this.setState({ error }),
 
-            if (names.indexOf(name) == -1) {
-                const error = `An item with the name "${name}" does not exist`;
-                this.setState({ error });
-                return;
-            }
+            form = this.forms[i],
+            date = this.date.value || moment().format('YYYY-MM-DD'),
+
+            name    = form.name.value,
+            added   = form.added.value,
+            removed = form.removed.value,
+            
+            formNames  = this.forms.map(n => n.name),
+            allItems   = this.props.items,   
+            validNames = this.props.names,
+            len        = formNames.length,
+
+            index = validNames.indexOf(name.toLowerCase()),
+            { _id, log, inStock } = allItems[index] || {};
+
+        if (name.trim() === '') {
+            hasError(`Every record should be assigned to an existing item`);
+            return false;
+        }
+
+        if (index == -1) {
+            hasError(`"${name}" does not exist`);
+            return false;
+        }
+
+        if ( formNames.indexOf(name) !== formNames.lastIndexOf(name) ) {
+            hasError(`"${name}" cannot have duplicate records`);
+            return false;
+        }
+
+        if (log.map(d => d.date).indexOf(date) > -1) {
+            hasError(`"${name}" already has a record for ${date}`);
+            return false;
+        }
+
+        if (inStock + added - removed < 0) {
+            hasError(`Items cannot have a negative balance; ${name} currently has ${inStock} unit(s) in stock.`);
+            return false;
+        }
 
         this.setState({ error: null });
+        return { _id, index };
     }
 
     save () {
         const
-            submit = findDOMNode(this.submit),
+            data = [],
             entries = this.forms
                 .slice(0, this.state.adding)
                 .map(form => ({
-                    date    : this.date.value || moment().format('YYYY-MM-DD'),
-                    name    : form.name.value,
-                    added   : Number(form.added.value) || 0,
-                    removed : Number(form.removed.value) || 0
+                    name: form.name.value,
+                    body: {
+                        date    : this.date.value || moment().format('YYYY-MM-DD'),
+                        added   : Number(form.added.value) || 0,
+                        removed : Number(form.removed.value) || 0
+                    }
                 }))
             ,
-            names = entries.map(e => e.name.toLowerCase()),
-            items = this.props.items,   
-            itemNames = this.props.names,
-            len = names.length;
+            submit = findDOMNode(this.submit);
 
         submit.setAttribute('disabled', 'disabled');
-
-        for (let i = 0; i < len; i++) {
-            if (names[i].trim() === '') {
-                const error = `Every record should be assigned to an existing item`;
-                this.setState({ error });
+        
+        for (let i =0, len = entries.length; i < len; i++) {
+            const cleared = this.isCleared(i);
+            if (cleared) data.push( Object.assign({}, entries[i], cleared) );
+            else {
                 submit.removeAttribute('disabled');
-                return;
+                return false;    
             }
-            
-            const
-                index = itemNames.indexOf(names[i]),
-                _id   = index > -1 ? items[index]._id : null;
-
-            if (index == -1) {
-                const error = `"${items[index]}" does not exist`;
-                this.setState({ error });
-                submit.removeAttribute('disabled');
-                return;
-            }
-
-            Object.assign(entries[i], { _id, index });
         }
 
-        console.log(entries)
+        submit.removeAttribute('disabled');
+
+        this.props.logAll(data);
     }
 
     render() {
@@ -137,6 +159,7 @@ export default class LogMany extends Component {
                         placeholder='Name...'
                         list='items-list'
                         ref={e => this.forms[i].name = e}
+                        onClick={e => this.isCleared(i)}
                     />
                     <input
                         type='number'
@@ -145,6 +168,7 @@ export default class LogMany extends Component {
                         default='0'
                         min='0'
                         ref={e => this.forms[i].added = e}
+                        onClick={e => this.isCleared(i)}
                     />
                     <input
                         type='number'
@@ -153,6 +177,7 @@ export default class LogMany extends Component {
                         default='0'
                         min='0'
                         ref={e => this.forms[i].removed = e}
+                        onClick={e => this.isCleared(i)}
                     />
                 </form>
             )
@@ -165,7 +190,7 @@ export default class LogMany extends Component {
                 <form className='multi-form'>
                     { error }
                     <div className="form-group inline">
-                        <p>Date</p>
+                        <p>Date:</p>
                         <input
                             type='date'
                             placeholder='Date...'

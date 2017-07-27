@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import moment from 'moment';
 
 
-export default function Log ({ log }) {
+export default function Log ({ log, openLogModal }) {
 
     const
         logs = log.map((l, i) => {
@@ -35,7 +35,7 @@ export default function Log ({ log }) {
             {logs}
             <button
                 className='btn btn--primary log__add-button'
-                onClick={() => {}}
+                onClick={openLogModal}
             >ADD</button>
         </div>
     )

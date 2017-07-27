@@ -10,7 +10,6 @@ const
 module.exports = {
     getAllItems,
     saveItem,
-    saveManyItems,
     editItem,
     deleteItem
 };
@@ -33,21 +32,6 @@ function saveItem (req, res) {
     else Item.add(req.body, (err, item) => {
         if (err) res.status(500).json(error(err));
         res.json(item)
-    })
-}
-
-function saveManyItems (req, res) {
-    const
-    { category, items } = req.body,
-    nItems = items.length;
-    let savesCompleted = 0;
-    items.forEach(item => {
-        item.category  = category;
-        Item.add(item, (err) => {
-            if (err) res.json(error(err));
-            savesCompleted++;
-            if (savesCompleted === nItems) res.json(items)
-        })
     })
 }
 
