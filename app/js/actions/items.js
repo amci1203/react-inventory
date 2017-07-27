@@ -109,7 +109,9 @@ export function removeItem (payload) {
 export function postLog (item, log) {
 
     return dispatch => {
+        console.log(log);
         axios.post(`housekeeping/${item._id}`, log).then(res => {
+            console.log(res.data);
             const
                 { error } = res.data,
                 log = res.data,

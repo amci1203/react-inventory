@@ -641,83 +641,6 @@ form .form-group--inline input {
     cursor: pointer;
     text-decoration: none;
 }
-table {
-    width: 90%;
-    margin: 0 auto;
-    border-collapse: collapse;
-    clear: both;
-}
-table thead .heading {
-    padding-top: 25px;
-    background-color: #FFF;
-    border-bottom: 1px solid #333;
-    font-size: 2.8rem;
-    font-weight: 100;
-}
-table thead th {
-    padding: 0.35rem 0.1rem;
-    border-bottom: 1px solid #333;
-}
-table .row {
-    color: inherit;
-}
-table .row td {
-    padding: 10px 15px;
-}
-table .row .name {
-    text-align: left;
-}
-table .row .stock {
-    text-align: right;
-    font-weight: 600;
-}
-table .row:hover {
-    cursor: pointer;
-    text-decoration: none;
-}
-table .row--striped {
-    background-color: #CCC;
-}
-table .row--striped:hover {
-    background-color: rgb(217, 204, 204);
-}
-table .row--low {
-    background-color: rgba(237, 18, 18, 0.5) !important;
-    color: rgb(241, 75, 75);
-}
-table .row--low:hover {
-    background-color: rgba(190, 14, 14, 0.5) !important;
-}
-table .row.active {
-    background-color: rgb(35, 70, 220) !important;
-    color: #FFF;
-}
-table .row.active:hover {
-    background-color: rgb(35, 70, 220) !important;
-    color: #FFF;
-}
-table .row:hover {
-    background-color: #DDD;
-}
-table td, table th {
-    text-align: right;
-}
-table td:first-child, table th:first-child {
-    text-align: left;
-}
-#item thead th {
-    text-align: right;
-    font-size: 1.65rem;
-    font-weight: 200;
-    padding: 2px 0;
-    border-bottom: 1px solid #777;
-}
-#item tbody tr .bolded {
-    font-weight: 800;
-}
-#item tbody tr td:nth-child(2) {
-    float: left;
-}
 .modal {
     transition: all 0.3s ease-out;
     -webkit-animation: modal-appear 0.25s;
@@ -1656,11 +1579,21 @@ table td:first-child, table th:first-child {
 .single .item-card .log__record span {
     display: inline-block;
     float: left;
-    width: 25%;
+    width: 10%;
 }
 
 .single .item-card .log__record span:not(.date) {
     text-align: right;
+}
+
+.single .item-card .log__record span.date {
+    padding-left: 1rem;
+    width: 25%;
+}
+
+.single .item-card .log__record span.comments {
+    padding-right: 1rem;
+    width: 45%;
 }
 
 .single .item-card .log__record::after {

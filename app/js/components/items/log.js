@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import moment from 'moment';
 
 
-export default function Log ({ log, openLogModal }) {
+export default function Log ({ log, openLogModal}) {
 
     const
         logs = log.map((l, i) => {
@@ -13,11 +13,15 @@ export default function Log ({ log, openLogModal }) {
                 removeClass = added <= removed ? 'removed strong' : 'removed';
 
             return (
-                <p className='log__record' key={i}>
+                <p
+                    className='log__record' key={i}
+                    onClick={e => openLogModal(i)}
+                >
                     <span className='date'>{date}</span>
                     <span className={addClass}>+{l.added}</span>
                     <span className={removeClass}>-{l.removed}</span>
                     <span className='balance'>{l.balance}</span>
+                    <span className='comments'>{l.comments}</span>
                 </p>
             )
         });
@@ -35,7 +39,7 @@ export default function Log ({ log, openLogModal }) {
             {logs}
             <button
                 className='btn btn--primary log__add-button'
-                onClick={openLogModal}
+                onClick={e => openLogModal()}
             >ADD</button>
         </div>
     )

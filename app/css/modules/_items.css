@@ -159,9 +159,15 @@
             span {
                 display: inline-block;
                 float: left;
-                width: 25%;
-                &:not(.date) {
-                    text-align: right;
+                width: 10%;
+                &:not(.date) { text-align: right }
+                &.date {
+                    padding-left: 1rem;
+                    width: 25%;
+                }
+                &.comments {
+                    padding-right: 1rem;
+                    width: 45%;
                 }
             }
 

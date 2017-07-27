@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import { debounce } from 'lodash';
 import moment from 'moment';
 import { makeErrorDiv, makeSubmitButton } from '../../helpers';
@@ -19,9 +20,18 @@ export default class LogItem extends Component {
     }
 
     componentDidMount () {
-        const { added, removed } = this.props.item;
-        this.added.value =added;
-        this.removed.value = removed;
+        if (typeof this.props.active == 'number') {
+            const
+                log = this.props.item.log[this.props.active],
+                { date, added, removed, comments } = log;
+
+            this.date.value    = date;
+            this.added.value   = added;
+            this.removed.value = removed;
+            if (comments) this.comments.value = comments;
+
+            ReactDOM.findDOMNode(this.date).setAttribute('disabled', 'disabled');
+        }
     }
 
     checkBalance () {
@@ -37,44 +47,54 @@ export default class LogItem extends Component {
             return false;
         }
 
-        if (this.checkDate()) return;
-
         this.setState({ error: null });
         return true;
     }
 
     checkDate () {
         if (!this.date) return;
+
+        const
+            { dates, active, item: { name } } = this.props,
+            date = this.date.value || moment().format('YYYY-MM-DD');
+
+        if (!active && dates.indexOf(date) > -1) {
+            const error = `"${name}" already has a record for ${date}`;
+            this.setState({ error })
+            return false;
+        }
+
         if (moment().isBefore(this.date.value, 'days')) {
             const error = 'You cannot select a date that has yet to exist';
             this.setState({ error });
             return false;
         }
 
-        if (this.checkBalance()) return;
-
         this.setState({ error: null });
         return true;
     }
 
     save () {
-        this.checkBalance();
-        this.checkDate();
+        if (!this.checkBalance() || !this.checkDate()) return;
 
         const
-            { inStock, _id } = this.props.item,
-            date    = this.date.value || moment().format('YYYY-MM-DD'),
-            added   = Number(this.added.value),
-            removed = Number(this.removed.value),
-            balance = inStock + added - removed,
-            comments = this.comments.value;
+            { active, log, item } = this.props,
 
-        this.props.log(this.props.item, { date, added, removed, comments });
+            date     = this.date.value || moment().format('YYYY-MM-DD'),
+            added    = Number(this.added.value),
+            removed  = Number(this.removed.value),
+            comments = this.comments.value,
+            _log     = { date, added, removed, comments };
+
+        if (typeof active == 'number') Object.assign(_log, { i: active });
+
+        log(item, _log);
     }
 
     render() {
+
         const
-            { save, checkBalance, checkDate, props: { item } } = this,
+            { save, edit, checkBalance, checkDate, props: { item, active } } = this,
 
             error  = makeErrorDiv(this.state.error),
             submit = makeSubmitButton('SAVE', this.state.error, save);

@@ -25218,7 +25218,10 @@
 	function postLog(item, log) {
 
 	    return function (dispatch) {
+	        console.log(log);
 	        _axios2.default.post('housekeeping/' + item._id, log).then(function (res) {
+	            console.log(res.data);
+
 	            var error = res.data.error,
 	                log = res.data,
 	                i = item.index,
@@ -43971,6 +43974,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	exports.closeModal = closeModal;
 	exports.openModal = openModal;
 	function closeModal() {
@@ -43978,9 +43984,17 @@
 	}
 
 	function openModal(id, item) {
-	    if (item) {
+	    if (item || typeof item == 'number') {
+	        console.log(item);
 	        var payload = { id: id, item: item };
-	        return { type: 'ACTIVE_ITEM_SET_AND_MODAL_OPEN', payload: payload };
+	        if ((typeof item === 'undefined' ? 'undefined' : _typeof(item)) == 'object') {
+	            // this would be an item object from the items.all array
+	            return { type: 'ACTIVE_ITEM_SET_AND_MODAL_OPEN', payload: payload };
+	        }
+	        if (typeof item == 'number') {
+	            // this would be an index of the log going to be edited
+	            return { type: 'ACTIVE_LOG_SET_AND_MODAL_OPEN', payload: payload };
+	        }
 	    }
 	    return { type: 'MODAL_OPEN', payload: id };
 	}
@@ -44042,6 +44056,7 @@
 	        all = _props$items.all,
 	        active = _props$items.active,
 	        categories = _props$items.categories,
+	        activeLog = _props$items.activeLog,
 	        activeModal = props.activeModal,
 	        itemList = all ? all.map(function (i) {
 	        return i.name.toLowerCase();
@@ -44077,7 +44092,11 @@
 	                });
 	            case 'log':
 	                return _react2.default.createElement(_log2.default, {
+	                    dates: active.log.map(function (d) {
+	                        return d.date;
+	                    }),
 	                    item: active,
+	                    active: activeLog,
 	                    log: props.postLog
 	                });
 	            case 'log-many':
@@ -45033,6 +45052,10 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _reactDom = __webpack_require__(37);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+
 	var _moment = __webpack_require__(307);
 
 	var _moment2 = _interopRequireDefault(_moment);
@@ -45070,12 +45093,21 @@
 	    _createClass(LogItem, [{
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            var _props$item = this.props.item,
-	                added = _props$item.added,
-	                removed = _props$item.removed;
+	            if (typeof this.props.active == 'number') {
+	                var log = this.props.item.log[this.props.active],
+	                    date = log.date,
+	                    added = log.added,
+	                    removed = log.removed,
+	                    comments = log.comments;
 
-	            this.added.value = added;
-	            this.removed.value = removed;
+
+	                this.date.value = date;
+	                this.added.value = added;
+	                this.removed.value = removed;
+	                if (comments) this.comments.value = comments;
+
+	                _reactDom2.default.findDOMNode(this.date).setAttribute('disabled', 'disabled');
+	            }
 	        }
 	    }, {
 	        key: 'checkBalance',
@@ -45093,8 +45125,6 @@
 	                return false;
 	            }
 
-	            if (this.checkDate()) return;
-
 	            this.setState({ error: null });
 	            return true;
 	        }
@@ -45102,13 +45132,25 @@
 	        key: 'checkDate',
 	        value: function checkDate() {
 	            if (!this.date) return;
-	            if ((0, _moment2.default)().isBefore(this.date.value, 'days')) {
-	                var error = 'You cannot select a date that has yet to exist';
+
+	            var _props = this.props,
+	                dates = _props.dates,
+	                active = _props.active,
+	                name = _props.item.name,
+	                date = this.date.value || (0, _moment2.default)().format('YYYY-MM-DD');
+
+
+	            if (!active && dates.indexOf(date) > -1) {
+	                var error = '"' + name + '" already has a record for ' + date;
 	                this.setState({ error: error });
 	                return false;
 	            }
 
-	            if (this.checkBalance()) return;
+	            if ((0, _moment2.default)().isBefore(this.date.value, 'days')) {
+	                var _error = 'You cannot select a date that has yet to exist';
+	                this.setState({ error: _error });
+	                return false;
+	            }
 
 	            this.setState({ error: null });
 	            return true;
@@ -45116,20 +45158,22 @@
 	    }, {
 	        key: 'save',
 	        value: function save() {
-	            this.checkBalance();
-	            this.checkDate();
+	            if (!this.checkBalance() || !this.checkDate()) return;
 
-	            var _props$item2 = this.props.item,
-	                inStock = _props$item2.inStock,
-	                _id = _props$item2._id,
+	            var _props2 = this.props,
+	                active = _props2.active,
+	                log = _props2.log,
+	                item = _props2.item,
 	                date = this.date.value || (0, _moment2.default)().format('YYYY-MM-DD'),
 	                added = Number(this.added.value),
 	                removed = Number(this.removed.value),
-	                balance = inStock + added - removed,
-	                comments = this.comments.value;
+	                comments = this.comments.value,
+	                _log = { date: date, added: added, removed: removed, comments: comments };
 
 
-	            this.props.log(this.props.item, { date: date, added: added, removed: removed, comments: comments });
+	            if (typeof active == 'number') Object.assign(_log, { i: active });
+
+	            log(item, _log);
 	        }
 	    }, {
 	        key: 'render',
@@ -45137,9 +45181,12 @@
 	            var _this2 = this;
 
 	            var save = this.save,
+	                edit = this.edit,
 	                checkBalance = this.checkBalance,
 	                checkDate = this.checkDate,
-	                item = this.props.item,
+	                _props3 = this.props,
+	                item = _props3.item,
+	                active = _props3.active,
 	                error = (0, _helpers.makeErrorDiv)(this.state.error),
 	                submit = (0, _helpers.makeSubmitButton)('SAVE', this.state.error, save);
 
@@ -45407,8 +45454,6 @@
 	        key: 'render',
 	        value: function render() {
 	            var _this4 = this;
-
-	            if (!this.props.items) return null;
 
 	            var props = this.props,
 	                save = this.save,
@@ -46225,8 +46270,8 @@
 	        _lastModified = lastModified ? 'Last Updated: ' + lastModified.substring(0, 10) : '',
 	        log = logOpen ? _react2.default.createElement(_log2.default, {
 	        log: item.log,
-	        openLogModal: function openLogModal() {
-	            return openModal('log', item);
+	        openLogModal: function openLogModal(i) {
+	            return openModal('log', i);
 	        }
 	    }) : null,
 	        open = logOpen ? null : _react2.default.createElement(
@@ -46392,7 +46437,12 @@
 
 	        return _react2.default.createElement(
 	            'p',
-	            { className: 'log__record', key: i },
+	            {
+	                className: 'log__record', key: i,
+	                onClick: function onClick(e) {
+	                    return openLogModal(i);
+	                }
+	            },
 	            _react2.default.createElement(
 	                'span',
 	                { className: 'date' },
@@ -46414,6 +46464,11 @@
 	                'span',
 	                { className: 'balance' },
 	                l.balance
+	            ),
+	            _react2.default.createElement(
+	                'span',
+	                { className: 'comments' },
+	                l.comments
 	            )
 	        );
 	    });
@@ -46452,7 +46507,9 @@
 	            'button',
 	            {
 	                className: 'btn btn--primary log__add-button',
-	                onClick: openLogModal
+	                onClick: function onClick(e) {
+	                    return openLogModal();
+	                }
 	            },
 	            'ADD'
 	        )
@@ -46513,6 +46570,7 @@
 	        case 'MODAL_OPEN':
 	            return payload;
 	        case 'ACTIVE_ITEM_SET_AND_MODAL_OPEN':
+	        case 'ACTIVE_LOG_SET_AND_MODAL_OPEN':
 	            return payload.id;
 	        case 'MODAL_CLOSE':
 	        case 'ITEM_ADDED':
@@ -46650,10 +46708,19 @@
 	            });
 
 	        case 'ACTIVE_ITEM_SET':
-	            return Object.assign({}, state, { active: payload });
+	            return Object.assign({}, state, {
+	                active: payload.item,
+	                activeLog: null
+	            });
 
 	        case 'ACTIVE_ITEM_SET_AND_MODAL_OPEN':
-	            return Object.assign({}, state, { active: payload.item });
+	            return Object.assign({}, state, {
+	                active: payload.item,
+	                activeLog: null
+	            });
+
+	        case 'ACTIVE_LOG_SET_AND_MODAL_OPEN':
+	            return Object.assign({}, state, { activeLog: payload.item });
 
 	        case 'ITEM_DETAILS_CLOSED':
 	            return Object.assign({}, state, {

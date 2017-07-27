@@ -8,22 +8,11 @@ const
 */
 
 module.exports = {
-    getItemLog,
     saveLog,
-    editItemLog,
     printDayReport
 };
 
-
-function getItemLog (req, res) {
-    const { itemId } = req.params;
-    Item.getItemLog(itemId, (err, log) => {
-        if (err) res.status(500).json(error(err));
-        if (log == undefined) res.status(404).json(error(`No item with the id [${itemId}] exists.`));
-        res.json(log)
-    })
-}
-
+// Saves both new and edited logs; an i (index) prop acts as a flag to make the difference
 function saveLog (req, res) {
     const { body, params: { itemId } } = req;
     Item.push(itemId, body, (err, log) => {
@@ -31,17 +20,6 @@ function saveLog (req, res) {
         else res.json(log);
     })
 }
-
-function editItemLog (req, res) {
-    const {itemId, logId} = req.params;
-    Item.editItemLog(itemId, logId, req.body, (err, affected) => {
-        if (affected) {
-            res.end();
-        }
-        else res.json({error: 'The record does not exist to be edited.'})
-    })
-}
-
 
 function printDayReport (req, res) {
     Item.getRecordsForDate(req.params.date, (err, docs) => {

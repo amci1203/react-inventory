@@ -77,10 +77,19 @@ export default (state = {}, action) => {
             });
 
         case 'ACTIVE_ITEM_SET':
-            return Object.assign({}, state, { active: payload })
+            return Object.assign({}, state, {
+                active: payload.item,
+                activeLog: null
+            })
 
         case 'ACTIVE_ITEM_SET_AND_MODAL_OPEN':
-            return Object.assign({}, state, { active: payload.item })
+            return Object.assign({}, state, {
+                active: payload.item,
+                activeLog: null
+            })
+
+        case 'ACTIVE_LOG_SET_AND_MODAL_OPEN':
+            return Object.assign({}, state, { activeLog: payload.item })
 
         case 'ITEM_DETAILS_CLOSED':
             return Object.assign({}, state, {

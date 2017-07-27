@@ -13,7 +13,7 @@ import ConfirmDelete from './confirm-delete';
 
 function Modals (props) {
     const
-        { items: { all, active, categories }, activeModal } = props,
+        { items: { all, active, categories, activeLog }, activeModal } = props,
 
         itemList = all ? all.map(i => i.name.toLowerCase()) : null,
 
@@ -44,7 +44,9 @@ function Modals (props) {
                 case 'log':
                     return (
                         <LogItem
+                            dates={active.log.map(d => d.date)}
                             item={active}
+                            active={activeLog}
                             log={props.postLog}
                         />
                     )

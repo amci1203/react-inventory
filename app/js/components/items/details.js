@@ -12,7 +12,7 @@ export default function ItemDetails ({
 
         log = logOpen ? (<Log
             log={item.log}
-            openLogModal={() => openModal('log', item)} 
+            openLogModal={i => openModal('log', i)}
         />) : null,
 
         open = logOpen ? null : (

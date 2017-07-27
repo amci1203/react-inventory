@@ -7,14 +7,9 @@ const
     with at least an "error" field to the client.
 */
 
-module.exports = {
-    getAllItems,
-    saveItem,
-    editItem,
-    deleteItem
-};
+module.exports = { getAll, save, edit, remove };
 
-function getAllItems (req, res) {
+function getAll (req, res) {
     try {
         Item.getAll((err, docs) => {
             if (err) res.status(403).json(error(err));
@@ -25,7 +20,7 @@ function getAllItems (req, res) {
     }
 }
 
-function saveItem (req, res) {
+function save (req, res) {
     if (!req.body.name) {
         res.json({error: 'A name MUST be entered' })
     }
@@ -35,15 +30,15 @@ function saveItem (req, res) {
     })
 }
 
-function editItem (req, res) {
-    Item.editItem(req.params.itemId, req.body, (err, affected) => {
+function edit (req, res) {
+    Item.edit(req.params.itemId, req.body, (err, affected) => {
         if (err) res.json({error: 'An item already has that name.'});
         else res.end();
     })
 }
 
 
-function deleteItem (req, res) {
+function remove (req, res) {
     const {itemId } = req.params;
     Item.remove(itemId, (err, id) => {
         if (id) res.end()

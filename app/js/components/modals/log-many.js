@@ -123,8 +123,6 @@ export default class LogMany extends Component {
     }
 
     render() {
-        if (!this.props.items) return null;
-
         const
             { props, save, changeNumEntries } = this,
             error = makeErrorDiv(this.state.error),

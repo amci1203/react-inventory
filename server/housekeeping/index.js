@@ -5,19 +5,16 @@ Object.assign(global,
 
 module.exports = app => {
 
-    app.get('/', getAllItems);
-    app.post('/', saveItem);
+    app.get('/', getAll);
+    app.post('/', save);
 
     // app.get('/utils/fix-logs', fixBalances);
 
     app.get('/print/:date', printDayReport);
 
-    app.get('/:itemId', getItemLog);
     app.post('/:itemId', saveLog);
-    app.put('/:itemId', editItem);
-    app.delete('/:itemId', deleteItem);
-
-    app.put('/:itemId/:logId', editItemLog);
+    app.put('/:itemId', edit);
+    app.delete('/:itemId', remove);
 
 
 
