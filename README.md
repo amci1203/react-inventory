@@ -2,7 +2,7 @@
 
 Made to replace an Excel based inventory tracker at work. Made with React, Redux, Express, and MongoDB.
 
-Take a look at a demo [here](https://react-inventory.allen-mcintoshii.com)
+Take a look at a demo [here](https://inventory.dev.allen-mcintoshii.com)
 
 TODO:
 
